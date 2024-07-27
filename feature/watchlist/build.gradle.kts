@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.verdenroz.watchlist"
+    namespace = "com.verdenroz.verdaxmarket.watchlist"
     compileSdk = 34
 
     defaultConfig {

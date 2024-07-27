@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.verdenroz.designsystem"
+    namespace = "com.verdenroz.verdaxmarket.designsystem"
     compileSdk = 34
 
     defaultConfig {

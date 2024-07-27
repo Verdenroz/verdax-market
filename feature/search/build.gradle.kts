@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.verdenroz.search"
+    namespace = "com.verdenroz.verdaxmarket.search"
     compileSdk = 34
 
     defaultConfig {
