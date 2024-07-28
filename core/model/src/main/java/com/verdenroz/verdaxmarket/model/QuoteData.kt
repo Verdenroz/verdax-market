@@ -21,7 +21,7 @@ data class SimpleQuoteData(
  * @param symbol the stock symbol
  * @param name the stock name
  * @param price the current price
- * @param postMarketPrice the price after market close
+ * @param afterHoursPrice the price after market close
  * @param change the change in price
  * @param percentChange the percentage change in price
  * @param open the opening price of the day
@@ -62,7 +62,7 @@ data class FullQuoteData(
     val symbol: String,
     val name: String,
     val price: Double,
-    val postMarketPrice: Double?,
+    val afterHoursPrice: Double?,
     val change: String,
     val percentChange: String,
     val open: Double?,

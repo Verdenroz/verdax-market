@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Verdax Market"
+rootProject.name = "verdaxmarket"
 include(":app")
 include(":core:common")
 include(":core:data")

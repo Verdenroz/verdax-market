@@ -66,7 +66,7 @@ interface FinanceQueryDataSource {
      * @return a list of [IndexResponse]
      * @throws [SerializationException] if the response cannot be parsed
      */
-    suspend fun getIndices(): List<IndexResponse>
+    suspend fun getIndexes(): List<IndexResponse>
 
 
     /**

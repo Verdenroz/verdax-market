@@ -3,7 +3,6 @@ package com.verdenroz.verdaxmarket.network
 import com.verdenroz.verdaxmarket.common.enums.Interval
 import com.verdenroz.verdaxmarket.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.network.client.ImplFinanceQueryDataSource
-import com.verdenroz.verdaxmarket.network.FinanceQueryDataSource
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -65,7 +64,7 @@ class FinanceQueryTest {
     @Test
     fun getIndices() {
         val info = runBlocking {
-            api.getIndices()
+            api.getIndexes()
         }
         println(info)
     }

@@ -1,6 +1,8 @@
 package com.verdenroz.verdaxmarket.common.result
 
-typealias RootError = Error
+import com.verdenroz.verdaxmarket.common.error.DataError
+
+typealias RootError = DataError
 
 /**
  * Represents the state of a resource that is provided to the UI from the data layer.

@@ -140,7 +140,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
         }
     }
 
-    override suspend fun getIndices(): List<IndexResponse> {
+    override suspend fun getIndexes(): List<IndexResponse> {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
                 addPathSegments("indices")
