@@ -5,7 +5,7 @@ import com.verdenroz.verdaxmarket.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.common.error.DataError
 import com.verdenroz.verdaxmarket.common.result.Result
 import com.verdenroz.verdaxmarket.data.model.asEntity
-import com.verdenroz.verdaxmarket.data.model.asExternalModel
+import com.verdenroz.verdaxmarket.data.model.toExternal
 import com.verdenroz.verdaxmarket.data.utils.MarketStatusMonitor
 import com.verdenroz.verdaxmarket.data.utils.handleLocalException
 import com.verdenroz.verdaxmarket.database.dao.QuoteDao
@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class ImplWatchlistRepository @Inject constructor(
+class ImplWatchlistRepository @Inject constructor(
     private val quotesDao: QuoteDao,
     private val api: FinanceQueryDataSource,
     marketStatusMonitor: MarketStatusMonitor,
@@ -42,7 +42,7 @@ internal class ImplWatchlistRepository @Inject constructor(
         flow {
             while (true) {
                 try {
-                    val quotes = quotesDao.getAllQuoteData().asExternalModel()
+                    val quotes = quotesDao.getAllQuoteData().toExternal()
                     emit(Result.Success(quotes))
                 } catch (e: Exception) {
                     emit(handleLocalException(e))
@@ -54,7 +54,7 @@ internal class ImplWatchlistRepository @Inject constructor(
     }.flatMapLatest { (isOpen, quotesResult) ->
         flow {
             emit(quotesResult)
-            val refreshInterval: Long = if (isOpen) 30000L else 600000L // 30 seconds or 10 minute
+            val refreshInterval = if (isOpen) 30000L else 600000L // 30 seconds or 10 minute
             delay(refreshInterval)
         }
     }.flowOn(ioDispatcher)

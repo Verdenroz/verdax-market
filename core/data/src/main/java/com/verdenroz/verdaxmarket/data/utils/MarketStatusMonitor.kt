@@ -13,7 +13,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import javax.inject.Inject
 
-internal class MarketStatusMonitor @Inject constructor(
+class MarketStatusMonitor @Inject constructor(
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ): MarketMonitor {
     override val isMarketOpen: Flow<Boolean> = flow {

@@ -1,9 +1,11 @@
 package com.verdenroz.verdaxmarket.data.di
 
+import com.verdenroz.verdaxmarket.data.repository.ImplMarketInfoRepository
 import com.verdenroz.verdaxmarket.data.utils.ConnectivityManagerNetworkMonitor
 import com.verdenroz.verdaxmarket.data.utils.NetworkMonitor
-import com.verdenroz.verdaxmarket.data.repository.FinanceQueryRepository
-import com.verdenroz.verdaxmarket.data.repository.ImplFinanceQueryRepository
+import com.verdenroz.verdaxmarket.data.repository.QuoteRepository
+import com.verdenroz.verdaxmarket.data.repository.ImplQuoteRepository
+import com.verdenroz.verdaxmarket.data.repository.MarketInfoRepository
 import com.verdenroz.verdaxmarket.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.data.utils.MarketStatusMonitor
 import dagger.Binds
@@ -16,9 +18,14 @@ import dagger.hilt.components.SingletonComponent
 abstract class DataModule {
 
     @Binds
-    internal abstract fun bindsFinanceQueryRepository(
-        financeQueryRepository: ImplFinanceQueryRepository,
-    ): FinanceQueryRepository
+    internal abstract fun bindsQuoteRepository(
+        financeQueryRepository: ImplQuoteRepository,
+    ): QuoteRepository
+
+    @Binds
+    internal abstract fun bindsMarketInfoRepository(
+        marketInfoRepository: ImplMarketInfoRepository,
+    ): MarketInfoRepository
 
     @Binds
     internal abstract fun bindsNetworkMonitor(
