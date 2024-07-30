@@ -1,8 +1,9 @@
 package com.verdenroz.verdaxmarket.network
 
-import com.verdenroz.verdaxmarket.common.enums.Interval
-import com.verdenroz.verdaxmarket.common.enums.TimePeriod
-import com.verdenroz.verdaxmarket.network.client.ImplFinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.common.enums.Interval
+import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
+import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.verdenroz.verdaxmarket.quotes"
+    namespace = "com.verdenroz.verdaxmarket.feature.quotes"
     compileSdk = 34
 
     defaultConfig {

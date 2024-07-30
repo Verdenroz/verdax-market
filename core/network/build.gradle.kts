@@ -10,7 +10,7 @@ val properties = Properties()
 properties.load(File(projectDir, "secrets.properties").reader())
 
 android {
-    namespace = "com.verdenroz.verdaxmarket.network"
+    namespace = "com.verdenroz.verdaxmarket.core.network"
     defaultConfig {
         buildConfigField(
             "String",

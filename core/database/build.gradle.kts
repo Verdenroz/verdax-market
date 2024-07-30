@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.verdenroz.verdaxmarket.database"
+    namespace = "com.verdenroz.verdaxmarket.core.database"
 }
 
 dependencies {
