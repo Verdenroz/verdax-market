@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_designsystem_error_loading_data">Unable to load data</string>
+    <string name="core_designsystem_add">Add to watchlist</string>
+    <string name="core_designsystem_delete">Delete from watchlist</string>
+</resources>
