@@ -10,10 +10,36 @@ import kotlinx.coroutines.flow.Flow
 
 interface MarketInfoRepository {
 
+    companion object {
+        /**
+         * Refresh interval for [indices], [actives], [losers], [gainers] when the market is open
+         */
+        internal const val MARKET_DATA_REFRESH_OPEN = 20000L // 20 seconds
+        /**
+         * Refresh interval for [indices], [actives], [losers], [gainers] when the market is closed
+         */
+        internal const val MARKET_DATA_REFRESH_CLOSED = 600000L // 10 minutes
+
+        /**
+         * Refresh interval for [sectors] and [headlines] when the market is open
+         */
+        internal const val SLOW_REFRESH_INTERVAL_OPEN = 1800000L // 30 minutes
+
+        /**
+         * Refresh interval for [headlines] when the market is closed
+         */
+        internal const val SLOW_REFRESH_INTERVAL_CLOSED = 3600000L // 1 hr
+
+        /**
+         * Refresh interval for [sectors] when the market is closed
+         */
+        internal const val NEVER_REFRESH_INTERVAL = Long.MAX_VALUE
+    }
+
     /**
      * The current market status of either open or closed
      */
-    val marketStatus: Flow<Boolean>
+    val isOpen: Flow<Boolean>
 
     /**
      *  Market indices as list of [MarketIndex]

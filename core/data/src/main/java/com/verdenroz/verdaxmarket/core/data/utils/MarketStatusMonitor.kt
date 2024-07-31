@@ -19,11 +19,15 @@ class MarketStatusMonitor @Inject constructor(
     override val isMarketOpen: Flow<Boolean> = flow {
         while (true) {
             emit(isMarketOpen())
-            delay(60000)
+            delay(10000L)
         }
     }.flowOn(ioDispatcher)
 
-    private fun isMarketOpen(): Boolean {
+    /**
+     * Check if the market is currently open
+     * TODO: Account for holidays
+     */
+    internal fun isMarketOpen(): Boolean {
         val now = LocalTime.now(ZoneId.systemDefault())
         val nowNewYork = now.atDate(LocalDate.now())
             .atZone(ZoneId.systemDefault())

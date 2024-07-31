@@ -6,10 +6,22 @@ import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import kotlinx.coroutines.flow.Flow
 
 interface WatchlistRepository {
+
+    companion object {
+        /**
+         * The refresh interval for [watchlist] when market is open
+         */
+        internal const val WATCHLIST_REFRESH_OPEN = 30000L // 30 seconds
+
+        /**
+         * The refresh interval for [watchlist] when market is closed
+         */
+        internal const val WATCHLIST_REFRESH_CLOSED = 600000L // 10 minutes
+    }
     /**
      * The current market status of either open or closed
      */
-    val marketStatus: Flow<Boolean>
+    val isOpen: Flow<Boolean>
 
     /**
      * The user's watch list as a list of [SimpleQuoteData]
