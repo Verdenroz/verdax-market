@@ -25,8 +25,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             pluginManager.apply {
-                apply("nowinandroid.android.library")
-                apply("nowinandroid.hilt")
+                apply("verdaxmarket.android.library")
+                apply("verdaxmarket.hilt")
             }
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true

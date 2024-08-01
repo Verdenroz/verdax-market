@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_home_dismiss">Dismiss</string>
+    <string name="feature_home_market_performance">Market Performance</string>
+    <string name="feature_home_sector_performance">Sector Performance</string>
+
+    <string name="feature_home_day_return">Day return</string>
+    <string name="feature_home_ytd_return">YTD Return</string>
+    <string name="feature_home_three_year_return">3Y Return</string>
+    <string name="feature_home_mostActive">Most Active</string>
+    <string name="feature_home_topGainers">Top Gainers</string>
+    <string name="feature_home_topLosers">Top Losers</string>
+    <string name="feature_home_news">News</string>
+    <string name="feature_home_news_img">News image</string>
+</resources>

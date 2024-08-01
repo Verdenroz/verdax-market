@@ -145,7 +145,7 @@ fun VxmNavigationRailItem(
 
 @ThemePreviews
 @Composable
-fun VxmNavigationBarPreview() {
+private fun VxmNavigationBarPreview() {
     val items = listOf("Home", "Watchlist")
     val icons = listOf(
         Icons.Rounded.Home,
@@ -173,7 +173,7 @@ fun VxmNavigationBarPreview() {
 
 @ThemePreviews
 @Composable
-fun VxmNavigationRailPreview() {
+private fun VxmNavigationRailPreview() {
     val items = listOf("Home", "Watchlist")
     val icons = listOf(
         Icons.Rounded.Home,

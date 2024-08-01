@@ -3,4 +3,13 @@
     <string name="core_designsystem_error_loading_data">Unable to load data</string>
     <string name="core_designsystem_add">Add to watchlist</string>
     <string name="core_designsystem_delete">Delete from watchlist</string>
+    <string name="core_designsystem_no_internet">You have no internet access</string>
+    <string name="core_designsystem_timeout">Request timed out</string>
+    <string name="core_designsystem_bad_request">Bad request</string>
+    <string name="core_designsystem_denied">Denied access</string>
+    <string name="core_designsystem_not_found">Data not found</string>
+    <string name="core_designsystem_throttled">Too many requests</string>
+    <string name="core_designsystem_server_down">Server can\'t be reached</string>
+    <string name="core_designsystem_unknown_error">Unknown error</string>
+    <string name="core_designsystem_database">Unable to query data</string>
 </resources>

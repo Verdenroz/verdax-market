@@ -4,7 +4,7 @@ import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.HttpException
 import com.verdenroz.verdaxmarket.core.common.error.NetworkException
-import com.verdenroz.verdaxmarket.network.BuildConfig
+import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.di.NetworkModule.executeAsync
 import com.verdenroz.verdaxmarket.core.network.model.AnalysisResponse
