@@ -29,6 +29,10 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
+import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
+import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors
+import com.verdenroz.verdaxmarket.feature.home.components.NewsFeed
 import kotlinx.coroutines.delay
 
 @Composable

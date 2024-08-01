@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.feature.home
+package com.verdenroz.verdaxmarket.feature.home.components
 
 import android.content.Intent
 import android.net.Uri
@@ -40,6 +40,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.feature.home.R
 
 @Composable
 fun NewsFeed(

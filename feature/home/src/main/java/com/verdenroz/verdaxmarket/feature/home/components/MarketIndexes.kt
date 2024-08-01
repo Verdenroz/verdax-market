@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.feature.home
+package com.verdenroz.verdaxmarket.feature.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,12 +40,14 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
-import com.verdenroz.verdaxmarket.core.model.MarketSector
+import com.verdenroz.verdaxmarket.core.model.MarketIndex
+import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
-fun MarketSectors(
-    sectors: Result<List<MarketSector>, DataError.Network>,
+fun MarketIndices(
+    indices: Result<List<MarketIndex>, DataError>,
     snackbarHost: SnackbarHostState,
 ) {
     val context = LocalContext.current
@@ -53,27 +55,27 @@ fun MarketSectors(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = stringResource(id = R.string.feature_home_sector_performance),
+            text = stringResource(id = R.string.feature_home_market_performance),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.fillMaxWidth()
         )
-        when (sectors) {
+        when (indices) {
             is Result.Loading -> {
-                MarketSectorsSkeleton()
+                MarketIndexSkeleton()
             }
 
             is Result.Error -> {
-                MarketSectorsSkeleton()
+                MarketIndexSkeleton()
 
-                LaunchedEffect(sectors.error) {
+                LaunchedEffect(indices.error) {
                     snackbarHost.showSnackbar(
-                        message = sectors.error.asUiText().asString(context),
+                        message = indices.error.asUiText().asString(context),
                         actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
                             .asString(context),
                         duration = SnackbarDuration.Short
@@ -86,10 +88,10 @@ fun MarketSectors(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(
-                        items = sectors.data,
-                        key = { sector -> sector.sector }
-                    ) { sector ->
-                        MarketSectorCard(sector)
+                        items = indices.data,
+                        key = { index -> index.name }
+                    ) { index ->
+                        MarketIndexCard(index = index)
                     }
                 }
             }
@@ -99,21 +101,21 @@ fun MarketSectors(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarketSectorCard(sector: MarketSector) {
+fun MarketIndexCard(index: MarketIndex) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
             PlainTooltip {
-                Text(sector.sector)
+                Text(index.name)
             }
         },
         state = tooltipState
     ) {
         Card(
             modifier = Modifier
-                .size(175.dp, 100.dp)
+                .size(125.dp, 75.dp)
                 .clickable { scope.launch { tooltipState.show() } },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -127,28 +129,31 @@ fun MarketSectorCard(sector: MarketSector) {
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
-                    text = sector.sector,
+                    text = index.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-                Column {
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_day_return),
-                        value = sector.dayReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
+                Text(
+                    text = String.format(Locale.US, "%.2f", index.value.toDouble()),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = index.change,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
                     )
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_ytd_return),
-                        value = sector.ytdReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
-                    )
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_three_year_return),
-                        value = sector.threeYearReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
+                    Text(
+                        text = index.percentChange,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
                     )
                 }
             }
@@ -156,62 +161,34 @@ fun MarketSectorCard(sector: MarketSector) {
     }
 }
 
-@Composable
-fun PerformanceRow(
-    title: String,
-    value: String,
-    color: Color,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyMedium,
-            color = color
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = color
-        )
-    }
-}
-
 @ThemePreviews
 @Composable
-private fun PreviewMarketSectors() {
+private fun PreviewMarketIndexCard() {
     VxmTheme {
-        MarketSectorCard(
-            sector = MarketSector(
-                sector = "Technology",
-                dayReturn = "+1.23%",
-                ytdReturn = "+4.56%",
-                yearReturn = "+12.34%",
-                threeYearReturn = "+56.78%",
-                fiveYearReturn = "+90.12%",
-            )
+        MarketIndexCard(
+            MarketIndex(
+                name = "Dow Jones",
+                value = "100.0",
+                change = "+100.0",
+                percentChange = "+100%"
+            ),
         )
     }
 }
 
 @Composable
-fun MarketSectorsSkeleton(
+fun MarketIndexSkeleton(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primaryContainer
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         repeat(5) {
             item(key = it) {
                 Card(
-                    modifier = modifier.size(175.dp, 100.dp),
+                    modifier = Modifier.size(125.dp, 75.dp),
                     colors = CardDefaults.cardColors(containerColor = color)
                 ) {
-                    // skeleton
+                    // Content of the card, leave it empty for skeleton
                 }
             }
         }
@@ -220,8 +197,8 @@ fun MarketSectorsSkeleton(
 
 @ThemePreviews
 @Composable
-private fun PreviewMarketSectorsSkeleton() {
+private fun PreviewMarketIndexSkeleton() {
     VxmTheme {
-        MarketSectorsSkeleton()
+        MarketIndexSkeleton()
     }
 }

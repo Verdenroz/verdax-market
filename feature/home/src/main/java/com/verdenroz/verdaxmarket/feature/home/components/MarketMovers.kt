@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.feature.home
+package com.verdenroz.verdaxmarket.feature.home.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -55,6 +55,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketMover
+import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 import java.util.Locale
 
