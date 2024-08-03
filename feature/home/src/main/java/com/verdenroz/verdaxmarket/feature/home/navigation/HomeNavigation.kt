@@ -18,7 +18,7 @@ fun NavGraphBuilder.homeScreen(
     composable(route = HOME_ROUTE) {
         HomeRoute(
             navController = navController,
-            snackbarHost = snackbarHostState
+            snackbarHostState = snackbarHostState
         )
     }
 }

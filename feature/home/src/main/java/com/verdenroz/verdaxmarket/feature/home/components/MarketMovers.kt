@@ -64,7 +64,7 @@ import java.util.Locale
 fun MarketMovers(
     listState: LazyListState,
     navController: NavController,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
@@ -123,7 +123,7 @@ fun MarketMovers(
                     MarketMoversList(
                         stocks = actives,
                         navController = navController,
-                        snackbarHost = snackbarHost,
+                        snackbarHost = snackbarHostState,
                     )
                 }
 
@@ -131,7 +131,7 @@ fun MarketMovers(
                     MarketMoversList(
                         stocks = gainers,
                         navController = navController,
-                        snackbarHost = snackbarHost,
+                        snackbarHost = snackbarHostState,
                     )
                 }
 
@@ -139,7 +139,7 @@ fun MarketMovers(
                     MarketMoversList(
                         stocks = losers,
                         navController = navController,
-                        snackbarHost = snackbarHost,
+                        snackbarHost = snackbarHostState,
                     )
                 }
             }

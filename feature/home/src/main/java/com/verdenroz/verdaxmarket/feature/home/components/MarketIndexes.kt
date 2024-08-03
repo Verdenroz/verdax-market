@@ -48,7 +48,7 @@ import java.util.Locale
 @Composable
 fun MarketIndices(
     indices: Result<List<MarketIndex>, DataError>,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     Column(
@@ -74,7 +74,7 @@ fun MarketIndices(
                 MarketIndexSkeleton()
 
                 LaunchedEffect(indices.error) {
-                    snackbarHost.showSnackbar(
+                    snackbarHostState.showSnackbar(
                         message = indices.error.asUiText().asString(context),
                         actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
                             .asString(context),

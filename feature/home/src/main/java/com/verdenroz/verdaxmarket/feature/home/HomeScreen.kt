@@ -12,13 +12,13 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.error.DataError
@@ -38,19 +38,19 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun HomeRoute(
     navController: NavController,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val sectors by homeViewModel.sectors.collectAsState()
-    val headlines by homeViewModel.headlines.collectAsState()
-    val indices by homeViewModel.indices.collectAsState()
-    val actives by homeViewModel.actives.collectAsState()
-    val losers by homeViewModel.losers.collectAsState()
-    val gainers by homeViewModel.gainers.collectAsState()
+    val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
+    val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
+    val indices by homeViewModel.indices.collectAsStateWithLifecycle()
+    val actives by homeViewModel.actives.collectAsStateWithLifecycle()
+    val losers by homeViewModel.losers.collectAsStateWithLifecycle()
+    val gainers by homeViewModel.gainers.collectAsStateWithLifecycle()
 
     HomeScreen(
         navController = navController,
-        snackbarHost = snackbarHost,
+        snackbarHostState = snackbarHostState,
         sectors = sectors,
         headlines = headlines,
         indices = indices,
@@ -65,7 +65,7 @@ internal fun HomeRoute(
 @Composable
 internal fun HomeScreen(
     navController: NavController,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     sectors: Result<List<MarketSector>, DataError.Network>,
     indices: Result<List<MarketIndex>, DataError.Network>,
     headlines: Result<List<News>, DataError.Network>,
@@ -95,26 +95,26 @@ internal fun HomeScreen(
             item {
                 MarketIndices(
                     indices = indices,
-                    snackbarHost = snackbarHost,
+                    snackbarHostState = snackbarHostState,
                 )
             }
             item {
                 MarketSectors(
                     sectors = sectors,
-                    snackbarHost = snackbarHost,
+                    snackbarHostState = snackbarHostState,
                 )
             }
             item {
                 NewsFeed(
                     headlines = headlines,
-                    snackbarHost = snackbarHost,
+                    snackbarHostState = snackbarHostState,
                 )
             }
             item {
                 MarketMovers(
                     listState = listState,
                     navController = navController,
-                    snackbarHost = snackbarHost,
+                    snackbarHostState = snackbarHostState,
                     actives = actives,
                     losers = losers,
                     gainers = gainers,
@@ -224,7 +224,7 @@ private fun PreviewSuccessHomeScreen() {
     VxmTheme {
         HomeScreen(
             navController = rememberNavController(),
-            snackbarHost = SnackbarHostState(),
+            snackbarHostState = SnackbarHostState(),
             sectors = Result.Success(sectors),
             headlines = Result.Success(headlines),
             indices = Result.Success(indices),
@@ -242,7 +242,7 @@ private fun PreviewLoadingHomeScreen() {
     VxmTheme {
         HomeScreen(
             navController = rememberNavController(),
-            snackbarHost = SnackbarHostState(),
+            snackbarHostState = SnackbarHostState(),
             sectors = Result.Loading(),
             indices = Result.Loading(),
             headlines = Result.Loading(),

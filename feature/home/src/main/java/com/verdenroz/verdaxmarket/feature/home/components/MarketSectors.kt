@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MarketSectors(
     sectors: Result<List<MarketSector>, DataError.Network>,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     Column(
@@ -73,7 +73,7 @@ fun MarketSectors(
                 MarketSectorsSkeleton()
 
                 LaunchedEffect(sectors.error) {
-                    snackbarHost.showSnackbar(
+                    snackbarHostState.showSnackbar(
                         message = sectors.error.asUiText().asString(context),
                         actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
                             .asString(context),

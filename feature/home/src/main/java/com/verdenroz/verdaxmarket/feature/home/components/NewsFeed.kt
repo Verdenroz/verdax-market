@@ -45,7 +45,7 @@ import com.verdenroz.verdaxmarket.feature.home.R
 @Composable
 fun NewsFeed(
     headlines: Result<List<News>, DataError.Network>,
-    snackbarHost: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     Column(
@@ -70,7 +70,7 @@ fun NewsFeed(
                 NewsFeedSkeleton()
 
                 LaunchedEffect(headlines.error) {
-                    snackbarHost.showSnackbar(
+                    snackbarHostState.showSnackbar(
                         message = headlines.error.asUiText().asString(context),
                         actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
                             .asString(context),
