@@ -11,6 +11,12 @@ import androidx.compose.ui.Alignment
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
+/**
+ * VerdaxMarket wrapper around [Checkbox] to display a checkbox with a label.
+ * @param checked The state of the checkbox.
+ * @param onCheckedChange The callback to be invoked when the state of the checkbox changes.
+ * @param text The label of the checkbox.
+ */
 @Composable
 fun VxmCheckbox(
     checked: Boolean,

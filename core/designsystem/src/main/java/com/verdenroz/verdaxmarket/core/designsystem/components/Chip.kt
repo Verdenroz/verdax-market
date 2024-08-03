@@ -11,6 +11,13 @@ import androidx.compose.ui.graphics.Color
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
+/**
+ * VerdaxMarket wrapper around [FilterChip] to display a chip with a label and an optional trailing icon.
+ * @param selected The state of the chip.
+ * @param onClick The callback to be invoked when the chip is clicked.
+ * @param label The label of the chip.
+ * @param trailingIcon The optional trailing icon of the chip.
+ */
 @Composable
 fun VxmFilterChip(
     selected: Boolean,

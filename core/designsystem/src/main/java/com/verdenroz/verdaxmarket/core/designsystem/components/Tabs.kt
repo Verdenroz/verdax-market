@@ -15,6 +15,12 @@ import androidx.compose.ui.Modifier
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
+/**
+ * VerdaxMarket wrapper around [TabRow] and [PagerState] to display a tab row with a pager.
+ * @param state [PagerState] to control the pager
+ * @param tabTitles The titles of the tabs
+ * @param onClick The callback to be invoked when a tab is clicked
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VxmTabRowPager(

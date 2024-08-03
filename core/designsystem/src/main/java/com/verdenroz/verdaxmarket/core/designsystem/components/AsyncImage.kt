@@ -11,34 +11,65 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import coil.ImageLoader
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.verdenroz.verdaxmarket.core.designsystem.R
 
+/**
+ * VerdaxMarket wrapper around [AsyncImage] to load images asynchronously.
+ * @param context The context to be used to load the image.
+ * @param model The URL of the image to be loaded.
+ * @param description The content description of the image.
+ */
 @Composable
 fun VxmAsyncImage(
     context: Context,
-    imgUrl: String,
+    model: String,
     description: String,
-    size: Pair<Int, Int>
+    modifier: Modifier = Modifier
+) {
+    AsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(model)
+            .crossfade(true)
+            .build(),
+        contentDescription = description,
+        imageLoader = ImageLoader(context),
+        modifier = modifier
+    )
+}
+
+/**
+ * VerdaxMarket wrapper around [SubcomposeAsyncImage] that composes loading and error states.
+ * @param context The context to be used to load the image.
+ * @param model The URL of the image to be loaded.
+ * @param description The content description of the image.
+ * @param size The size of the image.
+ */
+@Composable
+fun VxmSubcomposeAsyncImage(
+    context: Context,
+    model: String,
+    description: String,
+    modifier: Modifier = Modifier,
 ) {
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)
-            .data(imgUrl)
+            .data(model)
             .crossfade(true)
             .build(),
         contentDescription = description,
         loading = {
             Card(
-                modifier = Modifier.size(size.first.dp, size.second.dp),
+                modifier = modifier,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {}
         },
         error = {
             Card(
-                modifier = Modifier.size(size.first.dp, size.second.dp),
+                modifier = modifier,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Icon(
@@ -48,5 +79,6 @@ fun VxmAsyncImage(
             }
         },
         imageLoader = ImageLoader(context),
+        modifier = modifier
     )
 }

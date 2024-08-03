@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSubcomposeAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
@@ -128,11 +128,11 @@ fun ContentCard(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            VxmAsyncImage(
+            VxmSubcomposeAsyncImage(
                 context = context,
-                imgUrl = article.img,
+                model = article.img,
                 description = stringResource(id = R.string.feature_home_news_img),
-                size = Pair(250, 250)
+                modifier = Modifier.size(250.dp)
             )
             Text(
                 text = article.title,

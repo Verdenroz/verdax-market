@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
+/**
+ * VerdaxMarket wrapper for [SnackbarHost]
+ * @param hostState [SnackbarHostState] to show snackbar
+ */
 @Composable
 fun VxmSnackbarHost(
     modifier: Modifier = Modifier,
@@ -34,6 +38,10 @@ fun VxmSnackbarHost(
     )
 }
 
+/**
+ * VerdaxMarket wrapper for [Snackbar]
+ * @param data [SnackbarData] to show
+ */
 @Composable
 fun VxmSnackbar(
     data: SnackbarData

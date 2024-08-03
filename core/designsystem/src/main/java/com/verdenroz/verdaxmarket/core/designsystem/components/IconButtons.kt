@@ -13,6 +13,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.R
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
+/**
+ * VerdaxMarket icon button for adding to watchlist
+ * @param onClick add to watchlist action
+ */
 @Composable
 fun VxmAddIconButton(
     onClick: () -> Unit,
@@ -29,6 +33,10 @@ fun VxmAddIconButton(
     }
 }
 
+/**
+ * VerdaxMarket icon button for deleting from watchlist
+ * @param onClick delete from watchlist action
+ */
 @Composable
 fun VxmDeleteIconButton(
     onClick: () -> Unit,
