@@ -1,7 +1,8 @@
 package com.verdenroz.verdaxmarket.domain
 
+import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.QuoteSignal
-import com.verdenroz.verdaxmarket.core.model.indicators.AnalysisIndicator
+import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -12,8 +13,8 @@ import javax.inject.Inject
 class GetAnalysisSummaryUseCase @Inject constructor() {
 
     operator fun invoke(
-        signalMap: Flow<Map<AnalysisIndicator, QuoteSignal>>,
-        indicators: Set<AnalysisIndicator>
+        signalMap: Flow<Map<TechnicalIndicator, AnalysisSignal>>,
+        indicators: Set<TechnicalIndicator>
     ): Flow<Double> = signalMap.map { signals ->
 
         val filteredSignals = signals.filterKeys { it in indicators }
@@ -24,8 +25,7 @@ class GetAnalysisSummaryUseCase @Inject constructor() {
                 QuoteSignal.NEUTRAL -> 0
             }
         }
-        val sum = filteredSignals.values.sumOf(value)
+        val sum = filteredSignals.values.sumOf { value(it.signal) }
         if (filteredSignals.isNotEmpty()) sum.toDouble() / filteredSignals.size else 0.0
     }
-
 }
