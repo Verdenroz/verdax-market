@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.core.data.di
 
+import com.verdenroz.verdaxmarket.core.data.repository.AnalysisSignalRepository
+import com.verdenroz.verdaxmarket.core.data.repository.ImplAnalysisSignalRepository
 import com.verdenroz.verdaxmarket.core.data.repository.ImplMarketInfoRepository
 import com.verdenroz.verdaxmarket.core.data.utils.ConnectivityManagerNetworkMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
@@ -26,6 +28,11 @@ abstract class DataModule {
     internal abstract fun bindsMarketInfoRepository(
         marketInfoRepository: ImplMarketInfoRepository,
     ): MarketInfoRepository
+
+    @Binds
+    internal abstract fun bindsAnalysisSignalRepository(
+        networkMonitor: ImplAnalysisSignalRepository,
+    ): AnalysisSignalRepository
 
     @Binds
     internal abstract fun bindsNetworkMonitor(
