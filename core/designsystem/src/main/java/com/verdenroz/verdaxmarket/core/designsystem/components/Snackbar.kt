@@ -84,7 +84,7 @@ fun VxmSnackbar(
 
 @ThemePreviews
 @Composable
-fun SnackbarPreview() {
+private fun SnackbarPreview() {
     val hostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
         hostState.showSnackbar("This is a snackbar with an action", "Action")

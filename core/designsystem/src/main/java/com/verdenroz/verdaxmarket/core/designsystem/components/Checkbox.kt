@@ -45,7 +45,7 @@ fun VxmCheckbox(
 
 @ThemePreviews
 @Composable
-fun VxmCheckboxPreview() {
+private fun VxmCheckboxPreview() {
     VxmTheme {
         Surface {
             Row {

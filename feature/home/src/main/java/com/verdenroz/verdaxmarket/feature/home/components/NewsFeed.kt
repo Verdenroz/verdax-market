@@ -43,7 +43,7 @@ import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.feature.home.R
 
 @Composable
-fun NewsFeed(
+internal fun NewsFeed(
     headlines: Result<List<News>, DataError.Network>,
     snackbarHostState: SnackbarHostState,
 ) {

@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
-fun MarketIndices(
+internal fun MarketIndices(
     indices: Result<List<MarketIndex>, DataError>,
     snackbarHostState: SnackbarHostState,
 ) {

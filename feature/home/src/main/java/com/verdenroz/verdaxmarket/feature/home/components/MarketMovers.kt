@@ -61,7 +61,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MarketMovers(
+internal fun MarketMovers(
     listState: LazyListState,
     navController: NavController,
     snackbarHostState: SnackbarHostState,

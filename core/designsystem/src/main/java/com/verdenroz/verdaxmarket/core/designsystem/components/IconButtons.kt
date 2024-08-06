@@ -55,7 +55,7 @@ fun VxmDeleteIconButton(
 
 @ThemePreviews
 @Composable
-fun VxmIconButtonPreview() {
+private fun VxmIconButtonPreview() {
     VxmTheme {
         Row {
             VxmAddIconButton(onClick = {})

@@ -53,7 +53,7 @@ fun VxmTabRowPager(
 @OptIn(ExperimentalFoundationApi::class)
 @ThemePreviews
 @Composable
-fun VxmTabRowPagerPreview() {
+private fun VxmTabRowPagerPreview() {
     VxmTheme {
         VxmTabRowPager(
             state = rememberPagerState { 4 },

@@ -48,7 +48,7 @@ fun VxmFilterChip(
 
 @ThemePreviews
 @Composable
-fun VxmFilterChipPreview() {
+private fun VxmFilterChipPreview() {
     VxmTheme {
         Surface {
             Row {

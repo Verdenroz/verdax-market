@@ -45,7 +45,7 @@ import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 
 @Composable
-fun MarketSectors(
+internal fun MarketSectors(
     sectors: Result<List<MarketSector>, DataError.Network>,
     snackbarHostState: SnackbarHostState,
 ) {
