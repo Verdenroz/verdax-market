@@ -27,7 +27,7 @@ class GetSubscribedQuoteUseCase @Inject constructor(
 ) {
     /**
      * Returns a flow of the full quote data for a given symbol that updates
-     * every 10 seconds when the market is open and every 60 seconds when the market is closed
+     * every 30 seconds when the market is open and every 5 minutes when the market is closed
      * @param symbol the symbol of the quote to get
      */
     operator fun invoke(symbol: String): Flow<Result<FullQuoteData, DataError.Network>> =
@@ -36,7 +36,7 @@ class GetSubscribedQuoteUseCase @Inject constructor(
                 while (true) {
                     val result = quoteRepository.getFullQuote(symbol).first()
                     emit(result)
-                    val refreshInterval = if (isOpen) 10000L else 60000L
+                    val refreshInterval = if (isOpen) 30000L else 300000L
                     delay(refreshInterval)
                 }
             }
