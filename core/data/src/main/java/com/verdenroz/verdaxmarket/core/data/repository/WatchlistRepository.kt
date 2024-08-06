@@ -47,4 +47,9 @@ interface WatchlistRepository {
      * Deletes all data from the user's watch list
      */
     suspend fun clearWatchList(): Result<Unit, DataError.Local>
+
+    /**
+     * Check if a symbol is in the user's watch list
+     */
+    fun isSymbolInWatchlist(symbol: String): Flow<Boolean>
 }

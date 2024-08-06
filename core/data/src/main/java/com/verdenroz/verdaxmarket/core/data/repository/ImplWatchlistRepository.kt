@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -104,5 +105,10 @@ class ImplWatchlistRepository @Inject constructor(
             }
         }
     }
+
+    override fun isSymbolInWatchlist(symbol: String): Flow<Boolean> =
+        quotesDao.getAllQuoteDataFlow().map { quotes ->
+            quotes.any { it.symbol == symbol }
+        }.flowOn(ioDispatcher)
 
 }
