@@ -8,5 +8,5 @@ data class HistoricalData(
     val high: Float,
     val low: Float,
     val close: Float,
-    val volume: Long
+    val volume: String
 )
