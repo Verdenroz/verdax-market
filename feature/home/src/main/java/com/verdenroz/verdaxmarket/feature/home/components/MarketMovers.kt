@@ -26,9 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +43,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTabRowPager
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
@@ -83,17 +81,8 @@ internal fun MarketMovers(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TabRow(
-            selectedTabIndex = state.currentPage,
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            indicator = { tabPositions ->
-                SecondaryIndicator(
-                    Modifier.tabIndicatorOffset(tabPositions[state.currentPage]),
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
+        VxmTabRowPager(
+            state = state
         ) {
             tabTitles.forEachIndexed { index, title ->
                 Tab(
@@ -101,14 +90,10 @@ internal fun MarketMovers(
                     selected = state.currentPage == index,
                     onClick = {
                         scope.launch {
-                            listState.animateScrollToItem(
-                                index = 3,
-                            )
-                            state.animateScrollToPage(
-                                page = index,
-                            )
+                            listState.animateScrollToItem(3)
+                            state.animateScrollToPage(index)
                         }
-                    },
+                    }
                 )
             }
         }

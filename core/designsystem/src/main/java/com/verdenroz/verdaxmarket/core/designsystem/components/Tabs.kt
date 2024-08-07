@@ -18,15 +18,13 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 /**
  * VerdaxMarket wrapper around [TabRow] and [PagerState] to display a tab row with a pager.
  * @param state [PagerState] to control the pager
- * @param tabTitles The titles of the tabs
- * @param onClick The callback to be invoked when a tab is clicked
+ * @param tabs content of the tabs
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VxmTabRowPager(
     state: PagerState,
-    tabTitles: List<String>,
-    onClick: () -> Unit
+    tabs: @Composable () -> Unit,
 ) {
     TabRow(
         selectedTabIndex = state.currentPage,
@@ -38,16 +36,9 @@ fun VxmTabRowPager(
                 color = MaterialTheme.colorScheme.secondary,
             )
         },
+        tabs = tabs,
         modifier = Modifier.fillMaxWidth()
-    ) {
-        tabTitles.forEachIndexed { index, title ->
-            Tab(
-                text = { Text(title) },
-                selected = state.currentPage == index,
-                onClick = onClick
-            )
-        }
-    }
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -57,8 +48,23 @@ private fun VxmTabRowPagerPreview() {
     VxmTheme {
         VxmTabRowPager(
             state = rememberPagerState { 4 },
-            tabTitles = listOf("Tab 1", "Tab 2", "Tab 3"),
-            onClick = {}
+            tabs = {
+                Tab(
+                    text = { Text("Tab 1") },
+                    onClick = { },
+                    selected = true
+                )
+                Tab(
+                    text = { Text("Tab 2") },
+                    onClick = { },
+                    selected = false
+                )
+                Tab(
+                    text = { Text("Tab 3") },
+                    onClick = { },
+                    selected = false
+                )
+            }
         )
     }
 }
