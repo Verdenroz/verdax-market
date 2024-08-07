@@ -3,6 +3,8 @@ package com.verdenroz.verdaxmarket.domain
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
+import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.QuoteSignal
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 /**
@@ -28,27 +31,33 @@ class GetAnalysisSignalSummaryUseCase @Inject constructor(
      * Gets the [AnalysisSignalSummary] for each [Interval]
      */
     operator fun invoke(
-        signals: Flow<Map<Interval, Map<TechnicalIndicator, AnalysisSignal>>>,
-    ): Flow<Map<Interval, AnalysisSignalSummary>> = signals.flatMapLatest { analysisSignal ->
+        signals: Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>>,
+    ): Flow<Map<Interval, Result<AnalysisSignalSummary, DataError.Network>>> = signals.flatMapLatest { analysisSignal ->
         flow {
-            val signalSummaryMap = withContext(ioDispatcher) {
+            val signalSummaryMap = ConcurrentHashMap<Interval, Result<AnalysisSignalSummary, DataError.Network>>()
+            withContext(ioDispatcher) {
                 analysisSignal.map { (interval, signalMap) ->
                     async {
-                        val movingAverageSummary = calculateSummary(signalMap.filterKeys { TechnicalIndicator.MOVING_AVERAGES.contains(it) })
-                        val oscillatorSummary = calculateSummary(signalMap.filterKeys { TechnicalIndicator.OSCILLATORS.contains(it) })
-                        val trendSummary = calculateSummary(signalMap.filterKeys { TechnicalIndicator.TRENDS.contains(it) })
-                        val summary = calculateSummary(signalMap)
+                        when (signalMap) {
+                            is Result.Success -> {
+                                val movingAverageSummary = calculateSummary(signalMap.data.filterKeys { TechnicalIndicator.MOVING_AVERAGES.contains(it) })
+                                val oscillatorSummary = calculateSummary(signalMap.data.filterKeys { TechnicalIndicator.OSCILLATORS.contains(it) })
+                                val trendSummary = calculateSummary(signalMap.data.filterKeys { TechnicalIndicator.TRENDS.contains(it) })
+                                val summary = calculateSummary(signalMap.data)
 
-                        interval to AnalysisSignalSummary(
-                            movingAverageSummary = movingAverageSummary,
-                            oscillatorSummary = oscillatorSummary,
-                            trendSummary = trendSummary,
-                            summary = summary
-                        )
+                                signalSummaryMap[interval] = Result.Success(AnalysisSignalSummary(
+                                    movingAverageSummary = movingAverageSummary,
+                                    oscillatorSummary = oscillatorSummary,
+                                    trendSummary = trendSummary,
+                                    summary = summary
+                                ))
+                            }
+                            else -> signalSummaryMap[interval] = Result.Error(DataError.Network.UNKNOWN)
+                        }
                     }
-                }.awaitAll().toMap()
+                }.awaitAll()
             }
-            emit(signalSummaryMap)
+            emit(signalSummaryMap.toMap())
         }
     }.flowOn(ioDispatcher)
 

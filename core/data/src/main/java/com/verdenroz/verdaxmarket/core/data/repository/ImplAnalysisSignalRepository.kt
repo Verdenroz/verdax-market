@@ -53,11 +53,11 @@ class ImplAnalysisSignalRepository @Inject constructor(
     override suspend fun getIntervalAnalysisSignalMap(
         symbol: String,
         currentPrice: Double
-    ): Flow<Map<Interval, Map<TechnicalIndicator, AnalysisSignal>>> =
+    ): Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>> =
         getAnalysisMap(symbol).flatMapLatest { analysis ->
             flow {
                 val intervalAnalysisSignalMap =
-                    mutableMapOf<Interval, Map<TechnicalIndicator, AnalysisSignal>>()
+                    mutableMapOf<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>()
 
                 withContext(ioDispatcher) {
                     Interval.entries.map { interval ->
@@ -172,12 +172,12 @@ class ImplAnalysisSignalRepository @Inject constructor(
                                                 indicator = it.ichimokuCloud,
                                             )
                                     }
-                                    intervalAnalysisSignalMap[interval] = signals.toMap()
+                                    intervalAnalysisSignalMap[interval] = Result.Success(signals.toMap())
                                 }
 
                                 // if analysis is not available sets an empty map
                                 else -> {
-                                    intervalAnalysisSignalMap[interval] = emptyMap()
+                                    intervalAnalysisSignalMap[interval] = Result.Error(DataError.Network.UNKNOWN)
                                 }
                             }
                         }

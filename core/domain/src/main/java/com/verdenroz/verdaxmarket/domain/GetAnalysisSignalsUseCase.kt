@@ -32,7 +32,7 @@ class GetAnalysisSignalsUseCase @Inject constructor(
     operator fun invoke(
         symbol: String,
         quote: Flow<Result<FullQuoteData, DataError.Network>>
-    ): Flow<Map<Interval, Map<TechnicalIndicator, AnalysisSignal>>> =
+    ): Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>> =
         quote.mapNotNull { result ->
             if (result is Result.Success) result.data.price else null
         }.flatMapLatest { price ->

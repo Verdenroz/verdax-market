@@ -21,6 +21,6 @@ interface AnalysisSignalRepository {
      * @param symbol The symbol of the stock.
      * @param currentPrice The current price of the stock used to calculate moving average signal.
      */
-    suspend fun getIntervalAnalysisSignalMap(symbol: String, currentPrice: Double): Flow<Map<Interval, Map<TechnicalIndicator, AnalysisSignal>>>
+    suspend fun getIntervalAnalysisSignalMap(symbol: String, currentPrice: Double): Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>>
 
 }
