@@ -53,7 +53,6 @@ class GetTimeSeriesMapUseCase @Inject constructor(
     private fun timeToInterval(timePeriod: TimePeriod): Interval = when (timePeriod) {
         TimePeriod.ONE_DAY -> Interval.ONE_MINUTE
         TimePeriod.FIVE_DAY -> Interval.FIVE_MINUTE
-        TimePeriod.ONE_WEEK -> Interval.FIFTEEN_MINUTE
         else -> Interval.DAILY
     }
 }

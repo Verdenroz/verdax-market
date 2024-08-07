@@ -15,7 +15,6 @@ import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -55,7 +54,7 @@ class ImplWatchlistRepository @Inject constructor(
                     delay(refreshInterval)
                 }
             }
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(ioDispatcher)
 
     override suspend fun refreshWatchList(): Result<Unit, DataError.Local> {
         return withContext(ioDispatcher) {
