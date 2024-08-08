@@ -7,7 +7,7 @@ val positiveBackgroundColor = Color(0xFFA2EBD3)
 val negativeTextColor = Color(0xFFDF4661)
 val negativeBackgroundColor = Color(0x55DF4661)
 
-val primaryLight = Color(0xBF1D5050)
+val primaryLight = Color(0xBF123636)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xCD354B4E)
 val onPrimaryContainerLight = Color(0xFFAFD8DF)

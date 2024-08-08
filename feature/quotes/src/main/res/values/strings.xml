@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_quotes_buy">Buy</string>
+    <string name="feature_quotes_sell">Sell</string>
+    <string name="feature_quotes_neutral">Neutral</string>
+    <string name="feature_quotes_strong_buy">Strong Buy</string>
+    <string name="feature_quotes_strong_sell">Strong Sell</string>
+
+    <string name="feature_quotes_loading">Loading…</string>
+    <string name="feature_quotes_error">Unable to load data</string>
+    <string name="feature_quotes_back">Back to previous screen</string>
+    <string name="feature_quotes_add">Add to watchlist</string>
+    <string name="feature_quotes_remove">Remove from watchlist</string>
+    <string name="feature_quotes_dismiss">Dismiss</string>
+    <string name="feature_quotes_no_news">No news available</string>
+    <string name="feature_quotes_no_analysis">No analysis available</string>
+
+
+    <!-- Headline -->
+    <string name="feature_quotes_after_hours">"After Hours: "</string>
+    <string name="feature_quotes_logo_description">Logo of quote</string>
+
+    <!-- QuoteSummary -->
+    <string name="feature_quotes_volume">Volume</string>
+    <string name="feature_quotes_performance">Performance</string>
+    <string name="feature_quotes_ytd_return">YTD Return</string>
+    <string name="feature_quotes_sector_technology">Technology</string>
+    <string name="feature_quotes_sector_healthcare">Healthcare</string>
+    <string name="feature_quotes_sector_financial_services">Financial Services</string>
+    <string name="feature_quotes_sector_consumer_cyclical">Consumer Cyclical</string>
+    <string name="feature_quotes_sector_industrials">Industrials</string>
+    <string name="feature_quotes_sector_consumer_defensive">Consumer Defensive</string>
+    <string name="feature_quotes_sector_energy">Energy</string>
+    <string name="feature_quotes_sector_real_estate">Real Estate</string>
+    <string name="feature_quotes_sector_utilities">Utilities</string>
+    <string name="feature_quotes_sector_basic_materials">Basic Materials</string>
+    <string name="feature_quotes_sector_communication_services">Communication Services</string>
+    <string name="feature_quotes_one_year_return">1Y Return</string>
+    <string name="feature_quotes_three_year_return">3Y Return</string>
+    <string name="feature_quotes_five_year_return">5Y Return</string>
+    <string name="feature_quotes_similar">Similar to</string>
+    <string name="feature_quotes_summary">Summary</string>
+    <string name="feature_quotes_news">News</string>
+    <string name="feature_quotes_analysis">Analysis</string>
+    <string name="feature_quotes_open">Open</string>
+    <string name="feature_quotes_days_range">Day\'s Range</string>
+    <string name="feature_quotes_fifty_two_week_range">52 Week Range</string>
+    <string name="feature_quotes_avg_volume">Avg. Volume</string>
+    <string name="feature_quotes_market_cap">Market Cap</string>
+    <string name="feature_quotes_net_assets">Net Assets</string>
+    <string name="feature_quotes_nav">NAV</string>
+    <string name="feature_quotes_pe_ratio">PE Ratio (TTM)</string>
+    <string name="feature_quotes_eps">EPS (TTM)</string>
+    <string name="feature_quotes_beta">Beta (5Y Monthly)</string>
+    <string name="feature_quotes_expense_ratio">Expense Ratio (net)</string>
+    <string name="feature_quotes_dividend_yield"><![CDATA[Forward Dividend & Yield]]></string>
+    <string name="feature_quotes_last_dividend">Last Dividend</string>
+    <string name="feature_quotes_ex_dividend">Ex-Dividend Date</string>
+    <string name="feature_quotes_last_capital_gain">Last Cap Gain</string>
+    <string name="feature_quotes_holdings_turnover">Holdings Turnover</string>
+    <string name="feature_quotes_fund_category">Category</string>
+    <string name="feature_quotes_morningstar_rating">Morningstar Rating</string>
+    <string name="feature_quotes_morningstar_risk">Morningstar Risk Rating</string>
+    <string name="feature_quotes_earnings_date">Earnings Date</string>
+    <string name="feature_quotes_inception_date">Inception Date</string>
+    <string name="feature_quotes_show_less">Show less</string>
+    <string name="feature_quotes_show_more">Show more</string>
+    <string name="feature_quotes_news_image_description">News image</string>
+
+    <!-- IndicatorType -->
+    <string name="feature_quotes_moving_averages">Moving Averages</string>
+    <string name="feature_quotes_oscillators">Oscillators</string>
+    <string name="feature_quotes_trends">Trends</string>
+    <string name="feature_quotes_all">Overall</string>
+
+    <!-- Indicators -->
+    <string name="feature_quotes_sma10">Simple Moving Average (10)</string>
+    <string name="feature_quotes_sma20">Simple Moving Average (20)</string>
+    <string name="feature_quotes_sma50">Simple Moving Average (50)</string>
+    <string name="feature_quotes_sma100">Simple Moving Average (100)</string>
+    <string name="feature_quotes_sma200">Simple Moving Average (200)</string>
+    <string name="feature_quotes_ema10">Exponential Moving Average (10)</string>
+    <string name="feature_quotes_ema20">Exponential Moving Average (20)</string>
+    <string name="feature_quotes_ema50">Exponential Moving Average (50)</string>
+    <string name="feature_quotes_ema100">Exponential Moving Average (100)</string>
+    <string name="feature_quotes_ema200">Exponential Moving Average (200)</string>
+    <string name="feature_quotes_wma10">Weighted Moving Average (10)</string>
+    <string name="feature_quotes_wma20">Weighted Moving Average (20)</string>
+    <string name="feature_quotes_wma50">Weighted Moving Average (50)</string>
+    <string name="feature_quotes_wma100">Weighted Moving Average (100)</string>
+    <string name="feature_quotes_wma200">Weighted Moving Average (200)</string>
+    <string name="feature_quotes_vwma20">Volume Weighted Moving Average (20)</string>
+    <string name="feature_quotes_rsi14">Relative Strength Index (14)</string>
+    <string name="feature_quotes_srsi14">Stochastic RSI %K</string>
+    <string name="feature_quotes_stoch">Stochastic %K (14, 3, 3)</string>
+    <string name="feature_quotes_cci20">Commodity Channel Index (20)</string>
+    <string name="feature_quotes_adx14">Average Directional Index (14)</string>
+    <string name="feature_quotes_macd">MACD Level (12, 26)</string>
+    <string name="feature_quotes_aroon">Aroon(25)</string>
+    <string name="feature_quotes_super_trend">Supertrend(10, 3)</string>
+    <string name="feature_quotes_bbands">Bollinger Bands (20, 2)</string>
+    <string name="feature_quotes_ichimoku">Ichimoku Cloud (9, 26, 52, 26)</string>
+
+</resources>
