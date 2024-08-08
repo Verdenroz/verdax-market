@@ -87,3 +87,17 @@ enum class TechnicalIndicator {
         )
     }
 }
+
+/**
+ * Represents the type of an indicator
+ * @property MOVING_AVERAGE moving average type of indicator
+ * @property OSCILLATOR oscillator type of indicator
+ * @property TREND trend type of indicator
+ * @property ALL all types of indicators
+ */
+enum class IndicatorType {
+    MOVING_AVERAGE,
+    OSCILLATOR,
+    TREND,
+    ALL
+}
