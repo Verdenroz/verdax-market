@@ -1,0 +1,319 @@
+package com.verdenroz.verdaxmarket.feature.watchlist
+
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
+import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
+import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
+import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.pow
+
+@Composable
+internal fun WatchlistRoute(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    watchlistViewModel: WatchlistViewModel = hiltViewModel()
+) {
+    val watchlist by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
+    WatchlistScreen(
+        navController = navController,
+        snackbarHostState = snackbarHostState,
+        watchList = watchlist,
+        deleteFromWatchList = watchlistViewModel::deleteFromWatchlist,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun WatchlistScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    watchList: Result<List<SimpleQuoteData>, DataError.Local>,
+    deleteFromWatchList: (String) -> Unit
+) {
+    val context = LocalContext.current
+    when (watchList) {
+        is Result.Loading -> {
+            WatchlistSkeleton()
+        }
+
+        is Result.Error -> {
+            WatchlistSkeleton()
+
+            LaunchedEffect(watchList.error) {
+                snackbarHostState.showSnackbar(
+                    message = watchList.error.asUiText().asString(context),
+                    actionLabel = UiText.StringResource(R.string.feature_watchlist_dismiss)
+                        .asString(context),
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+
+        is Result.Success -> {
+            val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+            BottomSheetScaffold(
+                sheetContent = {
+                    Text(
+                        text = "Sheet content",
+                    )
+                },
+                scaffoldState = bottomSheetScaffoldState
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = watchList.data,
+                        key = { quote -> quote.symbol }
+                    ) { item ->
+                        WatchlistQuote(
+                            quote = item,
+                            navController = navController,
+                            deleteFromWatchList = deleteFromWatchList
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun WatchlistQuote(
+    quote: SimpleQuoteData,
+    navController: NavController,
+    deleteFromWatchList: (String) -> Unit
+) {
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    val maxDragDistance = 500f
+    val dragProportion = abs(offsetX) / maxDragDistance
+    val weight by animateFloatAsState(
+        targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
+        label = "weight"
+    )
+
+    Row(
+        modifier = Modifier
+            .height(60.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        navController.navigateToQuote(quote.symbol)
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, dragAmount ->
+                        // Update offsetX only if dragAmount is positive or already dragging
+                        if (dragAmount > 0 || offsetX != 0f) {
+                            offsetX += dragAmount
+                            offsetX = offsetX.coerceIn(-maxDragDistance, maxDragDistance)
+                        }
+                    },
+                    onDragEnd = {
+                        if (abs(offsetX) > maxDragDistance * 0.75) {
+                            deleteFromWatchList(quote.symbol)
+                        }
+                        offsetX = 0f
+                    }
+                )
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(weight)
+                .fillMaxHeight()
+                .padding(vertical = 4.dp)
+                .clip(RoundedCornerShape(15))
+                .background(MaterialTheme.colorScheme.errorContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(id = R.string.feature_watchlist_delete),
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.alpha(1f - weight)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .weight((1f - weight).coerceAtLeast(0.01f))
+                .fillMaxHeight()
+                .padding(8.dp)
+                .clip(RoundedCornerShape(15))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = quote.symbol,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(25))
+                        .background(MaterialTheme.colorScheme.inverseSurface)
+                        .padding(4.dp)
+                        .weight(.2f)
+                )
+                Text(
+                    text = quote.name,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .weight(.6f)
+                )
+                Text(
+                    text = String.format(Locale.US, "%.2f", quote.price),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    color = if (quote.change.startsWith("-")) negativeTextColor else positiveTextColor,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(.2f)
+                        .wrapContentSize()
+                        .padding(4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WatchlistSkeleton() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(12) {
+            Row(
+                modifier = Modifier
+                    .height(60.dp)
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(15))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                // skeleton
+            }
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewWatchlistScreen() {
+    VxmTheme {
+        WatchlistScreen(
+            navController = rememberNavController(),
+            snackbarHostState = SnackbarHostState(),
+            watchList = Result.Success(
+                listOf(
+                    SimpleQuoteData(
+                        symbol = "AAPL",
+                        name = "Apple Inc.",
+                        price = 145.86,
+                        change = "+0.12",
+                        percentChange = "+0.08%"
+                    ),
+                    SimpleQuoteData(
+                        symbol = "TSLA",
+                        name = "Tesla Inc.",
+                        price = 1145.86,
+                        change = "-0.12",
+                        percentChange = "-0.08%"
+                    ),
+                    SimpleQuoteData(
+                        symbol = "NVDIA",
+                        name = "NVIDIA Inc.",
+                        price = 145.86,
+                        change = "+0.12",
+                        percentChange = "+0.08%"
+                    ),
+                )
+            ),
+            deleteFromWatchList = {}
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewLoading() {
+    VxmTheme {
+        Surface {
+            WatchlistSkeleton()
+        }
+    }
+}
