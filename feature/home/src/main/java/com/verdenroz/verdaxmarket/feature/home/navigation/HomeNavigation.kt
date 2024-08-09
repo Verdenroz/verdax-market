@@ -7,7 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.verdenroz.verdaxmarket.feature.home.HomeRoute
 
-const val HOME_ROUTE = "home_route"
+private const val HOME_ROUTE = "home_route"
 
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(HOME_ROUTE, navOptions)
 

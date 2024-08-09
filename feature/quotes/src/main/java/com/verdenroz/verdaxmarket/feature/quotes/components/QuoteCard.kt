@@ -22,6 +22,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 
 @Composable
 internal fun QuoteCard(
@@ -32,7 +33,7 @@ internal fun QuoteCard(
         modifier = Modifier
             .size(width = 125.dp, height = 75.dp)
             .clickable {
-                navController.navigate("stock/${quote.symbol}")
+                navController.navigateToQuote(quote.symbol)
             }
     ) {
         Column(

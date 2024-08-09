@@ -13,8 +13,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.feature.quotes.QuotesRoute
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
-internal const val QUOTE_ARG = "symbol"
-const val QUOTE_ROUTE = "quote_route"
+private const val QUOTE_ARG = "symbol"
+private const val QUOTE_ROUTE = "quote_route"
 
 fun NavController.navigateToQuote(symbol: String, navOptions: NavOptionsBuilder.() -> Unit = {}) {
     navigate(createQuoteRoute(symbol)) {
