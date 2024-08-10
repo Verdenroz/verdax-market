@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.verdaxmarket.android.feature)
+    alias(libs.plugins.verdaxmarket.android.library.compose)
 }
 
 android {
