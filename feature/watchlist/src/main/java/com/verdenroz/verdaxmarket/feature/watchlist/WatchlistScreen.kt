@@ -1,7 +1,11 @@
 package com.verdenroz.verdaxmarket.feature.watchlist
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +26,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -31,8 +36,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,6 +66,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
+import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
+import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.pow
@@ -73,7 +85,9 @@ internal fun WatchlistRoute(
         navController = navController,
         snackbarHostState = snackbarHostState,
         watchList = watchlist,
-        deleteFromWatchList = watchlistViewModel::deleteFromWatchlist,
+        addToWatchlist = watchlistViewModel::addToWatchlist,
+        deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
+        clearWatchlist = watchlistViewModel::clearWatchlist
     )
 }
 
@@ -83,9 +97,13 @@ internal fun WatchlistScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     watchList: Result<List<SimpleQuoteData>, DataError.Local>,
-    deleteFromWatchList: (String) -> Unit
+    addToWatchlist: (String) -> Unit,
+    deleteFromWatchlist: (String) -> Unit,
+    clearWatchlist: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     when (watchList) {
         is Result.Loading -> {
             WatchlistSkeleton()
@@ -106,29 +124,66 @@ internal fun WatchlistScreen(
 
         is Result.Success -> {
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+            var quote by remember { mutableStateOf(watchList.data.first()) }
+            var isBottomSheetExpanded by remember { mutableStateOf(false) }
+
+            LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
+                snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
+                    .collect { state ->
+                        isBottomSheetExpanded = (state != 2)
+                    }
+            }
+
+            val fabPadding by animateDpAsState(
+                targetValue = if (isBottomSheetExpanded) 128.dp else 64.dp,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "fabPadding"
+            )
+
             BottomSheetScaffold(
                 sheetContent = {
-                    Text(
-                        text = "Sheet content",
+                    QuoteSneakPeek(
+                        quote = quote,
+                        addToWatchlist = addToWatchlist,
+                        deleteFromWatchlist = deleteFromWatchlist,
+                        modifier = Modifier.clickable { navController.navigateToQuote(quote.symbol) }
                     )
                 },
                 scaffoldState = bottomSheetScaffoldState
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        items = watchList.data,
-                        key = { quote -> quote.symbol }
-                    ) { item ->
-                        WatchlistQuote(
-                            quote = item,
-                            navController = navController,
-                            deleteFromWatchList = deleteFromWatchList
+                Scaffold(
+                    floatingActionButton = {
+                        ClearWatchlistFab(
+                            fabPadding = fabPadding,
+                            clearWatchlist = clearWatchlist,
                         )
+                    },
+                ) { padding ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = watchList.data,
+                            key = { quote -> quote.symbol }
+                        ) { item ->
+                            WatchlistQuote(
+                                quote = item,
+                                navController = navController,
+                                deleteFromWatchList = deleteFromWatchlist,
+                                onClick = {
+                                    quote = item
+                                    scope.launch {
+                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -141,7 +196,8 @@ internal fun WatchlistScreen(
 private fun WatchlistQuote(
     quote: SimpleQuoteData,
     navController: NavController,
-    deleteFromWatchList: (String) -> Unit
+    deleteFromWatchList: (String) -> Unit,
+    onClick: () -> Unit
 ) {
     var offsetX by remember { mutableFloatStateOf(0f) }
     val maxDragDistance = 500f
@@ -151,12 +207,27 @@ private fun WatchlistQuote(
         label = "weight"
     )
 
+    // Keep track of tap gesture
+    var isTapped by remember { mutableStateOf(false) }
+    LaunchedEffect(isTapped) {
+        delay(300)
+        isTapped = false
+    }
+
     Row(
         modifier = Modifier
-            .height(60.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
+                        // Workaround for double tap gesture without the delay
+                        if (isTapped) {
+                            navController.navigateToQuote(quote.symbol)
+                        } else {
+                            onClick()
+                            isTapped = true
+                        }
+                    },
+                    onLongPress = {
                         navController.navigateToQuote(quote.symbol)
                     }
                 )
@@ -185,7 +256,7 @@ private fun WatchlistQuote(
                 .weight(weight)
                 .fillMaxHeight()
                 .padding(vertical = 4.dp)
-                .clip(RoundedCornerShape(15))
+                .clip(RoundedCornerShape(25))
                 .background(MaterialTheme.colorScheme.errorContainer),
             contentAlignment = Alignment.Center
         ) {
@@ -201,12 +272,14 @@ private fun WatchlistQuote(
                 .weight((1f - weight).coerceAtLeast(0.01f))
                 .fillMaxHeight()
                 .padding(8.dp)
-                .clip(RoundedCornerShape(15))
+                .clip(RoundedCornerShape(25))
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -216,6 +289,7 @@ private fun WatchlistQuote(
                     color = MaterialTheme.colorScheme.inverseOnSurface,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .clip(RoundedCornerShape(25))
                         .background(MaterialTheme.colorScheme.inverseSurface)
@@ -303,7 +377,9 @@ private fun PreviewWatchlistScreen() {
                     ),
                 )
             ),
-            deleteFromWatchList = {}
+            addToWatchlist = {},
+            deleteFromWatchlist = {},
+            clearWatchlist = {}
         )
     }
 }

@@ -15,13 +15,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WatchlistViewModel @Inject constructor(
-    private val watchlistRepository: WatchlistRepository
+    private val watchlistRepository: WatchlistRepository,
 ): ViewModel() {
+
     val watchlist: StateFlow<Result<List<SimpleQuoteData>, DataError.Local>> = watchlistRepository.watchlist.stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = Result.Loading()
     )
+
+    fun addToWatchlist(symbol: String) {
+        viewModelScope.launch {
+            watchlistRepository.addToWatchList(symbol)
+        }
+    }
 
     fun deleteFromWatchlist(symbol: String) {
         viewModelScope.launch {
