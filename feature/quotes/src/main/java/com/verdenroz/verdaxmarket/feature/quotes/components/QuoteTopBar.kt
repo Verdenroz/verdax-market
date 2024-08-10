@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
@@ -76,23 +76,9 @@ internal fun QuoteTopBar(
             )
 
             if (isWatchlisted) {
-                IconButton(
-                    onClick = deleteFromWatchlist,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = stringResource(id = R.string.feature_quotes_remove)
-                    )
-                }
+                VxmDeleteIconButton(onClick = deleteFromWatchlist)
             } else {
-                IconButton(
-                    onClick = addToWatchlist,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = stringResource(id = R.string.feature_quotes_add)
-                    )
-                }
+                VxmAddIconButton(onClick = addToWatchlist)
             }
         }
 
