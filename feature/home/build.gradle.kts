@@ -10,4 +10,6 @@ android {
 
 dependencies {
     implementation(project(":core:data"))
+
+    implementation(project(":feature:quotes"))
 }

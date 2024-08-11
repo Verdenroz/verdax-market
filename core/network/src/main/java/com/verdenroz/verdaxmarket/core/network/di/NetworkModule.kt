@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.core.network.di
 
+import android.util.Log
+import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
 import dagger.Module
@@ -37,6 +39,18 @@ object NetworkModule {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                // Get the request
+                val request = chain.request()
+
+                // Log the request URL
+                if (BuildConfig.DEBUG) {
+                    Log.v("OkHTTPClient", request.url.toString())
+                }
+
+                // proceed on the chain (returns as last line)
+                chain.proceed(request)
+            }
             .build()
     }
 

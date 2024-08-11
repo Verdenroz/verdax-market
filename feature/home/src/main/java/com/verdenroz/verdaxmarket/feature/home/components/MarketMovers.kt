@@ -54,6 +54,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.feature.home.R
+import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -170,7 +171,7 @@ fun MarketMoversList(
                     items = stocks.data,
                     key = { stock -> stock.symbol }
                 ) { stock ->
-                    MarketMoverStock(stock = stock, navController = navController)
+                    MarketMoverStock(mover = stock, navController = navController)
                 }
             }
         }
@@ -179,7 +180,7 @@ fun MarketMoversList(
 
 @Composable
 fun MarketMoverStock(
-    stock: MarketMover,
+    mover: MarketMover,
     navController: NavController
 ) {
     Row(
@@ -188,7 +189,7 @@ fun MarketMoverStock(
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(8.dp)
             .clickable {
-                navController.navigate("stock/${stock.symbol}")
+                navController.navigateToQuote(mover.symbol)
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -198,7 +199,7 @@ fun MarketMoverStock(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stock.symbol,
+                text = mover.symbol,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.inverseOnSurface,
                 modifier = Modifier
@@ -207,7 +208,7 @@ fun MarketMoverStock(
                     .padding(4.dp)
             )
             Text(
-                text = stock.name,
+                text = mover.name,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Light,
@@ -217,7 +218,7 @@ fun MarketMoverStock(
         }
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = String.format(Locale.US, "%.2f", stock.price.toDouble()),
+            text = String.format(Locale.US, "%.2f", mover.price.toDouble()),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -228,31 +229,31 @@ fun MarketMoverStock(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stock.change,
+            text = mover.change,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = let { if (stock.change.startsWith("-")) negativeTextColor else positiveTextColor },
+            color = let { if (mover.change.startsWith("-")) negativeTextColor else positiveTextColor },
             modifier = Modifier
                 .weight(1f)
                 .wrapContentSize()
                 .clip(CircleShape)
                 .background(
-                    if (stock.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
+                    if (mover.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
                 )
                 .padding(4.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stock.percentChange,
+            text = mover.percentChange,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = let { if (stock.change.startsWith("-")) negativeTextColor else positiveTextColor },
+            color = let { if (mover.change.startsWith("-")) negativeTextColor else positiveTextColor },
             modifier = Modifier
                 .weight(1f)
                 .wrapContentSize()
                 .clip(CircleShape)
                 .background(
-                    if (stock.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
+                    if (mover.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
                 )
                 .padding(4.dp)
         )
@@ -264,7 +265,7 @@ fun MarketMoverStock(
 private fun PreviewMarketMoverStock() {
     VxmTheme {
         MarketMoverStock(
-            stock = MarketMover(
+            mover = MarketMover(
                 symbol = "AAPL",
                 name = "Apple Inc.",
                 price = "100.0",

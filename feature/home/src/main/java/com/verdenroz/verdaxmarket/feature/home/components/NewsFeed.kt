@@ -132,7 +132,7 @@ fun ContentCard(
                 context = context,
                 model = article.img,
                 description = stringResource(id = R.string.feature_home_news_img),
-                modifier = Modifier.size(250.dp)
+                modifier = Modifier.size(250.dp, 150.dp)
             )
             Text(
                 text = article.title,
