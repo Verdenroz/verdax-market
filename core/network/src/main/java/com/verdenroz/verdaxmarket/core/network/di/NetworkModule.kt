@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.core.network.di
 
+import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +38,18 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFinanceQueryDataSource(
+        okHttpClient: OkHttpClient,
+        json: Json
+    ): FinanceQueryDataSource {
+        return ImplFinanceQueryDataSource(
+            json,
+            okHttpClient,
+        )
     }
 
     /**

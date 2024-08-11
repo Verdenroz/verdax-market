@@ -28,7 +28,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ImplMarketInfoRepository @Inject constructor(
     private val api: FinanceQueryDataSource,
     marketStatusMonitor: MarketStatusMonitor,

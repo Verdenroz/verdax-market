@@ -31,9 +31,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 @OptIn(ExperimentalSerializationApi::class)
+@Singleton
 class ImplFinanceQueryDataSource @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient,
