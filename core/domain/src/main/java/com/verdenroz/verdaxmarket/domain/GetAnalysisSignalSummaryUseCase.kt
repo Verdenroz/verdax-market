@@ -48,28 +48,24 @@ class GetAnalysisSignalSummaryUseCase @Inject constructor(
 
                                 val summaries = mapOf(
                                     IndicatorType.MOVING_AVERAGE to AnalysisSignalSummary.MovingAverageSummary(
-                                        buy = movingAverageSummary.buy,
-                                        sell = movingAverageSummary.sell,
-                                        neutral = movingAverageSummary.neutral,
-                                        summary = movingAverageSummary.summary
+                                        buy = movingAverageSummary.first,
+                                        sell = movingAverageSummary.second,
+                                        neutral = movingAverageSummary.third,
                                     ),
                                     IndicatorType.OSCILLATOR to AnalysisSignalSummary.OscillatorSummary(
-                                        buy = oscillatorSummary.buy,
-                                        sell = oscillatorSummary.sell,
-                                        neutral = oscillatorSummary.neutral,
-                                        summary = oscillatorSummary.summary
+                                        buy = oscillatorSummary.first,
+                                        sell = oscillatorSummary.second,
+                                        neutral = oscillatorSummary.third,
                                     ),
                                     IndicatorType.TREND to AnalysisSignalSummary.TrendSummary(
-                                        buy = trendSummary.buy,
-                                        sell = trendSummary.sell,
-                                        neutral = trendSummary.neutral,
-                                        summary = trendSummary.summary
+                                        buy = trendSummary.first,
+                                        sell = trendSummary.second,
+                                        neutral = trendSummary.third,
                                     ),
                                     IndicatorType.ALL to AnalysisSignalSummary.OverallSummary(
-                                        buy = overallSummary.buy,
-                                        sell = overallSummary.sell,
-                                        neutral = overallSummary.neutral,
-                                        summary = overallSummary.summary
+                                        buy = overallSummary.first,
+                                        sell = overallSummary.second,
+                                        neutral = overallSummary.third,
                                     )
                                 )
 
@@ -87,15 +83,12 @@ class GetAnalysisSignalSummaryUseCase @Inject constructor(
     /**
      * Calculates summary of the signals for a given map of indicators by taking the average of buy(1), sell(-1), or neutral(0).
      */
-    private fun calculateSummary(indicatorSignalMap: Map<TechnicalIndicator, AnalysisSignal>): Quadruple<Int, Int, Int, Double> {
+    private fun calculateSummary(indicatorSignalMap: Map<TechnicalIndicator, AnalysisSignal>): Triple<Int, Int, Int> {
         val buyCount = indicatorSignalMap.values.count { it.signal == QuoteSignal.BUY }
         val sellCount = indicatorSignalMap.values.count { it.signal == QuoteSignal.SELL }
         val neutralCount = indicatorSignalMap.values.count { it.signal == QuoteSignal.NEUTRAL }
-        val total = buyCount + sellCount + neutralCount
-        val summary = (buyCount - sellCount) / total.toDouble()
 
-        return Quadruple(buyCount, sellCount, neutralCount, summary)
+        return Triple(buyCount, sellCount, neutralCount)
     }
 
-    private data class Quadruple<A, B, C, D>(val buy: A, val sell: B, val neutral: C, val summary: D)
 }

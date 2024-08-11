@@ -1,22 +1,21 @@
 package com.verdenroz.verdaxmarket.feature.quotes.components.analysis
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,23 +33,42 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 internal fun SummaryAnalysisSection(
     analysisSignalSummary: Map<IndicatorType, AnalysisSignalSummary>,
 ) {
-    FlowRow(
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
+    val overallSummary = analysisSignalSummary[IndicatorType.ALL]
+    val overallActions = Triple(
+        overallSummary?.buy ?: 0,
+        overallSummary?.neutral ?: 0,
+        overallSummary?.sell ?: 0
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        analysisSignalSummary.forEach { (indicatorType, summary) ->
-            val (sell, neutral, buy) = Triple(
-                summary.buy,
-                summary.neutral,
-                summary.sell
-            )
-            SummaryBar(
-                title = indicatorType.asString(),
-                actions = Triple(sell, neutral, buy),
-                summary = summary.summary,
-            )
+        OverallSummaryCircle(
+            title = IndicatorType.ALL.asString(),
+            actions = overallActions,
+            modifier = Modifier.size(150.dp)
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceAround,
+            maxItemsInEachRow = 2
+        ) {
+            analysisSignalSummary.filter { signal -> signal.key != IndicatorType.ALL }
+                .forEach { (indicatorType, summary) ->
+                    val (buy, neutral, sell) = Triple(
+                        summary.buy,
+                        summary.neutral,
+                        summary.sell
+                    )
+                    SummaryCircle(
+                        title = indicatorType.asString(),
+                        actions = Triple(buy, neutral, sell),
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
         }
     }
 }
@@ -65,15 +83,90 @@ private fun IndicatorType.asString(): String {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowRowScope.SummaryBar(
+private fun OverallSummaryCircle(
     title: String,
     actions: Triple<Int, Int, Int>,
-    summary: Double,
+    modifier: Modifier = Modifier
 ) {
-    val epsilon = 0.001f // small constant to ensure weight is always > 0
-    val (sell, neutral, buy) = actions
+    val (buy, neutral, sell) = actions
+    val total = buy + neutral + sell
+    val buyWeight = buy.toFloat() / total
+    val neutralWeight = neutral.toFloat() / total
+    val sellWeight = sell.toFloat() / total
+
+    val suggestion = when {
+        buy > 2 * (sell + neutral) -> stringResource(id = R.string.feature_quotes_strong_buy)
+        buy > sell && buy > neutral -> stringResource(id = R.string.feature_quotes_buy)
+        sell > buy && sell > neutral -> stringResource(id = R.string.feature_quotes_sell)
+        sell > 2 * (buy + neutral) -> stringResource(id = R.string.feature_quotes_strong_sell)
+        else -> stringResource(id = R.string.feature_quotes_neutral)
+    }
+
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            letterSpacing = 1.25.sp,
+            fontWeight = FontWeight.Black
+        )
+        Canvas(
+            modifier = modifier
+        ) {
+            val sweepAngleBuy = 360 * buyWeight
+            val sweepAngleNeutral = 360 * neutralWeight
+            val sweepAngleSell = 360 * sellWeight
+
+            drawArc(
+                color = positiveBackgroundColor,
+                startAngle = 0f,
+                sweepAngle = sweepAngleBuy,
+                useCenter = true
+            )
+            drawArc(
+                color = Color.Gray,
+                startAngle = sweepAngleBuy,
+                sweepAngle = sweepAngleNeutral,
+                useCenter = true
+            )
+            drawArc(
+                color = negativeBackgroundColor,
+                startAngle = sweepAngleBuy + sweepAngleNeutral,
+                sweepAngle = sweepAngleSell,
+                useCenter = true
+            )
+        }
+        Text(
+            text = suggestion,
+            style = MaterialTheme.typography.titleLarge,
+            color = when (suggestion) {
+                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> positiveTextColor
+                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> negativeTextColor
+                else -> MaterialTheme.colorScheme.onSurface
+            },
+            letterSpacing = 1.25.sp,
+            fontWeight = FontWeight.ExtraBold,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FlowRowScope.SummaryCircle(
+    title: String,
+    actions: Triple<Int, Int, Int>,
+    modifier: Modifier = Modifier
+) {
+    val (buy, neutral, sell) = actions
+    val total = buy + neutral + sell
+    val buyWeight = buy.toFloat() / total
+    val neutralWeight = neutral.toFloat() / total
+    val sellWeight = sell.toFloat() / total
+
     val suggestion = when {
         // If buy is greater than sell and neutral combined by 2 times, then it is a strong buy
         buy > 2 * (sell + neutral) -> stringResource(id = R.string.feature_quotes_strong_buy)
@@ -89,11 +182,12 @@ private fun FlowRowScope.SummaryBar(
 
         else -> stringResource(id = R.string.feature_quotes_neutral)
     }
+
     Column(
         modifier = Modifier
-            .padding(16.dp)
-            .weight(.5f),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            .weight(.25f)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -102,58 +196,59 @@ private fun FlowRowScope.SummaryBar(
             letterSpacing = 1.25.sp,
             fontWeight = FontWeight.Black
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(24.dp),
-            horizontalArrangement = Arrangement.Center
+        Canvas(
+            modifier = modifier
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(((1 - summary) / 2).toFloat() + epsilon)
-                    .fillMaxHeight()
-                    .background(negativeBackgroundColor)
+            val sweepAngleBuy = 360 * buyWeight
+            val sweepAngleNeutral = 360 * neutralWeight
+            val sweepAngleSell = 360 * sellWeight
+
+            drawArc(
+                color = positiveBackgroundColor,
+                startAngle = 0f,
+                sweepAngle = sweepAngleBuy,
+                useCenter = true
             )
-            Box(
-                modifier = Modifier
-                    .weight(((1 + summary) / 2).toFloat() + epsilon)
-                    .fillMaxHeight()
-                    .background(positiveBackgroundColor)
+            drawArc(
+                color = Color.Gray,
+                startAngle = sweepAngleBuy,
+                sweepAngle = sweepAngleNeutral,
+                useCenter = true
+            )
+            drawArc(
+                color = negativeBackgroundColor,
+                startAngle = sweepAngleBuy + sweepAngleNeutral,
+                sweepAngle = sweepAngleSell,
+                useCenter = true
             )
         }
-        Column(
+        Text(
+            text = suggestion,
+            style = MaterialTheme.typography.titleMedium,
+            color = when (suggestion) {
+                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> positiveTextColor
+                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> negativeTextColor
+                else -> MaterialTheme.colorScheme.onSurface
+            },
+            letterSpacing = 1.25.sp,
+            fontWeight = FontWeight.ExtraBold,
+        )
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(
-                text = suggestion,
-                style = MaterialTheme.typography.titleMedium,
-                color = when (suggestion) {
-                    stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> positiveTextColor
-                    stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> negativeTextColor
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
-                letterSpacing = 1.25.sp,
-                fontWeight = FontWeight.ExtraBold,
+            SummaryCountCell(
+                title = stringResource(id = R.string.feature_quotes_buy),
+                value = buy
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                SummaryCountCell(
-                    title = stringResource(id = R.string.feature_quotes_sell),
-                    value = sell
-                )
-                SummaryCountCell(
-                    title = stringResource(id = R.string.feature_quotes_neutral),
-                    value = neutral
-                )
-                SummaryCountCell(
-                    title = stringResource(id = R.string.feature_quotes_buy),
-                    value = buy
-                )
-            }
+            SummaryCountCell(
+                title = stringResource(id = R.string.feature_quotes_neutral),
+                value = neutral
+            )
+            SummaryCountCell(
+                title = stringResource(id = R.string.feature_quotes_sell),
+                value = sell
+            )
         }
     }
 }
@@ -164,7 +259,8 @@ private fun SummaryCountCell(
     value: Int
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
             text = title,
