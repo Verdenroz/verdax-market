@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -43,20 +44,17 @@ class ImplWatchlistRepository @Inject constructor(
 
     override val watchlist: Flow<Result<List<SimpleQuoteData>, DataError.Local>> =
         isOpen.flatMapLatest { isOpen ->
-            flow {
+            flow<Result<List<SimpleQuoteData>, DataError.Local>> {
                 while (true) {
-                    try {
-                        val quotes = quotesDao.getAllQuoteData().toExternal()
-                        emit(Result.Success(quotes))
-                    } catch (e: Exception) {
-                        emit(handleLocalException(e))
-                    }
+                    val quotes = quotesDao.getAllQuoteData().toExternal()
+                    emit(Result.Success(quotes))
+
                     val refreshInterval =
                         if (isOpen) WATCHLIST_REFRESH_OPEN else WATCHLIST_REFRESH_CLOSED // 30 seconds or 10 minutes
                     delay(refreshInterval)
                 }
             }
-        }.flowOn(ioDispatcher)
+        }.flowOn(ioDispatcher).catch { e -> emit(handleLocalException(e)) }
 
     override suspend fun refreshWatchList(): Result<Unit, DataError.Local> {
         return withContext(ioDispatcher) {

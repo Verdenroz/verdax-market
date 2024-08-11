@@ -7,7 +7,7 @@ import com.verdenroz.verdaxmarket.core.common.error.HttpException
 import com.verdenroz.verdaxmarket.core.common.error.NetworkException
 import com.verdenroz.verdaxmarket.core.common.result.Result
 
-fun handleNetworkException(e: Exception): Result.Error<DataError.Network> {
+fun handleNetworkException(e: Throwable): Result.Error<DataError.Network> {
     return when (e) {
         is DataException -> {
             when (e) {
@@ -30,7 +30,7 @@ fun handleNetworkException(e: Exception): Result.Error<DataError.Network> {
     }
 }
 
-fun handleLocalException(e: Exception): Result.Error<DataError.Local> {
+fun handleLocalException(e: Throwable): Result.Error<DataError.Local> {
     return when (e) {
         is SQLiteException -> {
             Result.Error(DataError.Local.DATABASE)
