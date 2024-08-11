@@ -1,6 +1,7 @@
 package com.verdenroz.verdaxmarket.feature.quotes.components
 
 import android.graphics.Paint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -12,8 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -62,6 +63,8 @@ import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 import kotlinx.coroutines.launch
 import java.lang.Math.round
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 private const val SPACING = 75f
 
@@ -147,7 +150,7 @@ internal fun QuoteChart(
                 Text(
                     text = selectedData.value.let {
                         it?.let { (date, _) ->
-                            date
+                            formatDate(date, timePeriod)
                         } ?: ""
                     },
                     style = MaterialTheme.typography.labelLarge,
@@ -242,7 +245,8 @@ internal fun QuoteChart(
                                 guidelineColor = guidelineColor,
                                 textPaint = textPaint,
                                 density = density,
-                                selectedData = selectedData
+                                selectedData = selectedData,
+                                timePeriod = timePeriod
                             )
                         }
                     }
@@ -285,14 +289,17 @@ private fun StockChartSkeleton(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
-    Card(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 200.dp, max = 400.dp)
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = color)
+            .padding(16.dp)
+            .background(color),
+        contentAlignment = Alignment.Center
     ) {
-        // skeleton
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 
@@ -309,7 +316,8 @@ private fun DrawScope.drawChart(
     guidelineColor: Color,
     textPaint: Paint,
     density: Density,
-    selectedData: MutableState<Pair<String, HistoricalData>?>
+    selectedData: MutableState<Pair<String, HistoricalData>?>,
+    timePeriod: TimePeriod
 ) {
     val spacePerHour = (size.width - SPACING) / timeSeries.size
 
@@ -328,7 +336,8 @@ private fun DrawScope.drawChart(
         textPaint = textPaint,
         size = size,
         spacePerHour = spacePerHour,
-        data = timeSeries
+        data = timeSeries,
+        timePeriod = timePeriod
     )
     // Draw the stroke and fill path
     drawPaths(
@@ -386,15 +395,17 @@ private fun drawXAxis(
     textPaint: Paint,
     size: Size,
     spacePerHour: Float,
-    data: Map<String, HistoricalData>
+    data: Map<String, HistoricalData>,
+    timePeriod: TimePeriod
 ) {
     val stepSize = (data.size / 4.5).toInt()
     for (i in data.entries.indices step stepSize) {
         val date = data.entries.elementAt(i).key
+        val formattedDate = formatDate(date, timePeriod)
         val x = SPACING + i * spacePerHour
 
         drawScope.drawContext.canvas.nativeCanvas.drawText(
-            date,
+            formattedDate,
             x + 10f,
             size.height + 5f,
             textPaint
@@ -523,4 +534,51 @@ private fun drawSelectedData(
             radius = with(density) { 5.dp.toPx() }
         )
     }
+}
+
+/**
+ * Helper function to format the date based on the number of days since the earliest date
+ * @see formatDateForTime
+ * @see formatDateForMonth
+ * @see formatDateForYear
+ */
+private fun formatDate(date: String, timePeriod: TimePeriod): String {
+    return when (timePeriod) {
+        TimePeriod.ONE_DAY -> formatDateForTime(date)
+        TimePeriod.FIVE_DAY, TimePeriod.ONE_MONTH -> formatDateForMonth(date)
+        else -> formatDateForYear(date)
+    }
+}
+
+/**
+ * Helper function to format the date for time in the form of "h:mm a"
+ * Ex. "Jul 1, 2021 9:30 AM" -> "9:30 AM"
+ */
+private fun formatDateForTime(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("h:mm a", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date for month in the form of "MMM d"
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1"
+ */
+private fun formatDateForMonth(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("MMM d", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date for year in the form of "MMM yyyy"
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 2021"
+ */
+private fun formatDateForYear(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("MMM yyyy", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
 }
