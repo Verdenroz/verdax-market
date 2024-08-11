@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_search_search">Search</string>
+    <string name="feature_search_cancel">Cancel search</string>
+    <string name="feature_search_filter">Filter search results</string>
+    <string name="feature_search_remove">Remove from watchlist</string>
+    <string name="feature_search_add">Add to watchlist</string>
+
+    <string name="feature_search_US">United States</string>
+    <string name="feature_search_NA">North America</string>
+    <string name="feature_search_SA">South America</string>
+    <string name="feature_search_EU">Europe</string>
+    <string name="feature_search_AS">Asia</string>
+    <string name="feature_search_ME">Middle East</string>
+    <string name="feature_search_AF">Africa</string>
+    <string name="feature_search_AU">Australia</string>
+    <string name="feature_search_GLOBAL">Global</string>
+
+    <string name="feature_search_stock">Stock</string>
+    <string name="feature_search_etf">ETF</string>
+    <string name="feature_search_trust">Trust</string>
+</resources>

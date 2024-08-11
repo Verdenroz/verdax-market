@@ -12,4 +12,6 @@
     <string name="core_designsystem_server_down">Server can\'t be reached</string>
     <string name="core_designsystem_unknown_error">Unknown error</string>
     <string name="core_designsystem_database">Unable to query data</string>
+    <string name="core_designsystem_search">Search</string>
+    <string name="core_designsystem_cancel_search">Cancel search</string>
 </resources>

@@ -1,4 +1,6 @@
-package com.verdenroz.verdaxmarket.core.model
+package com.verdenroz.verdaxmarket.core.network.model
+
+import kotlinx.serialization.Serializable
 
 /**
  * Data class for Algolia search results
@@ -8,6 +10,7 @@ package com.verdenroz.verdaxmarket.core.model
  * @param exchange the full name of the exchange
  * @param type the type of security (stock, etf, trust)
  */
+@Serializable
 data class SearchResult(
     val symbol: String,
     val name: String,
