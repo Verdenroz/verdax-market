@@ -50,11 +50,11 @@ internal fun QuoteNewsFeed(
     when (news) {
 
         is Result.Loading -> {
-            StockNewsFeedSkeleton()
+            QuoteNewsFeedSkeleton()
         }
 
         is Result.Error -> {
-            StockNewsFeedSkeleton()
+            QuoteNewsFeedSkeleton()
 
             LaunchedEffect(news.error) {
                 snackbarHostState.showSnackbar(
@@ -97,7 +97,7 @@ internal fun QuoteNewsFeed(
                         items = news.data,
                         key = { news -> news.link },
                     ) { item ->
-                        StockNewsItem(news = item)
+                        QuoteNewsItem(news = item)
                     }
                 }
             }
@@ -107,14 +107,15 @@ internal fun QuoteNewsFeed(
 
 
 @Composable
-private fun StockNewsItem(news: News) {
+private fun QuoteNewsItem(news: News) {
     val context = LocalContext.current
     ListItem(
         leadingContent = {
             VxmSubcomposeAsyncImage(
                 context = context,
                 model = news.img,
-                description = stringResource(id = R.string.feature_quotes_news_image_description)
+                description = stringResource(id = R.string.feature_quotes_news_image_description),
+                modifier = Modifier.fillMaxSize(.33f)
             )
         },
         headlineContent = {
@@ -154,7 +155,7 @@ private fun StockNewsItem(news: News) {
 }
 
 @Composable
-private fun StockNewsFeedSkeleton(
+private fun QuoteNewsFeedSkeleton(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.surfaceContainerLow
 ) {
