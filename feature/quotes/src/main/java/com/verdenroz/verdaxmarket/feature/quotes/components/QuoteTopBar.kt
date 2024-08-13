@@ -31,14 +31,17 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuoteTopBar(
     navController: NavController,
     symbol: String,
+    quote: SimpleQuoteData?,
     isWatchlisted: Boolean,
-    addToWatchlist: () -> Unit,
+    addToWatchlistLocal: (SimpleQuoteData) -> Unit,
+    addToWatchlistNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
 ) {
     Column(
@@ -78,7 +81,15 @@ internal fun QuoteTopBar(
             if (isWatchlisted) {
                 VxmDeleteIconButton(onClick = deleteFromWatchlist)
             } else {
-                VxmAddIconButton(onClick = addToWatchlist)
+                VxmAddIconButton(
+                    onClick = {
+                        if (quote != null) {
+                            addToWatchlistLocal(quote)
+                        } else {
+                            addToWatchlistNetwork()
+                        }
+                    }
+                )
             }
         }
 
@@ -97,8 +108,16 @@ private fun PreviewStockTopBar() {
             QuoteTopBar(
                 navController = rememberNavController(),
                 symbol = "AAPL",
+                quote = SimpleQuoteData(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = 145.12,
+                    change = "+0.12",
+                    percentChange = "+0.12%",
+                ),
                 isWatchlisted = true,
-                addToWatchlist = { Result.Success(Unit) },
+                addToWatchlistLocal = { Result.Success(Unit) },
+                addToWatchlistNetwork = { Result.Success(Unit) },
                 deleteFromWatchlist = { Result.Success(Unit) },
             )
         }

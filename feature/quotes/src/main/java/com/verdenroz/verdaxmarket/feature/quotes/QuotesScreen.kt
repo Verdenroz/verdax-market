@@ -157,6 +157,8 @@ internal fun QuotesScreen(
             }
 
             is Result.Error -> {
+                addToRecentQuotesNetwork()
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -176,6 +178,16 @@ internal fun QuotesScreen(
             }
 
             is Result.Success -> {
+                addToRecentQuotesLocal(
+                    SimpleQuoteData(
+                        symbol = quote.data.symbol,
+                        name = quote.data.name,
+                        price = quote.data.price,
+                        change = quote.data.change,
+                        percentChange = quote.data.percentChange
+                    )
+                )
+
                 val listState = rememberLazyListState()
                 Box(
                     modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),

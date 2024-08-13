@@ -31,7 +31,7 @@ import java.util.Locale
 @Composable
 internal fun QuoteSneakPeek(
     quote: SimpleQuoteData,
-    addToWatchlist: (String) -> Unit,
+    addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,7 +79,7 @@ internal fun QuoteSneakPeek(
                 if (isWatchlisted) {
                     deleteFromWatchlist(quote.symbol)
                 } else {
-                    addToWatchlist(quote.symbol)
+                    addToWatchlist(quote)
                 }
             }
             SmallFloatingActionButton(

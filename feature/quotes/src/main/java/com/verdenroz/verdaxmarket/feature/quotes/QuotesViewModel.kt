@@ -7,6 +7,7 @@ import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.QuoteRepository
+import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 class QuotesViewModel @AssistedInject constructor(
     @Assisted private val symbol: String,
     quotesRepository: QuoteRepository,
+    private val recentSearchRepository: RecentSearchRepository,
     private val watchlistRepository: WatchlistRepository,
     getSubscribedQuoteUseCase: GetSubscribedQuoteUseCase,
     getTimeSeriesMapUseCase: GetTimeSeriesMapUseCase,
@@ -126,6 +128,7 @@ class QuotesViewModel @AssistedInject constructor(
             watchlistRepository.isSymbolInWatchlist(symbol).collect { isInWatchlist ->
                 _isWatchlisted.value = isInWatchlist
             }
+
         }
     }
 
@@ -145,7 +148,6 @@ class QuotesViewModel @AssistedInject constructor(
             if (result is Result.Success) {
                 _isWatchlisted.value = true
             }
-
         }
     }
 
@@ -155,6 +157,18 @@ class QuotesViewModel @AssistedInject constructor(
             if (result is Result.Success) {
                 _isWatchlisted.value = false
             }
+        }
+    }
+
+    fun addToRecentQuotesLocal(quote: SimpleQuoteData) {
+        viewModelScope.launch {
+            recentSearchRepository.upsertRecentQuote(quote)
+        }
+    }
+
+    fun addToRecentQuotesNetwork() {
+        viewModelScope.launch {
+            recentSearchRepository.upsertRecentQuote(symbol)
         }
     }
 
