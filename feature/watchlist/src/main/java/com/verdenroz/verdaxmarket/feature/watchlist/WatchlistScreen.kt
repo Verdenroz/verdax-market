@@ -97,7 +97,7 @@ internal fun WatchlistScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     watchList: Result<List<SimpleQuoteData>, DataError.Local>,
-    addToWatchlist: (String) -> Unit,
+    addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
 ) {

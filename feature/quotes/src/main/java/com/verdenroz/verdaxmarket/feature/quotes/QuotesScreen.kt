@@ -85,8 +85,11 @@ internal fun QuotesRoute(
         signals = signals,
         signalSummary = signalSummary,
         isWatchlisted = isWatchlisted,
-        addToWatchList = quotesViewModel::addToWatchList,
-        deleteFromWatchList = quotesViewModel::deleteFromWatchList
+        addToWatchlistLocal = quotesViewModel::addToWatchListLocal,
+        addToWatchListNetwork = quotesViewModel::addToWatchlistNetwork,
+        deleteFromWatchlist = quotesViewModel::deleteFromWatchlist,
+        addToRecentQuotesLocal = quotesViewModel::addToRecentQuotesLocal,
+        addToRecentQuotesNetwork = quotesViewModel::addToRecentQuotesNetwork
     )
 }
 
@@ -104,17 +107,33 @@ internal fun QuotesScreen(
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
     isWatchlisted: Boolean,
-    addToWatchList: () -> Unit,
-    deleteFromWatchList: () -> Unit
+    addToWatchlistLocal: (SimpleQuoteData) -> Unit,
+    addToWatchListNetwork: () -> Unit,
+    deleteFromWatchlist: () -> Unit,
+    addToRecentQuotesLocal: (SimpleQuoteData) -> Unit,
+    addToRecentQuotesNetwork: () -> Unit,
 ) {
     Scaffold(
         topBar = {
+            val quoteData = when (quote) {
+                is Result.Success -> SimpleQuoteData(
+                    symbol = quote.data.symbol,
+                    name = quote.data.name,
+                    price = quote.data.price,
+                    change = quote.data.change,
+                    percentChange = quote.data.percentChange
+                )
+
+                else -> null
+            }
             QuoteTopBar(
                 navController = navController,
                 symbol = symbol,
+                quote = quoteData,
                 isWatchlisted = isWatchlisted,
-                addToWatchlist = addToWatchList,
-                deleteFromWatchlist = deleteFromWatchList,
+                addToWatchlistLocal = addToWatchlistLocal,
+                addToWatchlistNetwork = addToWatchListNetwork,
+                deleteFromWatchlist = deleteFromWatchlist,
             )
         },
         containerColor = MaterialTheme.colorScheme.primary,
@@ -329,8 +348,11 @@ private fun PreviewQuoteScreen() {
             signals = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             signalSummary = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             isWatchlisted = false,
-            addToWatchList = { },
-            deleteFromWatchList = {}
+            addToWatchlistLocal = { },
+            addToWatchListNetwork = { },
+            deleteFromWatchlist = {},
+            addToRecentQuotesLocal = { },
+            addToRecentQuotesNetwork = { }
         )
     }
 }

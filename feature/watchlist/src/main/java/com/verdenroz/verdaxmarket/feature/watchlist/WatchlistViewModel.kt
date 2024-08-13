@@ -24,9 +24,9 @@ class WatchlistViewModel @Inject constructor(
         initialValue = Result.Loading()
     )
 
-    fun addToWatchlist(symbol: String) {
+    fun addToWatchlist(quote: SimpleQuoteData) {
         viewModelScope.launch {
-            watchlistRepository.addToWatchList(symbol)
+            watchlistRepository.addToWatchList(quote)
         }
     }
 

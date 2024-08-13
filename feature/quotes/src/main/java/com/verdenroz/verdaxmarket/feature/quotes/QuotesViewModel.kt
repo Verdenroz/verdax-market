@@ -129,7 +129,17 @@ class QuotesViewModel @AssistedInject constructor(
         }
     }
 
-    fun addToWatchList() {
+
+    fun addToWatchListLocal(quote: SimpleQuoteData) {
+        viewModelScope.launch {
+            val result = watchlistRepository.addToWatchList(quote)
+            if (result is Result.Success) {
+                _isWatchlisted.value = true
+            }
+        }
+    }
+
+    fun addToWatchlistNetwork() {
         viewModelScope.launch {
             val result = watchlistRepository.addToWatchList(symbol)
             if (result is Result.Success) {
@@ -139,7 +149,7 @@ class QuotesViewModel @AssistedInject constructor(
         }
     }
 
-    fun deleteFromWatchList() {
+    fun deleteFromWatchlist() {
         viewModelScope.launch {
             val result = watchlistRepository.deleteFromWatchList(symbol)
             if (result is Result.Success) {

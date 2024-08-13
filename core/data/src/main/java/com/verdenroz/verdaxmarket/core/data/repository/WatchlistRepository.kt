@@ -34,7 +34,12 @@ interface WatchlistRepository {
     suspend fun refreshWatchList(): Result<Unit, DataError.Local>
 
     /**
-     * Add a symbol to the user's watch list
+     * Add a symbol to the user's watch list by local data
+     */
+    suspend fun addToWatchList(quote: SimpleQuoteData): Result<Unit, DataError.Local>
+
+    /**
+     * Add a symbol from the user's watch list by network
      */
     suspend fun addToWatchList(symbol: String): Result<Unit, DataError.Local>
 
