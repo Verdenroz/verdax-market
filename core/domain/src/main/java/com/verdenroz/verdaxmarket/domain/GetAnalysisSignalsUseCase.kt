@@ -5,7 +5,7 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
-import com.verdenroz.verdaxmarket.core.data.repository.AnalysisSignalRepository
+import com.verdenroz.verdaxmarket.core.data.repository.SignalRepository
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
@@ -20,7 +20,7 @@ import javax.inject.Inject
  * A use case which returns all the analysis signals for all available intervals.
  */
 class GetAnalysisSignalsUseCase @Inject constructor(
-    private val analysisSignalRepository: AnalysisSignalRepository,
+    private val signalRepository: SignalRepository,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
     /**
@@ -36,7 +36,7 @@ class GetAnalysisSignalsUseCase @Inject constructor(
         quote.mapNotNull { result ->
             if (result is Result.Success) result.data.price else null
         }.flatMapLatest { price ->
-            analysisSignalRepository.getIntervalAnalysisSignalMap(symbol, price)
+            signalRepository.getIntervalAnalysisSignalMap(symbol, price)
         }.flowOn(ioDispatcher)
 
 }

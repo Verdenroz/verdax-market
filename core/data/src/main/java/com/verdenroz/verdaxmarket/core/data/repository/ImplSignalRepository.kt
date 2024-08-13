@@ -25,10 +25,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ImplAnalysisSignalRepository @Inject constructor(
+class ImplSignalRepository @Inject constructor(
     private val api: FinanceQueryDataSource,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
-) : AnalysisSignalRepository {
+) : SignalRepository {
 
     override suspend fun getAnalysisMap(symbol: String): Flow<Map<Interval, Result<QuoteAnalysis, DataError.Network>>> =
         flow {

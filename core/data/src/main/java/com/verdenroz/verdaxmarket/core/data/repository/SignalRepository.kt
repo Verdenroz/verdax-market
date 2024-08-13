@@ -8,7 +8,7 @@ import com.verdenroz.verdaxmarket.core.model.QuoteAnalysis
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import kotlinx.coroutines.flow.Flow
 
-interface AnalysisSignalRepository {
+interface SignalRepository {
 
     /**
      * Returns a map of [Interval] to [QuoteAnalysis] for the [symbol].
