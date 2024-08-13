@@ -8,7 +8,7 @@ import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
  * Data class for [SimpleQuoteData]
  * Represents individual stock data in a WatchList
  */
-@Entity
+@Entity(tableName = "quotes")
 data class QuoteEntity(
     @PrimaryKey val symbol: String,
     val name: String,

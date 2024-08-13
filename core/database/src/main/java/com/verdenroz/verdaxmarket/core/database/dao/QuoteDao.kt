@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -14,22 +15,25 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface QuoteDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insert(quoteData: QuoteEntity)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun updateAll(quotes: List<QuoteEntity>)
 
-    @Query("DELETE FROM QuoteEntity WHERE symbol = :symbol")
+    @Query("DELETE FROM quotes WHERE symbol = :symbol")
     suspend fun delete(symbol: String)
 
-    @Query("DELETE FROM QuoteEntity")
+    @Query("DELETE FROM quotes")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM QuoteEntity")
+    @Query("SELECT * FROM quotes")
     suspend fun getAllQuoteData(): List<QuoteEntity>
 
-    @Query("SELECT * FROM QuoteEntity")
+    @Query("SELECT * FROM quotes")
     fun getAllQuoteDataFlow(): Flow<List<QuoteEntity>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM quotes WHERE symbol = :symbol)")
+    fun isInWatchlist(symbol: String): Flow<Boolean>
 
 }

@@ -6,7 +6,7 @@ import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.model.FullQuoteResponse
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
 
-fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
+fun SimpleQuoteResponse.asEntity() = QuoteEntity(
     symbol = symbol,
     name = name,
     price = price,
@@ -14,7 +14,15 @@ fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
     percentChange = percentChange,
 )
 
-fun SimpleQuoteResponse.asEntity() = QuoteEntity(
+fun SimpleQuoteData.asEntity() = QuoteEntity(
+    symbol = symbol,
+    name = name,
+    price = price,
+    change = change,
+    percentChange = percentChange,
+)
+
+fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
     symbol = symbol,
     name = name,
     price = price,
@@ -29,13 +37,6 @@ fun QuoteEntity.asExternalModel() = SimpleQuoteData(
     change = change,
     percentChange = percentChange,
 )
-
-
-fun List<SimpleQuoteResponse>.asExternalModel() = map { it.asExternalModel() }
-
-fun List<SimpleQuoteResponse>.asEntity() = map { it.asEntity() }
-
-fun List<QuoteEntity>.toExternal() = map { it.asExternalModel() }
 
 fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     symbol = symbol,
@@ -78,3 +79,10 @@ fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     fiveYearReturn = fiveYearReturn,
     logo = logo,
 )
+
+
+fun List<SimpleQuoteResponse>.asExternalModel() = map { it.asExternalModel() }
+
+fun List<SimpleQuoteResponse>.asEntity() = map { it.asEntity() }
+
+fun List<QuoteEntity>.toExternal() = map { it.asExternalModel() }

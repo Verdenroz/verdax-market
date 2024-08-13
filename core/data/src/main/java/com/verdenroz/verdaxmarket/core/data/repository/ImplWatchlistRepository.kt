@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -71,11 +70,22 @@ class ImplWatchlistRepository @Inject constructor(
         }
     }
 
+    override suspend fun addToWatchList(quote: SimpleQuoteData): Result<Unit, DataError.Local> {
+        return withContext(ioDispatcher) {
+            try {
+                quotesDao.insert(quote.asEntity())
+                Result.Success(Unit)
+            } catch (e: Exception) {
+                handleLocalException(e)
+            }
+        }
+    }
+
     override suspend fun addToWatchList(symbol: String): Result<Unit, DataError.Local> {
         return withContext(ioDispatcher) {
             try {
-                val quote = api.getSimpleQuote(symbol)
-                quotesDao.insert(quote.asEntity())
+                val quote = api.getSimpleQuote(symbol).asEntity()
+                quotesDao.insert(quote)
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -106,8 +116,6 @@ class ImplWatchlistRepository @Inject constructor(
     }
 
     override fun isSymbolInWatchlist(symbol: String): Flow<Boolean> =
-        quotesDao.getAllQuoteDataFlow().map { quotes ->
-            quotes.any { it.symbol == symbol }
-        }.flowOn(ioDispatcher)
+        quotesDao.isInWatchlist(symbol)
 
 }
