@@ -8,9 +8,11 @@ import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.data.repository.QuoteRepository
 import com.verdenroz.verdaxmarket.core.data.repository.ImplQuoteRepository
 import com.verdenroz.verdaxmarket.core.data.repository.ImplRecentSearchRepository
+import com.verdenroz.verdaxmarket.core.data.repository.ImplSocketRepository
 import com.verdenroz.verdaxmarket.core.data.repository.ImplWatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.repository.MarketInfoRepository
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
+import com.verdenroz.verdaxmarket.core.data.repository.SocketRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
@@ -47,6 +49,11 @@ abstract class DataModule {
     internal abstract fun bindsSignalRepository(
         signalRepository: ImplSignalRepository,
     ): SignalRepository
+
+    @Binds
+    internal abstract fun bindsSocketRepository(
+        socketMonitor: ImplSocketRepository,
+    ): SocketRepository
 
     @Binds
     internal abstract fun bindsNetworkMonitor(

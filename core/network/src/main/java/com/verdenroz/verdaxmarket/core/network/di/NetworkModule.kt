@@ -4,6 +4,9 @@ import android.util.Log
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
+import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
+import com.verdenroz.verdaxmarket.core.network.sockets.WatchlistSocket
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -64,6 +67,33 @@ object NetworkModule {
             json,
             okHttpClient,
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideMarketSocket(
+        client: OkHttpClient,
+        json: Json,
+    ): MarketSocket {
+        return MarketSocket(json, client)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileSocket(
+        client: OkHttpClient,
+        json: Json,
+    ): ProfileSocket {
+        return ProfileSocket(json, client)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWatchlistSocket(
+        client: OkHttpClient,
+        json: Json,
+    ): WatchlistSocket {
+        return WatchlistSocket(json, client)
     }
 
     /**

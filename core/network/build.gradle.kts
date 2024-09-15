@@ -17,6 +17,11 @@ android {
             "financeQueryAPIKey",
             properties.getProperty("FINANCE_QUERY_API_KEY")
         )
+        buildConfigField(
+            "String",
+            "socketURL",
+            properties.getProperty("SOCKET_URL")
+        )
     }
     buildFeatures {
         buildConfig = true
@@ -31,10 +36,10 @@ android {
 
 dependencies {
     api(project(":core:common"))
+    api(libs.okhttp)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
