@@ -6,6 +6,7 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.QuoteRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
+import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -25,6 +26,12 @@ class GetSubscribedQuoteUseCase @Inject constructor(
     private val marketMonitor: MarketMonitor,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
+
+    companion object {
+        private const val REFRESH_INTERVAL_OPEN = 30000L // 30 seconds
+        private const val REFRESH_INTERVAL_CLOSED = 300000L // 5 minutes
+    }
+
     /**
      * Returns a flow of the full quote data for a given symbol that updates
      * every 30 seconds when the market is open and every 5 minutes when the market is closed
@@ -36,10 +43,12 @@ class GetSubscribedQuoteUseCase @Inject constructor(
                 while (true) {
                     val result = quoteRepository.getFullQuote(symbol).first()
                     emit(result)
-                    val refreshInterval = if (isOpen) 30000L else 300000L
-                    delay(refreshInterval)
+
+                    when (isOpen) {
+                        true -> delay(REFRESH_INTERVAL_OPEN)
+                        false -> delay(REFRESH_INTERVAL_CLOSED)
+                    }
                 }
             }
-        }.flowOn(ioDispatcher).catch { emit(Result.Error(DataError.Network.UNKNOWN)) }
-
+        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 }

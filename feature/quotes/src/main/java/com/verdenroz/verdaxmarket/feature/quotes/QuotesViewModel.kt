@@ -15,11 +15,13 @@ import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import com.verdenroz.verdaxmarket.domain.GetAnalysisSignalSummaryUseCase
 import com.verdenroz.verdaxmarket.domain.GetAnalysisSignalsUseCase
+import com.verdenroz.verdaxmarket.domain.GetSubscribedProfileUseCase
 import com.verdenroz.verdaxmarket.domain.GetSubscribedQuoteUseCase
 import com.verdenroz.verdaxmarket.domain.GetTimeSeriesMapUseCase
 import dagger.assisted.Assisted
@@ -30,6 +32,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -40,6 +44,7 @@ class QuotesViewModel @AssistedInject constructor(
     private val recentSearchRepository: RecentSearchRepository,
     private val watchlistRepository: WatchlistRepository,
     getSubscribedQuoteUseCase: GetSubscribedQuoteUseCase,
+    getSubscribedProfileUseCase: GetSubscribedProfileUseCase,
     getTimeSeriesMapUseCase: GetTimeSeriesMapUseCase,
     getAnalysisSignalsUseCase: GetAnalysisSignalsUseCase,
     getAnalysisSignalSummaryUseCase: GetAnalysisSignalSummaryUseCase,
@@ -51,10 +56,27 @@ class QuotesViewModel @AssistedInject constructor(
     }
 
     /**
+     * The current subscribed [Profile] for the symbol with aggregated data
+     * for the quote, similar, news, and sector performance
+     * If profile is an error, data must be retrieved from the API instead
+     */
+    val profile: StateFlow<Result<Profile, DataError.Network>> =
+        getSubscribedProfileUseCase(symbol).stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            Result.Loading(true)
+        )
+
+    /**
      *  The current subscribed quote for the symbol
      */
     val quote: StateFlow<Result<FullQuoteData, DataError.Network>> =
-        getSubscribedQuoteUseCase(symbol).stateIn(
+        profile.flatMapLatest { profile ->
+            when (profile) {
+                is Result.Success -> flowOf(Result.Success(profile.data.quote))
+                else -> getSubscribedQuoteUseCase(symbol)
+            }
+        }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
             Result.Loading(true)
@@ -74,30 +96,46 @@ class QuotesViewModel @AssistedInject constructor(
      *  The similar quotes to the current symbol
      */
     val similarQuotes: StateFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        quotesRepository.getSimilarStocks(symbol)
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000L),
-                Result.Loading(true)
-            )
+        profile.flatMapLatest { profile ->
+            when (profile) {
+                is Result.Success -> flowOf(Result.Success(profile.data.similar))
+                else -> quotesRepository.getSimilarStocks(symbol)
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            Result.Loading(true)
+        )
 
     /**
      * The [MarketSector] performance of the current symbol if available
      */
     val sectorPerformance: StateFlow<Result<MarketSector?, DataError.Network>> =
-        quotesRepository.getSectorBySymbol(symbol)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), Result.Loading(true))
+        profile.flatMapLatest { profile ->
+            when (profile) {
+                is Result.Success -> flowOf(Result.Success(profile.data.performance))
+                else -> quotesRepository.getSectorBySymbol(symbol)
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            Result.Loading(true)
+        )
 
     /**
      * The list of [News] for the current symbol
      */
     val news: StateFlow<Result<List<News>, DataError.Network>> =
-        quotesRepository.getNewsForSymbol(symbol)
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000L),
-                Result.Loading(true)
-            )
+        profile.flatMapLatest { profile ->
+            when (profile) {
+                is Result.Success -> flowOf(Result.Success(profile.data.news))
+                else -> quotesRepository.getNewsForSymbol(symbol)
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            Result.Loading(true)
+        )
 
     /**
      * The complete analysis data for each [Interval] as a map of [TechnicalIndicator] to [AnalysisSignal]
