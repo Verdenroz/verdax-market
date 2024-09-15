@@ -58,9 +58,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
                 throw HttpException(code = response.code)
             }
             return response.body!!.byteStream()
-        } catch (e: UnknownHostException) {
-            throw NetworkException(e)
-        } catch (e: SocketTimeoutException) {
+        } catch (e: Exception) {
             throw NetworkException(e)
         }
     }
