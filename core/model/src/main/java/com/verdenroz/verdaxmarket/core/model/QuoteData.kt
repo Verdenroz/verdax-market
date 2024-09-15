@@ -7,6 +7,7 @@ package com.verdenroz.verdaxmarket.core.model
  * @param price the stock price
  * @param change the price change
  * @param percentChange the percentage change
+ * @param logo the URL of the company logo
  */
 data class SimpleQuoteData(
     val symbol: String,
@@ -14,6 +15,7 @@ data class SimpleQuoteData(
     val price: Double,
     val change: String,
     val percentChange: String,
+    val logo: String?
 )
 
 /**

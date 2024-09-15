@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
  * @param price the stock price
  * @param change the price change
  * @param percentChange the percentage change
+ * @param logo the url to the company logo
  */
 @Serializable
 data class SimpleQuoteResponse(
@@ -17,4 +18,5 @@ data class SimpleQuoteResponse(
     val price: Double,
     val change: String,
     val percentChange: String,
+    val logo: String? = null,
 )
