@@ -7,7 +7,6 @@ import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.WatchlistSocket

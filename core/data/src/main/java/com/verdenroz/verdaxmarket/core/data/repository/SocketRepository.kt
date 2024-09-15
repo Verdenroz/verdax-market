@@ -6,7 +6,6 @@ import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 interface SocketRepository {
 
