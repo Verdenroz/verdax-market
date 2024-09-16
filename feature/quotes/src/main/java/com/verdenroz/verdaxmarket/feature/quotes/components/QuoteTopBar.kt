@@ -114,6 +114,7 @@ private fun PreviewStockTopBar() {
                     price = 145.12,
                     change = "+0.12",
                     percentChange = "+0.12%",
+                    logo = "https://logo.clearbit.com/apple.com",
                 ),
                 isWatchlisted = true,
                 addToWatchlistLocal = { Result.Success(Unit) },

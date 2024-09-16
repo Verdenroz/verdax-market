@@ -12,6 +12,7 @@ fun SimpleQuoteResponse.asEntity() = QuoteEntity(
     price = price,
     change = change,
     percentChange = percentChange,
+    logo = logo,
 )
 
 fun SimpleQuoteData.asEntity() = QuoteEntity(
@@ -20,6 +21,7 @@ fun SimpleQuoteData.asEntity() = QuoteEntity(
     price = price,
     change = change,
     percentChange = percentChange,
+    logo = logo,
 )
 
 fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
@@ -28,6 +30,7 @@ fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
     price = price,
     change = change,
     percentChange = percentChange,
+    logo = logo,
 )
 
 fun QuoteEntity.asExternalModel() = SimpleQuoteData(
@@ -36,6 +39,7 @@ fun QuoteEntity.asExternalModel() = SimpleQuoteData(
     price = price,
     change = change,
     percentChange = percentChange,
+    logo = logo,
 )
 
 fun FullQuoteResponse.asExternalModel() = FullQuoteData(
@@ -85,4 +89,4 @@ fun List<SimpleQuoteResponse>.asExternalModel() = map { it.asExternalModel() }
 
 fun List<SimpleQuoteResponse>.asEntity() = map { it.asEntity() }
 
-fun List<QuoteEntity>.toExternal() = map { it.asExternalModel() }
+fun List<QuoteEntity>.asExternalModel() = map { it.asExternalModel() }

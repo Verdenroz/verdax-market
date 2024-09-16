@@ -127,6 +127,7 @@ private fun PreviewSimilarStockFeed() {
                         price = 145.12,
                         change = "+0.12",
                         percentChange = "+0.12%",
+                        logo = "https://logo.clearbit.com/apple.com",
                     ),
                     SimpleQuoteData(
                         symbol = "GOOGL",
@@ -134,6 +135,7 @@ private fun PreviewSimilarStockFeed() {
                         price = 145.12,
                         change = "+0.12",
                         percentChange = "+0.12%",
+                        logo = "https://logo.clearbit.com/google.com",
                     ),
                     SimpleQuoteData(
                         symbol = "MSFT",
@@ -141,6 +143,7 @@ private fun PreviewSimilarStockFeed() {
                         price = 145.12,
                         change = "+0.12",
                         percentChange = "+0.12%",
+                        logo = "https://logo.clearbit.com/microsoft.com",
                     )
                 ),
             ),

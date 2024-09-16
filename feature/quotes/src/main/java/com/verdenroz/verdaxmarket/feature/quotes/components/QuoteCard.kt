@@ -82,7 +82,8 @@ private fun PreviewStockCard() {
                 name = "Apple Inc.",
                 price = 150.0,
                 change = "+5.0",
-                percentChange = "+5%"
+                percentChange = "+5%",
+                logo = "https://logo.clearbit.com/apple.com"
             ),
             navController = rememberNavController()
         )

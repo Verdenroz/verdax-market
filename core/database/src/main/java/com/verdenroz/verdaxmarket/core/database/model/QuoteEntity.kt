@@ -15,6 +15,7 @@ data class QuoteEntity(
     val price: Double,
     val change: String,
     val percentChange: String,
+    val logo: String?
 )
 
 fun QuoteEntity.asExternalModel() = SimpleQuoteData(
@@ -23,4 +24,5 @@ fun QuoteEntity.asExternalModel() = SimpleQuoteData(
     price = price,
     change = change,
     percentChange = percentChange,
+    logo = logo
 )

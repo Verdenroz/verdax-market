@@ -121,7 +121,8 @@ internal fun QuotesScreen(
                     name = quote.data.name,
                     price = quote.data.price,
                     change = quote.data.change,
-                    percentChange = quote.data.percentChange
+                    percentChange = quote.data.percentChange,
+                    logo = quote.data.logo
                 )
 
                 else -> null
@@ -184,7 +185,8 @@ internal fun QuotesScreen(
                         name = quote.data.name,
                         price = quote.data.price,
                         change = quote.data.change,
-                        percentChange = quote.data.percentChange
+                        percentChange = quote.data.percentChange,
+                        logo = quote.data.logo
                     )
                 )
 
@@ -321,28 +323,32 @@ private fun PreviewQuoteScreen() {
                         name = "Apple Inc.",
                         price = 120.00,
                         change = "+1.00",
-                        percentChange = "+0.5%"
+                        percentChange = "+0.5%",
+                        logo = "https://logo.clearbit.com/apple.com"
                     ),
                     SimpleQuoteData(
                         symbol = "NVDA",
                         name = "NVIDIA",
                         price = 120.00,
                         change = "+1.00",
-                        percentChange = "+0.5%"
+                        percentChange = "+0.5%",
+                        logo = "https://logo.clearbit.com/nvidia.com"
                     ),
                     SimpleQuoteData(
                         symbol = "TSLA",
                         name = "Tesla",
                         price = 120.00,
                         change = "+1.00",
-                        percentChange = "+0.5%"
+                        percentChange = "+0.5%",
+                        logo = "https://logo.clearbit.com/tesla.com"
                     ),
                     SimpleQuoteData(
                         symbol = "NFLX",
                         name = "Netflix",
                         price = 120.00,
                         change = "+1.00",
-                        percentChange = "+0.5%"
+                        percentChange = "+0.5%",
+                        logo = "https://logo.clearbit.com/netflix.com"
                     ),
                 )
             ),
