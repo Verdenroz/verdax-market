@@ -29,20 +29,21 @@ interface WatchlistRepository {
     val watchlist: Flow<List<SimpleQuoteData>>
 
     /**
-     * Get watchlist by a list of symbols through network connection
-     */
-    suspend fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>>
-
-    /**
-     * Get watchlist  by local data
+     * Returns the user's watch list as a list of [SimpleQuoteData] from local data
      */
     suspend fun getWatchlist(): Flow<List<SimpleQuoteData>>
 
     /**
-     * Update the user's watch list with new stock data
+     * Update the user's watch list with new stock data by local data
      * @param quotes the list of [SimpleQuoteData] to upsert
      */
     suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local>
+
+    /**
+     * Update the user's watch list with new stock data by network connection
+     * @param symbols the list of symbols to update
+     */
+    suspend fun updateWatchlist(symbols: List<String>): Result<Unit, DataError.Network>
 
     /**
      * Add a symbol to the user's watch list by local data

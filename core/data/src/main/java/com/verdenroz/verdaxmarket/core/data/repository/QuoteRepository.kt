@@ -25,11 +25,6 @@ interface QuoteRepository {
     suspend fun getSimpleQuote(symbol: String): Flow<Result<SimpleQuoteData, DataError.Network>>
 
     /**
-     * Get simple quote data for a list of symbols as a list of [SimpleQuoteData]
-     */
-    suspend fun getBulkQuote(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>>
-
-    /**
      * Get news for a symbol as a list of [News]
      */
     fun getNewsForSymbol(symbol: String): Flow<Result<List<News>, DataError.Network>>

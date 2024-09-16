@@ -44,7 +44,7 @@ class ImplSocketRepository @Inject constructor(
     override fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> = callbackFlow {
         watchlistSocket.open(mapOf("symbols" to symbols.joinToString(",")))
         watchlistSocket.setOnNewMessageListener { simpleQuoteResponse ->
-            val quotes = simpleQuoteResponse.map { it.asExternalModel() }
+            val quotes = simpleQuoteResponse.asExternalModel()
             trySend(Result.Success(quotes))
         }
         awaitClose { watchlistSocket.close() }

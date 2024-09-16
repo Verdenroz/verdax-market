@@ -44,8 +44,9 @@ class GetSubscribedWatchlistUseCase @Inject constructor(
                 else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
                     flow<Result<List<SimpleQuoteData>, DataError.Network>> {
                         while (true) {
-                            val apiResult = watchlistRepository.getWatchlist(symbols).first()
-                            emit(apiResult)
+                            watchlistRepository.updateWatchlist(symbols)
+                            val currentWatchlist = watchlistRepository.getWatchlist().first()
+                            emit(Result.Success(currentWatchlist))
 
                             when (isOpen) {
                                 true -> delay(MARKET_DATA_REFRESH_OPEN)

@@ -6,7 +6,6 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asEntity
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.data.model.toExternal
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleLocalException
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
@@ -43,7 +42,7 @@ class ImplWatchlistRepository @Inject constructor(
 
     init {
         CoroutineScope(ioDispatcher).launch {
-            quotesDao.getAllQuoteDataFlow().map { it.toExternal() }
+            quotesDao.getAllQuoteDataFlow().map { it.asExternalModel() }
                 .collect { _watchlist.value = it }
         }
     }
@@ -54,24 +53,31 @@ class ImplWatchlistRepository @Inject constructor(
         marketStatusMonitor.isMarketOpen()
     )
 
-    override suspend fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        flow {
-            val quote = api.getBulkQuote(symbols).asExternalModel()
-            emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
-
     override suspend fun getWatchlist(): Flow<List<SimpleQuoteData>> =
-        quotesDao.getAllQuoteDataFlow().map { it.toExternal() }
+        quotesDao.getAllQuoteDataFlow().map { it.asExternalModel() }
 
     override suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local> {
         return withContext(ioDispatcher) {
             try {
                 val updatedQuotes = quotes.map { it.asEntity() }
                 quotesDao.updateAll(updatedQuotes)
-                _watchlist.value = updatedQuotes.toExternal()
+                _watchlist.value = updatedQuotes.asExternalModel()
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
+            }
+        }
+    }
+
+    override suspend fun updateWatchlist(symbols: List<String>): Result<Unit, DataError.Network> {
+        return withContext(ioDispatcher) {
+            try {
+                val quotes = api.getBulkQuote(symbols).asEntity()
+                quotesDao.updateAll(quotes)
+                _watchlist.value = quotes.asExternalModel()
+                Result.Success(Unit)
+            } catch (e: Exception) {
+                handleNetworkException(e)
             }
         }
     }
