@@ -5,24 +5,27 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asEntity
+import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.model.toExternal
-import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository.Companion.WATCHLIST_REFRESH_CLOSED
-import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository.Companion.WATCHLIST_REFRESH_OPEN
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleLocalException
+import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,34 +38,37 @@ class ImplWatchlistRepository @Inject constructor(
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : WatchlistRepository {
 
-    override val isOpen: Flow<Boolean> = marketStatusMonitor.isMarketOpen.stateIn(
+    private val _watchlist = MutableStateFlow<List<SimpleQuoteData>>(emptyList())
+    override val watchlist: StateFlow<List<SimpleQuoteData>> = _watchlist.asStateFlow()
+
+    init {
+        CoroutineScope(ioDispatcher).launch {
+            quotesDao.getAllQuoteDataFlow().map { it.toExternal() }
+                .collect { _watchlist.value = it }
+        }
+    }
+
+    override val isOpen: StateFlow<Boolean> = marketStatusMonitor.isMarketOpen.stateIn(
         CoroutineScope(ioDispatcher),
         SharingStarted.WhileSubscribed(5000L),
         marketStatusMonitor.isMarketOpen()
     )
 
-    override val watchlist: Flow<Result<List<SimpleQuoteData>, DataError.Local>> =
-        isOpen.flatMapLatest { isOpen ->
-            flow<Result<List<SimpleQuoteData>, DataError.Local>> {
-                while (true) {
-                    val quotes = quotesDao.getAllQuoteData().toExternal()
-                    emit(Result.Success(quotes))
+    override suspend fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
+        flow {
+            val quote = api.getBulkQuote(symbols).asExternalModel()
+            emit(Result.Success(quote))
+        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
-                    val refreshInterval =
-                        if (isOpen) WATCHLIST_REFRESH_OPEN else WATCHLIST_REFRESH_CLOSED // 30 seconds or 10 minutes
-                    delay(refreshInterval)
-                }
-            }
-        }.flowOn(ioDispatcher).catch { e -> emit(handleLocalException(e)) }
+    override suspend fun getWatchlist(): Flow<List<SimpleQuoteData>> =
+        quotesDao.getAllQuoteDataFlow().map { it.toExternal() }
 
-    override suspend fun refreshWatchList(): Result<Unit, DataError.Local> {
+    override suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local> {
         return withContext(ioDispatcher) {
             try {
-                val symbols = quotesDao.getAllQuoteData().map { it.symbol }
-                if (symbols.isNotEmpty()) {
-                    val updatedQuotes = api.getBulkQuote(symbols).asEntity()
-                    quotesDao.updateAll(updatedQuotes)
-                }
+                val updatedQuotes = quotes.map { it.asEntity() }
+                quotesDao.updateAll(updatedQuotes)
+                _watchlist.value = updatedQuotes.toExternal()
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -74,6 +80,7 @@ class ImplWatchlistRepository @Inject constructor(
         return withContext(ioDispatcher) {
             try {
                 quotesDao.insert(quote.asEntity())
+                _watchlist.value += quote
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -86,6 +93,7 @@ class ImplWatchlistRepository @Inject constructor(
             try {
                 val quote = api.getSimpleQuote(symbol).asEntity()
                 quotesDao.insert(quote)
+                _watchlist.value += quote.asExternalModel()
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -97,6 +105,7 @@ class ImplWatchlistRepository @Inject constructor(
         return withContext(ioDispatcher) {
             try {
                 quotesDao.delete(symbol)
+                _watchlist.value = _watchlist.value.filterNot { it.symbol == symbol }
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -108,6 +117,7 @@ class ImplWatchlistRepository @Inject constructor(
         return withContext(ioDispatcher) {
             try {
                 quotesDao.deleteAll()
+                _watchlist.value = emptyList()
                 Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
@@ -117,5 +127,4 @@ class ImplWatchlistRepository @Inject constructor(
 
     override fun isSymbolInWatchlist(symbol: String): Flow<Boolean> =
         quotesDao.isInWatchlist(symbol)
-
 }

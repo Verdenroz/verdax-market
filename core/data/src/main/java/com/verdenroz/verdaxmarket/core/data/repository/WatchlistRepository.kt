@@ -11,12 +11,12 @@ interface WatchlistRepository {
         /**
          * The refresh interval for [watchlist] when market is open
          */
-        internal const val WATCHLIST_REFRESH_OPEN = 30000L // 30 seconds
+        internal const val WATCHLIST_REFRESH_OPEN = 15000L // 15 seconds
 
         /**
          * The refresh interval for [watchlist] when market is closed
          */
-        internal const val WATCHLIST_REFRESH_CLOSED = 600000L // 10 minutes
+        internal const val WATCHLIST_REFRESH_CLOSED = 300000L // 5 minutes
     }
     /**
      * The current market status of either open or closed
@@ -24,14 +24,25 @@ interface WatchlistRepository {
     val isOpen: Flow<Boolean>
 
     /**
-     * The user's watch list as a list of [SimpleQuoteData]
+     * The user's watch list as a list of [SimpleQuoteData] periodically updated
      */
-    val watchlist: Flow<Result<List<SimpleQuoteData>, DataError.Local>>
+    val watchlist: Flow<List<SimpleQuoteData>>
 
     /**
-     * Refresh the user's watch list with new stock data
+     * Get watchlist by a list of symbols through network connection
      */
-    suspend fun refreshWatchList(): Result<Unit, DataError.Local>
+    suspend fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>>
+
+    /**
+     * Get watchlist  by local data
+     */
+    suspend fun getWatchlist(): Flow<List<SimpleQuoteData>>
+
+    /**
+     * Update the user's watch list with new stock data
+     * @param quotes the list of [SimpleQuoteData] to upsert
+     */
+    suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local>
 
     /**
      * Add a symbol to the user's watch list by local data
