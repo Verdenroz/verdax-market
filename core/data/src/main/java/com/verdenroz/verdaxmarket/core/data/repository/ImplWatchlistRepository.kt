@@ -5,11 +5,11 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asEntity
-import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleLocalException
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
+import com.verdenroz.verdaxmarket.core.database.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,9 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

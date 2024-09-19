@@ -96,7 +96,7 @@ internal fun WatchlistRoute(
 internal fun WatchlistScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
-    watchList: Result<List<SimpleQuoteData>, DataError.Local>,
+    watchList: Result<List<SimpleQuoteData>, DataError.Network>,
     addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
@@ -123,6 +123,24 @@ internal fun WatchlistScreen(
         }
 
         is Result.Success -> {
+
+            if (watchList.data.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.feature_watchlist_empty),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                return
+            }
+
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
             var quote by remember { mutableStateOf(watchList.data.first()) }
             var isBottomSheetExpanded by remember { mutableStateOf(false) }
@@ -359,21 +377,24 @@ private fun PreviewWatchlistScreen() {
                         name = "Apple Inc.",
                         price = 145.86,
                         change = "+0.12",
-                        percentChange = "+0.08%"
+                        percentChange = "+0.08%",
+                        logo = "https://logo.clearbit.com/apple.com"
                     ),
                     SimpleQuoteData(
                         symbol = "TSLA",
                         name = "Tesla Inc.",
                         price = 1145.86,
                         change = "-0.12",
-                        percentChange = "-0.08%"
+                        percentChange = "-0.08%",
+                        logo = "https://logo.clearbit.com/tesla.com"
                     ),
                     SimpleQuoteData(
                         symbol = "NVDIA",
                         name = "NVIDIA Inc.",
                         price = 145.86,
                         change = "+0.12",
-                        percentChange = "+0.08%"
+                        percentChange = "+0.08%",
+                        logo = "https://logo.clearbit.com/nvidia.com"
                     ),
                 )
             ),
