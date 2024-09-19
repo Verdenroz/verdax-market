@@ -12,16 +12,20 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 /**
  * VerdaxMarket wrapper around [ListItem] with custom styling.
  * @param modifier The modifier to be applied to the layout.
- * @param headlineContent The content of the headline.
- * @param supportingContent The optional content of the supporting text.
- * @param trailingContent The optional content of the trailing icon.
+ * @param headlineContent The prominently displayed content.
+ * @param overlineContent The content displayed above the headline.
+ * @param supportingContent The optional content displayed below the headline.
+ * @param leadingContent The optional content displayed before the headline.
+ * @param trailingContent The optional content displayed after the headline.
  * @param colors The colors to be used for the list item. They are styled by default to match the Vxm theme.
  */
 @Composable
 fun VxmListItem(
     modifier: Modifier = Modifier,
     headlineContent: @Composable () -> Unit,
+    overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null,
     colors: ListItemColors = ListItemDefaults.colors(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -33,7 +37,9 @@ fun VxmListItem(
     ListItem(
         modifier = modifier,
         headlineContent = headlineContent,
+        overlineContent = overlineContent,
         supportingContent = supportingContent,
+        leadingContent = leadingContent,
         trailingContent = trailingContent,
         colors = colors
     )
