@@ -6,13 +6,13 @@ import androidx.room.PrimaryKey
 import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import kotlinx.datetime.Instant
 
-@Entity(tableName = "recent_searches")
+@Entity(tableName = "recentSearches")
 data class RecentSearchEntity(
     @PrimaryKey val query: String,
-    @ColumnInfo val timeStamp: Instant
+    @ColumnInfo val timestamp: Instant
 )
 
 fun RecentSearchEntity.asExternalModel() = RecentSearchQuery(
     query = query,
-    timeStamp = timeStamp,
+    timestamp = timestamp,
 )

@@ -1,6 +1,7 @@
 package com.verdenroz.verdaxmarket.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.verdenroz.verdaxmarket.core.database.model.RecentQuoteEntity
@@ -18,9 +19,10 @@ interface RecentQuoteDao {
     @Upsert
     suspend fun upsertRecentQuote(recentQuote: RecentQuoteEntity)
 
+    @Delete
+    suspend fun deleteRecentQuote(recentQuote: RecentQuoteEntity)
+
     @Query("DELETE FROM recentQuotes")
     suspend fun deleteAllRecentQuotes()
 
-    @Query("SELECT EXISTS(SELECT 1 FROM recentQuotes WHERE symbol = :symbol)")
-    fun isQuoteRecent(symbol: String): Flow<Boolean>
 }
