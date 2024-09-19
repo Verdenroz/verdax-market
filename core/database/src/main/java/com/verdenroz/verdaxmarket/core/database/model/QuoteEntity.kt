@@ -26,3 +26,5 @@ fun QuoteEntity.asExternalModel() = SimpleQuoteData(
     percentChange = percentChange,
     logo = logo
 )
+
+fun List<QuoteEntity>.asExternalModel() = map { it.asExternalModel()}
