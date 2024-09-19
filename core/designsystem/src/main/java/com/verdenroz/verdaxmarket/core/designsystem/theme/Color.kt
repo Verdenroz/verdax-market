@@ -3,8 +3,10 @@ package com.verdenroz.verdaxmarket.core.designsystem.theme
 import androidx.compose.ui.graphics.Color
 
 val positiveTextColor = Color(0xFF26A87F)
+val contrastPositiveTextColor = Color(0xFF0B3024)
 val positiveBackgroundColor = Color(0xFFA2EBD3)
 val negativeTextColor = Color(0xFFDF4661)
+val contrastNegativeTextColor = Color(0xFFE5E5E5)
 val negativeBackgroundColor = Color(0x55DF4661)
 
 val primaryLight = Color(0xBF123636)

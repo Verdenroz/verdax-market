@@ -6,6 +6,9 @@
     <string name="feature_search_remove">Remove from watchlist</string>
     <string name="feature_search_add">Add to watchlist</string>
 
+    <string name="feature_search_remove_query">Remove</string>
+    <string name="feature_search_cancel_query">Cancel</string>
+
     <string name="feature_search_US">United States</string>
     <string name="feature_search_NA">North America</string>
     <string name="feature_search_SA">South America</string>
@@ -19,4 +22,11 @@
     <string name="feature_search_stock">Stock</string>
     <string name="feature_search_etf">ETF</string>
     <string name="feature_search_trust">Trust</string>
+    <string name="feature_search_remove_query_prompt">Remove from search history?</string>
+    <string name="feature_search_recent_queries">Recent searches</string>
+    <string name="feature_search_clear">Clear</string>
+    <string name="feature_search_logo_description">Logo of quote</string>
+    <string name="feature_search_recent_quotes">Recent quotes</string>
+    <string name="feature_search_clear_queries">Clear all recent queries</string>
+    <string name="feature_search_clear_quotes">Clear all recent quotes</string>
 </resources>

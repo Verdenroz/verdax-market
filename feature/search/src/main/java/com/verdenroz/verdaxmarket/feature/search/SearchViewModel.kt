@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.search
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.algolia.instantsearch.searcher.hits.HitsSearcher
@@ -7,8 +8,10 @@ import com.algolia.search.model.APIKey
 import com.algolia.search.model.ApplicationID
 import com.algolia.search.model.IndexName
 import com.algolia.search.model.search.Query
-import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
+import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
+import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
@@ -17,14 +20,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val SEARCH_QUERY = "search_query"
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val watchlistRepository: WatchlistRepository
+    private val savedStateHandle: SavedStateHandle,
+    private val watchlistRepository: WatchlistRepository,
+    private val recentSearchRepository: RecentSearchRepository
 ) : ViewModel() {
 
     val regionFilter = MutableStateFlow(RegionFilter.US)
@@ -46,21 +52,30 @@ class SearchViewModel @Inject constructor(
         query = searchQuery.value
     )
 
-    private val query: MutableStateFlow<String> = MutableStateFlow("")
+    private val query: StateFlow<String> =
+        savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
 
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
+
+    val recentQueries: StateFlow<List<RecentSearchQuery>> =
+        recentSearchRepository.getRecentSearchQueries(10).stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
+
+    val recentQuotes: StateFlow<List<RecentQuoteResult>> =
+        recentSearchRepository.getRecentQuotes(10).stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     val resultsInWatchlist: StateFlow<List<Boolean>> = combine(
         searchResults,
         watchlistRepository.watchlist
     ) { results, watchlist ->
-        if (watchlist is Result.Success) {
-            results.map { result ->
-                watchlistRepository.isSymbolInWatchlist(result.symbol).first()
-            }
-        } else {
-            results.map { false }
-        }
+        results.map { result -> watchlist.any { it.symbol == result.symbol } }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
@@ -80,6 +95,7 @@ class SearchViewModel @Inject constructor(
         searcher.cancel()
     }
 
+
     fun search(query: String) {
         if (query.isEmpty() || this.query.value.isEmpty()) {
             searchResults.value = emptyList()
@@ -89,8 +105,25 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Called when the search action is explicitly triggered by the user. For example, when the
+     * IME Action is Search or when the enter key is pressed in the search text field.
+     */
+    fun onSearch(query: String) {
+        if (query.isBlank() || this.query.value.isBlank()) {
+            searchResults.value = emptyList()
+        } else {
+            searcher.setQuery(query)
+            searcher.searchAsync()
+
+            viewModelScope.launch {
+                recentSearchRepository.upsertRecentQuery(query)
+            }
+        }
+    }
+
     fun updateQuery(query: String) {
-        this.query.value = query
+        savedStateHandle[SEARCH_QUERY] = query
     }
 
     fun updateTypeFilter(type: TypeFilter) {
@@ -125,6 +158,22 @@ class SearchViewModel @Inject constructor(
 
     fun deleteFromWatchlist(searchResult: SearchResult) {
         viewModelScope.launch { watchlistRepository.deleteFromWatchList(searchResult.symbol) }
+    }
+
+    fun removeRecentQuery(query: RecentSearchQuery) {
+        viewModelScope.launch { recentSearchRepository.deleteRecentQuery(query) }
+    }
+
+    fun removeRecentQuote(quote: RecentQuoteResult) {
+        viewModelScope.launch { recentSearchRepository.deleteRecentQuote(quote) }
+    }
+
+    fun clearRecentQueries() {
+        viewModelScope.launch { recentSearchRepository.clearRecentQueries() }
+    }
+
+    fun clearRecentQuotes() {
+        viewModelScope.launch { recentSearchRepository.clearRecentQuotes() }
     }
 
 }

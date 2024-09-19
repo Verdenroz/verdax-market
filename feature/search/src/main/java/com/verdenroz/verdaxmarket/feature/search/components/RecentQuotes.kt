@@ -190,7 +190,7 @@ private fun RecentQuoteBody(
                     VxmAsyncImage(
                         context = LocalContext.current,
                         model = quote.logo!!,
-                        description = stringResource(id = R.string.feature_search_cancel),
+                        description = stringResource(id = R.string.feature_search_logo_description),
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
