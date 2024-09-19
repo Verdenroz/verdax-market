@@ -15,5 +15,7 @@ data class RecentQuoteResult(
     val name: String,
     val price: Double,
     val change: String,
+    val percentChange: String,
+    val logo: String?,
     val timestamp: Instant,
 )

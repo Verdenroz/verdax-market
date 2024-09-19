@@ -12,6 +12,8 @@ data class RecentQuoteEntity(
     val name: String,
     val price: Double,
     val change: String,
+    val percentChange: String,
+    val logo: String?,
     @ColumnInfo val timestamp: Instant
 )
 
@@ -20,5 +22,7 @@ fun RecentQuoteEntity.asExternalModel() = RecentQuoteResult(
     name = name,
     price = price,
     change = change,
+    percentChange = percentChange,
+    logo = logo,
     timestamp = timestamp,
 )
