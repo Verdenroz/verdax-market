@@ -2,16 +2,15 @@ package com.verdenroz.verdaxmarket.core.designsystem.components
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,12 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.R
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 
 /**
- * VerdaxMarket wrapper around [DockedSearchBar] to provide a search bar with custom styling
+ * VerdaxMarket wrapper around [SearchBar] to provide a search bar with custom styling
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,12 +36,10 @@ fun VxmSearchBar(
     content: @Composable ColumnScope.() -> Unit
 ) {
 
-    DockedSearchBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+    SearchBar(
+        modifier = Modifier.fillMaxWidth(),
         colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceBright,
+            containerColor = MaterialTheme.colorScheme.surfaceDim,
             dividerColor = Color.Transparent,
             inputFieldColors = SearchBarDefaults.inputFieldColors(
                 cursorColor = MaterialTheme.colorScheme.secondary,
