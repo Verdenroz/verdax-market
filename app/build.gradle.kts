@@ -54,6 +54,8 @@ android {
 dependencies {
     implementation(project(":feature:home"))
     implementation(project(":feature:quotes"))
+    implementation(project(":feature:watchlist"))
+    implementation(project(":feature:search"))
 
     implementation(project(":core:common"))
     implementation(project(":core:designsystem"))
