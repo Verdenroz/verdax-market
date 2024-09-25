@@ -9,7 +9,7 @@ import com.verdenroz.verdaxmarket.feature.watchlist.WatchlistRoute
 
 private const val WATCHLIST_ROUTE = "watchlist_route"
 
-fun NavController.navigateToWatchlist(navOptions: NavOptions) = navigate(WATCHLIST_ROUTE)
+fun NavController.navigateToWatchlist(navOptions: NavOptions) = navigate(WATCHLIST_ROUTE, navOptions)
 
 
 fun NavGraphBuilder.watchlistScreen(

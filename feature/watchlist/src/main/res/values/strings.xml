@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="feature_watchlist_title">Watchlist</string>
     <string name="feature_watchlist_delete">Delete from watchlist</string>
     <string name="feature_watchlist_dismiss">Dismiss</string>
     <string name="feature_watchlist_clear">Clear watchlist</string>

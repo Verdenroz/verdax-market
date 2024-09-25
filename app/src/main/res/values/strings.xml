@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Verdax Market</string>
+    <string name="not_connected">You are not connected to the Internet</string>
 </resources>
