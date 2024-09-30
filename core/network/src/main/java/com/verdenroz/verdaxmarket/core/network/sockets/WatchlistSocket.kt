@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.core.network.sockets
 
+import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket.Companion.SOCKET_URL
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
@@ -31,6 +32,7 @@ class WatchlistSocket @Inject constructor(
         val url = "$SOCKET_URL/quotes"
         val request = Request.Builder()
             .url(url)
+            .addHeader("x-api-key", BuildConfig.financeQueryAPIKey)
             .build()
         webSocket = client.newWebSocket(request, this)
         val symString = symbols.joinToString(",")
