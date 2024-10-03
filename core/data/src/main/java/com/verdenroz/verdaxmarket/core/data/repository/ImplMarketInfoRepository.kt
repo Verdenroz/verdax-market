@@ -23,8 +23,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -44,7 +45,7 @@ class ImplMarketInfoRepository @Inject constructor(
      * Market data flow that emits the latest market data from the websocket
      * If cannot connect or there is an error, it will fallback to polling the API
      */
-    private val market: Flow<Result<MarketInfo, DataError.Network>> = socket.market.stateIn(
+    private val market: StateFlow<Result<MarketInfo, DataError.Network>> = socket.market.stateIn(
         CoroutineScope(ioDispatcher),
         SharingStarted.Lazily,
         Result.Loading()
@@ -57,10 +58,10 @@ class ImplMarketInfoRepository @Inject constructor(
     )
 
     override val indices: Flow<Result<List<MarketIndex>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.indices))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val indices = api.getIndexes().asExternalModel()
@@ -76,10 +77,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val actives: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.actives))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val actives = api.getActives().asExternalModel()
@@ -95,10 +96,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val losers: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.losers))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val losers = api.getLosers().asExternalModel()
@@ -114,10 +115,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val gainers: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.gainers))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val gainers = api.getGainers().asExternalModel()
@@ -133,10 +134,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val headlines: Flow<Result<List<News>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.headlines))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val headlines = api.getNews().asExternalModel()
@@ -152,10 +153,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val sectors: Flow<Result<List<MarketSector>, DataError.Network>> =
-        market.flatMapLatest { marketInfo ->
+        market.flatMapMerge { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.sectors))
-                else -> isOpen.flatMapLatest { isOpen ->
+                else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
                             val sectors = api.getSectors().asExternalModel()
