@@ -10,6 +10,6 @@ package com.verdenroz.verdaxmarket.core.model
 data class Profile(
     val quote: FullQuoteData,
     val similar: List<SimpleQuoteData>,
-    val performance: MarketSector,
+    val performance: MarketSector?,
     val news: List<News>
 )

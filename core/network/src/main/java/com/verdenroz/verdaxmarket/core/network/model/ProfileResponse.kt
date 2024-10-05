@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class ProfileResponse(
     val quote: FullQuoteResponse,
     val similar: List<SimpleQuoteResponse>,
-    val performance: SectorResponse,
+    val performance: SectorResponse? = null,
     val news: List<NewsResponse>
 )
