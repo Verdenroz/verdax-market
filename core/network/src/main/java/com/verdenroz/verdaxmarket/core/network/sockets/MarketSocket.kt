@@ -18,12 +18,12 @@ import javax.inject.Singleton
 class MarketSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<MarketInfoResponse>, WebSocketListener() {
+) : FinanceQuerySocket<MarketInfoResponse?>, WebSocketListener() {
 
     override var webSocket: WebSocket? = null
-    override var messageListener: ((MarketInfoResponse) -> Unit)? = null
+    override var messageListener: ((MarketInfoResponse?) -> Unit)? = null
 
-    override fun setOnNewMessageListener(listener: (MarketInfoResponse) -> Unit) {
+    override fun setOnNewMessageListener(listener: (MarketInfoResponse?) -> Unit) {
         messageListener = listener
     }
 
@@ -49,7 +49,7 @@ class MarketSocket @Inject constructor(
 
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        t.printStackTrace()
+        messageListener?.invoke(null)
         webSocket.close(1000, t.message)
     }
 }

@@ -27,7 +27,13 @@ class ImplSocketRepository @Inject constructor(
     override val market: Flow<Result<MarketInfo, DataError.Network>> = callbackFlow {
         marketSocket.open(emptyMap())
         marketSocket.setOnNewMessageListener { marketInfoResponse ->
-            trySend(Result.Success(marketInfoResponse.asExternalModel()))
+            trySend(
+                if (marketInfoResponse != null) {
+                    Result.Success(marketInfoResponse.asExternalModel())
+                } else {
+                    Result.Error(DataError.Network.SERVER_DOWN)
+                }
+            ).isSuccess
         }
         awaitClose { marketSocket.close() }
     }.catch { e -> handleNetworkException(e) }
@@ -35,7 +41,13 @@ class ImplSocketRepository @Inject constructor(
     override fun getProfile(symbol: String): Flow<Result<Profile, DataError.Network>> = callbackFlow {
         profileSocket.open(mapOf("symbol" to symbol))
         profileSocket.setOnNewMessageListener { profileResponse ->
-            trySend(Result.Success(profileResponse.asExternalModel()))
+            trySend(
+                if (profileResponse != null) {
+                    Result.Success(profileResponse.asExternalModel())
+                } else {
+                    Result.Error(DataError.Network.SERVER_DOWN)
+                }
+            ).isSuccess
         }
         awaitClose { profileSocket.close() }
     }.catch { e -> handleNetworkException(e) }
@@ -44,8 +56,14 @@ class ImplSocketRepository @Inject constructor(
     override fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> = callbackFlow {
         watchlistSocket.open(mapOf("symbols" to symbols.joinToString(",")))
         watchlistSocket.setOnNewMessageListener { simpleQuoteResponse ->
-            val quotes = simpleQuoteResponse.asExternalModel()
-            trySend(Result.Success(quotes))
+            val quotes = simpleQuoteResponse?.asExternalModel()
+            trySend(
+                if (quotes != null) {
+                    Result.Success(quotes)
+                } else {
+                    Result.Error(DataError.Network.SERVER_DOWN)
+                }
+            ).isSuccess
         }
         awaitClose { watchlistSocket.close() }
     }.catch { e -> handleNetworkException(e) }

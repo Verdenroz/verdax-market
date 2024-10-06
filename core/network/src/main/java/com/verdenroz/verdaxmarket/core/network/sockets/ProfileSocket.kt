@@ -18,12 +18,12 @@ import javax.inject.Singleton
 class ProfileSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<ProfileResponse>, WebSocketListener() {
+) : FinanceQuerySocket<ProfileResponse?>, WebSocketListener() {
 
     override var webSocket: WebSocket? = null
-    override var messageListener: ((ProfileResponse) -> Unit)? = null
+    override var messageListener: ((ProfileResponse?) -> Unit)? = null
 
-    override fun setOnNewMessageListener(listener: (ProfileResponse) -> Unit) {
+    override fun setOnNewMessageListener(listener: (ProfileResponse?) -> Unit) {
         messageListener = listener
     }
 
@@ -48,7 +48,7 @@ class ProfileSocket @Inject constructor(
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        t.printStackTrace()
+        messageListener?.invoke(null)
         webSocket.close(1000, t.message)
     }
 }

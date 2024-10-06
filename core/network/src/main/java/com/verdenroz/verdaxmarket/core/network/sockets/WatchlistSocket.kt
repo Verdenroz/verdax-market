@@ -18,12 +18,12 @@ import javax.inject.Singleton
 class WatchlistSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<List<SimpleQuoteResponse>>, WebSocketListener() {
+) : FinanceQuerySocket<List<SimpleQuoteResponse>?>, WebSocketListener() {
 
     override var webSocket: WebSocket? = null
-    override var messageListener: ((List<SimpleQuoteResponse>) -> Unit)? = null
+    override var messageListener: ((List<SimpleQuoteResponse>?) -> Unit)? = null
 
-    override fun setOnNewMessageListener(listener: (List<SimpleQuoteResponse>) -> Unit) {
+    override fun setOnNewMessageListener(listener: (List<SimpleQuoteResponse>?) -> Unit) {
         messageListener = listener
     }
 
@@ -50,7 +50,7 @@ class WatchlistSocket @Inject constructor(
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        t.printStackTrace()
+        messageListener?.invoke(null)
         webSocket.close(1000, t.message)
     }
 }
