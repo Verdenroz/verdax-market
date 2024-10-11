@@ -42,7 +42,7 @@ import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
-import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
@@ -64,11 +64,8 @@ internal fun QuotesRoute(
         }
     ),
 ) {
-    val quote by quotesViewModel.quote.collectAsStateWithLifecycle()
+    val profile by quotesViewModel.profile.collectAsStateWithLifecycle()
     val timeSeries by quotesViewModel.timeSeries.collectAsStateWithLifecycle()
-    val similarQuotes by quotesViewModel.similarQuotes.collectAsStateWithLifecycle()
-    val sectorPerformance by quotesViewModel.sectorPerformance.collectAsStateWithLifecycle()
-    val news by quotesViewModel.news.collectAsStateWithLifecycle()
     val signals by quotesViewModel.signals.collectAsStateWithLifecycle()
     val signalSummary by quotesViewModel.signalSummary.collectAsStateWithLifecycle()
     val isWatchlisted by quotesViewModel.isWatchlisted.collectAsStateWithLifecycle()
@@ -77,11 +74,8 @@ internal fun QuotesRoute(
         navController = navController,
         snackbarHostState = snackbarHostState,
         symbol = symbol,
-        quote = quote,
+        profile = profile,
         timeSeries = timeSeries,
-        similarQuotes = similarQuotes,
-        sectorPerformance = sectorPerformance,
-        news = news,
         signals = signals,
         signalSummary = signalSummary,
         isWatchlisted = isWatchlisted,
@@ -99,11 +93,8 @@ internal fun QuotesScreen(
     symbol: String,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
-    quote: Result<FullQuoteData, DataError.Network>,
+    profile: Result<Profile, DataError.Network>,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
-    similarQuotes: Result<List<SimpleQuoteData>, DataError.Network>,
-    sectorPerformance: Result<MarketSector?, DataError.Network>,
-    news: Result<List<News>, DataError.Network>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
     isWatchlisted: Boolean,
@@ -115,14 +106,14 @@ internal fun QuotesScreen(
 ) {
     Scaffold(
         topBar = {
-            val quoteData = when (quote) {
+            val quoteData = when (profile) {
                 is Result.Success -> SimpleQuoteData(
-                    symbol = quote.data.symbol,
-                    name = quote.data.name,
-                    price = quote.data.price,
-                    change = quote.data.change,
-                    percentChange = quote.data.percentChange,
-                    logo = quote.data.logo
+                    symbol = profile.data.quote.symbol,
+                    name = profile.data.quote.name,
+                    price = profile.data.quote.price,
+                    change = profile.data.quote.change,
+                    percentChange = profile.data.quote.percentChange,
+                    logo = profile.data.quote.logo
                 )
 
                 else -> null
@@ -140,7 +131,7 @@ internal fun QuotesScreen(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     ) { padding ->
-        when (quote) {
+        when (profile) {
             is Result.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -181,12 +172,12 @@ internal fun QuotesScreen(
             is Result.Success -> {
                 addToRecentQuotesLocal(
                     SimpleQuoteData(
-                        symbol = quote.data.symbol,
-                        name = quote.data.name,
-                        price = quote.data.price,
-                        change = quote.data.change,
-                        percentChange = quote.data.percentChange,
-                        logo = quote.data.logo
+                        symbol = profile.data.quote.symbol,
+                        name = profile.data.quote.name,
+                        price = profile.data.quote.price,
+                        change = profile.data.quote.change,
+                        percentChange = profile.data.quote.percentChange,
+                        logo = profile.data.quote.logo
                     )
                 )
 
@@ -203,13 +194,13 @@ internal fun QuotesScreen(
                     ) {
                         stickyHeader {
                             QuoteHeadline(
-                                name = quote.data.name,
-                                symbol = quote.data.symbol,
-                                price = quote.data.price,
-                                afterHoursPrice = quote.data.afterHoursPrice,
-                                change = quote.data.change,
-                                percentChange = quote.data.percentChange,
-                                logo = quote.data.logo,
+                                name = profile.data.quote.name,
+                                symbol = profile.data.quote.symbol,
+                                price = profile.data.quote.price,
+                                afterHoursPrice = profile.data.quote.afterHoursPrice,
+                                change = profile.data.quote.change,
+                                percentChange = profile.data.quote.percentChange,
+                                logo = profile.data.quote.logo,
                             )
                         }
 
@@ -224,35 +215,33 @@ internal fun QuotesScreen(
                             )
                         }
 
-                        quote.data.ytdReturn?.let {
+                        profile.data.quote.ytdReturn?.let {
                             item {
                                 QuotePerformance(
-                                    snackbarHost = snackbarHostState,
-                                    symbol = quote.data.symbol,
+                                    symbol = profile.data.quote.symbol,
                                     ytdReturn = it,
-                                    yearReturn = quote.data.yearReturn,
-                                    threeYearReturn = quote.data.threeYearReturn,
-                                    fiveYearReturn = quote.data.fiveYearReturn,
-                                    sector = quote.data.sector,
-                                    sectorPerformance = sectorPerformance
+                                    yearReturn = profile.data.quote.yearReturn,
+                                    threeYearReturn = profile.data.quote.threeYearReturn,
+                                    fiveYearReturn = profile.data.quote.fiveYearReturn,
+                                    sector = profile.data.quote.sector,
+                                    sectorPerformance = profile.data.performance
                                 )
                             }
                         }
 
                         item {
                             SimilarQuoteFeed(
-                                symbol = quote.data.symbol,
-                                similarQuotes = similarQuotes,
+                                symbol = profile.data.quote.symbol,
+                                similarQuotes = profile.data.similar,
                                 navController = navController,
-                                snackbarHost = snackbarHostState
                             )
                         }
 
                         item {
                             QuoteScreenPager(
                                 snackbarHostState = snackbarHostState,
-                                quote = quote.data,
-                                news = news,
+                                quote = profile.data.quote,
+                                news = profile.data.news,
                                 signals = signals,
                                 signalSummary = signalSummary
                             )
@@ -314,55 +303,22 @@ private fun PreviewQuoteScreen() {
             symbol = "AAPL",
             navController = rememberNavController(),
             snackbarHostState = SnackbarHostState(),
-            quote = Result.Success(previewFullQuoteData),
             timeSeries = mapOf(TimePeriod.YEAR_TO_DATE to Result.Success(emptyMap())),
-            similarQuotes = Result.Success(
-                listOf(
-                    SimpleQuoteData(
-                        symbol = "AAPL",
-                        name = "Apple Inc.",
-                        price = 120.00,
-                        change = "+1.00",
-                        percentChange = "+0.5%",
-                        logo = "https://logo.clearbit.com/apple.com"
-                    ),
-                    SimpleQuoteData(
-                        symbol = "NVDA",
-                        name = "NVIDIA",
-                        price = 120.00,
-                        change = "+1.00",
-                        percentChange = "+0.5%",
-                        logo = "https://logo.clearbit.com/nvidia.com"
-                    ),
-                    SimpleQuoteData(
-                        symbol = "TSLA",
-                        name = "Tesla",
-                        price = 120.00,
-                        change = "+1.00",
-                        percentChange = "+0.5%",
-                        logo = "https://logo.clearbit.com/tesla.com"
-                    ),
-                    SimpleQuoteData(
-                        symbol = "NFLX",
-                        name = "Netflix",
-                        price = 120.00,
-                        change = "+1.00",
-                        percentChange = "+0.5%",
-                        logo = "https://logo.clearbit.com/netflix.com"
-                    ),
+            profile = Result.Success(
+                Profile(
+                    quote = previewFullQuoteData,
+                    similar = emptyList(),
+                    news = emptyList(),
+                    performance = MarketSector(
+                        sector = "Technology",
+                        dayReturn = "+1.5%",
+                        yearReturn = "+1.5%",
+                        threeYearReturn = "+1.5%",
+                        fiveYearReturn = "+1.5%",
+                        ytdReturn = "+1.5%"
+                    )
                 )
             ),
-            sectorPerformance = Result.Success(
-                MarketSector(
-                    sector = "Technology",
-                    dayReturn = "+1.5%",
-                    yearReturn = "+1.5%",
-                    threeYearReturn = "+1.5%",
-                    fiveYearReturn = "+1.5%",
-                    ytdReturn = "+1.5%"
-                )
-            ),
-            news = Result.Success(emptyList()),
             signals = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             signalSummary = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             isWatchlisted = false,

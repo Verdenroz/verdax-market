@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -121,29 +120,6 @@ private fun QuoteNewsItem(news: News) {
                 context.startActivity(intent)
             }
     )
-}
-
-@Composable
-private fun QuoteNewsFeedSkeleton(
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.surfaceContainerLow
-) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        repeat(5) {
-            item(key = it) {
-                ListItem(
-                    headlineContent = { /*skeleton*/ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color)
-                )
-            }
-        }
-    }
 }
 
 @ThemePreviews

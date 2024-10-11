@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 internal fun QuoteScreenPager(
     snackbarHostState: SnackbarHostState,
     quote: FullQuoteData,
-    news: Result<List<News>, DataError.Network>,
+    news: List<News>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>
 ) {
@@ -55,7 +55,7 @@ internal fun QuoteScreenPager(
             .requiredHeightIn(
                 min = 300.dp,
                 max = if (
-                    (news is Result.Success && news.data.size < 5 && state.currentPage == 1) ||
+                    (news.size < 5 && state.currentPage == 1) ||
                     (signals[interval] is Result.Error && state.currentPage == 2) ||
                     (signals[interval] is Result.Success && state.currentPage == 2 && (signals[interval] as Result.Success).data.isEmpty())
                 ) 300.dp else 900.dp
@@ -94,7 +94,6 @@ internal fun QuoteScreenPager(
 
                 1 -> {
                     QuoteNewsFeed(
-                        snackbarHostState = snackbarHostState,
                         news = news
                     )
                 }
@@ -120,7 +119,7 @@ private fun PreviewQuoteScreenPager() {
         QuoteScreenPager(
             snackbarHostState = SnackbarHostState(),
             quote = previewFullQuoteData,
-            news = Result.Success(emptyList()),
+            news = emptyList(),
             signals = mapOf(
                 Interval.DAILY to Result.Success(emptyMap()),
                 Interval.WEEKLY to Result.Success(emptyMap()),
@@ -142,7 +141,7 @@ private fun ImplPreviewQuoteScreenPager() {
         QuoteScreenPager(
             snackbarHostState = SnackbarHostState(),
             quote = previewFullQuoteData,
-            news = Result.Success(emptyList()),
+            news = emptyList(),
             signals = mapOf(
                 Interval.DAILY to Result.Success(emptyMap()),
                 Interval.WEEKLY to Result.Success(emptyMap()),
