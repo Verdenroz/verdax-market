@@ -8,6 +8,7 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.SignalRepository
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
+import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -31,10 +32,10 @@ class GetAnalysisSignalsUseCase @Inject constructor(
      */
     operator fun invoke(
         symbol: String,
-        quote: Flow<Result<FullQuoteData, DataError.Network>>
+        quote: Flow<Result<Profile, DataError.Network>>
     ): Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>> =
         quote.mapNotNull { result ->
-            if (result is Result.Success) result.data.price else null
+            if (result is Result.Success) result.data.quote.price else null
         }.flatMapLatest { price ->
             signalRepository.getIntervalAnalysisSignalMap(symbol, price)
         }.flowOn(ioDispatcher)

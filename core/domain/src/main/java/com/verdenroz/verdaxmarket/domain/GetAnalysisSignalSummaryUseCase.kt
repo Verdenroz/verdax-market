@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
@@ -33,7 +33,7 @@ class GetAnalysisSignalSummaryUseCase @Inject constructor(
      */
     operator fun invoke(
         signals: Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>>,
-    ): Flow<Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>> = signals.flatMapLatest { analysisSignal ->
+    ): Flow<Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>> = signals.flatMapMerge { analysisSignal ->
         flow {
             val signalSummaryMap = ConcurrentHashMap<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>()
             withContext(ioDispatcher) {

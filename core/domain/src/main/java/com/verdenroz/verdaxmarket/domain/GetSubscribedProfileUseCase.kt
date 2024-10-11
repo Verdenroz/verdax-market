@@ -30,10 +30,7 @@ class GetSubscribedProfileUseCase @Inject constructor(
      */
     operator fun invoke(symbol: String): Flow<Result<Profile, DataError.Network>> =
         socket.getProfile(symbol).map { profile ->
-            when (profile) {
-                is Result.Success -> Result.Success(profile.data)
-                else -> Result.Error(DataError.Network.UNKNOWN)
-            }
+            profile
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
 }
