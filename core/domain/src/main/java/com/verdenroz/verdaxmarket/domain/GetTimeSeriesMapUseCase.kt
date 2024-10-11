@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.domain
 
-import android.util.Log
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
@@ -40,7 +39,6 @@ class GetTimeSeriesMapUseCase @Inject constructor(
                         try {
                             val interval = timeToInterval(timePeriod)
                             val historicalData = api.getHistoricalData(symbol, timePeriod, interval).asExternalModel()
-                            Log.d("GetTimeSeriesMapUseCase", "Historical data for $interval: $historicalData")
                             timeSeriesMap[timePeriod] = Result.Success(historicalData)
                         } catch (e: Exception) {
                             timeSeriesMap[timePeriod] = handleNetworkException(e)
