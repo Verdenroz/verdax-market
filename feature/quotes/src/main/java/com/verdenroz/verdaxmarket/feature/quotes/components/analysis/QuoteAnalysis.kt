@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -23,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,13 +68,12 @@ internal fun QuoteAnalysis(
     updateInterval: (Interval) -> Unit
 ) {
     val context = LocalContext.current
-
     when (val analysisSignals = signals[interval]) {
-        is Result.Loading, null -> {
+        is Result.Loading -> {
             StockAnalysisSkeleton()
         }
 
-        is Result.Error -> {
+        is Result.Error, null -> {
             Column(
                 modifier = Modifier
                     .height(300.dp)
@@ -84,16 +86,27 @@ internal fun QuoteAnalysis(
                     selectedInterval = interval,
                     updateInterval = updateInterval,
                 )
-                StockAnalysisSkeleton()
+                Text(
+                    text = stringResource(id = R.string.feature_quotes_no_analysis),
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 64.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(100))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                )
             }
 
-            LaunchedEffect(analysisSignals.error) {
-                snackbarHostState.showSnackbar(
-                    message = analysisSignals.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
-                )
+            if (analysisSignals is Result.Error) {
+                LaunchedEffect(analysisSignals.error) {
+                    snackbarHostState.showSnackbar(
+                        message = analysisSignals.error.asUiText().asString(context),
+                        actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
+                            .asString(context),
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
         }
 
