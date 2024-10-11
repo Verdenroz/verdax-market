@@ -17,11 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,75 +28,47 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.verdenroz.verdaxmarket.core.common.error.DataError
-import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSubcomposeAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
-import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuoteNewsFeed(
-    snackbarHostState: SnackbarHostState,
-    news: Result<List<News>, DataError.Network>
+    news: List<News>
 ) {
-    val context = LocalContext.current
-    when (news) {
-
-        is Result.Loading -> {
-            QuoteNewsFeedSkeleton()
+    if (news.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .height(300.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(id = R.string.feature_quotes_no_news),
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(100))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            )
         }
-
-        is Result.Error -> {
-            QuoteNewsFeedSkeleton()
-
-            LaunchedEffect(news.error) {
-                snackbarHostState.showSnackbar(
-                    message = news.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
-                )
-            }
-        }
-
-        is Result.Success -> {
-            if (news.data.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .height(300.dp)
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.feature_quotes_no_news),
-                        style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(100))
-                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    items(
-                        items = news.data,
-                        key = { news -> news.link },
-                    ) { item ->
-                        QuoteNewsItem(news = item)
-                    }
-                }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            items(
+                items = news,
+                key = { news -> news.title },
+            ) { item ->
+                QuoteNewsItem(news = item)
             }
         }
     }
@@ -183,29 +152,26 @@ private fun PreviewNewsFeed() {
     VxmTheme {
         Column {
             QuoteNewsFeed(
-                snackbarHostState = SnackbarHostState(),
-                news = Result.Success(
-                    listOf(
-                        News(
-                            title = "Title",
-                            link = "https://www.google.com",
-                            source = "Source",
-                            time = "Time",
-                            img = "img"
-                        ),
-                        News(
-                            title = "Title",
-                            link = "https://www.yahoo.com",
-                            source = "Source",
-                            time = "Time",
-                            img = "img"
-                        )
+                news =
+                listOf(
+                    News(
+                        title = "Title",
+                        link = "https://www.google.com",
+                        source = "Source",
+                        time = "Time",
+                        img = "img"
+                    ),
+                    News(
+                        title = "Title",
+                        link = "https://www.yahoo.com",
+                        source = "Source",
+                        time = "Time",
+                        img = "img"
                     )
                 )
             )
             QuoteNewsFeed(
-                snackbarHostState = SnackbarHostState(),
-                news = Result.Loading()
+                news = emptyList()
             )
         }
     }
