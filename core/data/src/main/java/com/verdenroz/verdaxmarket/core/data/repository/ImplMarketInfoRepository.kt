@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -58,9 +59,10 @@ class ImplMarketInfoRepository @Inject constructor(
     )
 
     override val indices: Flow<Result<List<MarketIndex>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.indices))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
@@ -77,9 +79,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val actives: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.actives))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
@@ -96,9 +99,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val losers: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.losers))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
@@ -115,9 +119,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val gainers: Flow<Result<List<MarketMover>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.gainers))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
@@ -134,9 +139,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val headlines: Flow<Result<List<News>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.headlines))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
@@ -153,9 +159,10 @@ class ImplMarketInfoRepository @Inject constructor(
         }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
 
     override val sectors: Flow<Result<List<MarketSector>, DataError.Network>> =
-        market.flatMapMerge { marketInfo ->
+        market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.sectors))
+                is Result.Loading -> flowOf(Result.Loading())
                 else -> isOpen.flatMapMerge { isOpen ->
                     flow {
                         while (true) {
