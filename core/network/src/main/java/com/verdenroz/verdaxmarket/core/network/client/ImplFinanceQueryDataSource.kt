@@ -172,10 +172,10 @@ class ImplFinanceQueryDataSource @Inject constructor(
             }.build()
         )
 
-        val sectorResponseList: List<SectorResponse> =
-            parser.decodeFromStream(ListSerializer(SectorResponse.serializer()), stream)
+        val sectorResponse: SectorResponse =
+            parser.decodeFromStream(SectorResponse.serializer(), stream)
 
-        return sectorResponseList.first()
+        return sectorResponse
     }
 
     override suspend fun getActives(): List<MarketMoverResponse> {
