@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -78,14 +81,13 @@ internal fun QuoteChart(
 ) {
     val context = LocalContext.current
     var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.YEAR_TO_DATE) }
-
     when (val currentTimeSeries = timeSeries[timePeriod]) {
         is Result.Loading, null -> {
             StockChartSkeleton()
         }
 
         is Result.Error -> {
-            StockChartSkeleton()
+            StockChartError()
 
             TimePeriodBar(
                 modifier = Modifier
@@ -299,6 +301,29 @@ private fun StockChartSkeleton(
     ) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@Composable
+private fun StockChartError(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 200.dp, max = 400.dp)
+            .padding(16.dp)
+            .background(color),
+        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(imageVector = Icons.Default.Warning, contentDescription = stringResource(R.string.feature_quotes_chart_error))
+        Text(
+            text = stringResource(R.string.feature_quotes_chart_error),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

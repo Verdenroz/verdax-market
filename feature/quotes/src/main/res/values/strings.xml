@@ -100,5 +100,6 @@
     <string name="feature_quotes_super_trend">Supertrend(10, 3)</string>
     <string name="feature_quotes_bbands">Bollinger Bands (20, 2)</string>
     <string name="feature_quotes_ichimoku">Ichimoku Cloud (9, 26, 52, 26)</string>
+    <string name="feature_quotes_chart_error">Unable to load history</string>
 
 </resources>
