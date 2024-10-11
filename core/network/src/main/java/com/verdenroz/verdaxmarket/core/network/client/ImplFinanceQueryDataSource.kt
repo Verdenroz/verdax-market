@@ -227,7 +227,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
         val newsResponseList: List<NewsResponse> =
             parser.decodeFromStream(ListSerializer(NewsResponse.serializer()), stream)
 
-        return newsResponseList.shuffled()
+        return newsResponseList.distinctBy { it.title }.shuffled()
     }
 
     override suspend fun getNewsForSymbol(symbol: String): List<NewsResponse> {
@@ -241,7 +241,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
         val newsResponseList: List<NewsResponse> =
             parser.decodeFromStream(ListSerializer(NewsResponse.serializer()), stream)
 
-        return newsResponseList
+        return newsResponseList.distinctBy { it.title }
     }
 
     override suspend fun getSimilarSymbols(symbol: String): List<SimpleQuoteResponse> {
