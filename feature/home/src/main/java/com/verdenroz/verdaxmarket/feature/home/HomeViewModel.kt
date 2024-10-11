@@ -61,13 +61,4 @@ class HomeViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             Result.Loading(true)
         )
-
-    fun refresh() {
-        TODO()
-    }
-}
-
-sealed interface HomeUiState {
-    data object Refreshing : HomeUiState
-    data object Success : HomeUiState
 }

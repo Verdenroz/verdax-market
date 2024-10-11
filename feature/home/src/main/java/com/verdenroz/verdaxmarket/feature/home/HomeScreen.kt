@@ -1,22 +1,15 @@
 package com.verdenroz.verdaxmarket.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -33,7 +26,6 @@ import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
 import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
 import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors
 import com.verdenroz.verdaxmarket.feature.home.components.NewsFeed
-import kotlinx.coroutines.delay
 
 @Composable
 internal fun HomeRoute(
@@ -57,7 +49,6 @@ internal fun HomeRoute(
         actives = actives,
         losers = losers,
         gainers = gainers,
-        refresh = homeViewModel::refresh
     )
 }
 
@@ -72,62 +63,45 @@ internal fun HomeScreen(
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
-    refresh: () -> Unit,
 ) {
-    val pullRefreshState = rememberPullToRefreshState()
-    if (pullRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            refresh()
-            delay(500)
-        }
-    }
     val listState = rememberLazyListState()
 
-    Box(
-        modifier = Modifier.nestedScroll(pullRefreshState.nestedScrollConnection),
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceAround,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                MarketIndices(
-                    indices = indices,
-                    snackbarHostState = snackbarHostState,
-                )
-            }
-            item {
-                MarketSectors(
-                    sectors = sectors,
-                    snackbarHostState = snackbarHostState,
-                )
-            }
-            item {
-                NewsFeed(
-                    headlines = headlines,
-                    snackbarHostState = snackbarHostState,
-                )
-            }
-            item {
-                MarketMovers(
-                    listState = listState,
-                    navController = navController,
-                    snackbarHostState = snackbarHostState,
-                    actives = actives,
-                    losers = losers,
-                    gainers = gainers,
-                )
-            }
+        item {
+            MarketIndices(
+                indices = indices,
+                snackbarHostState = snackbarHostState,
+            )
         }
-        PullToRefreshContainer(
-            state = pullRefreshState,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-16).dp)
-        )
+        item {
+            MarketSectors(
+                sectors = sectors,
+                snackbarHostState = snackbarHostState,
+            )
+        }
+        item {
+            NewsFeed(
+                headlines = headlines,
+                snackbarHostState = snackbarHostState,
+            )
+        }
+        item {
+            MarketMovers(
+                listState = listState,
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+                actives = actives,
+                losers = losers,
+                gainers = gainers,
+            )
+        }
     }
+
 }
 
 @ThemePreviews
@@ -231,7 +205,6 @@ private fun PreviewSuccessHomeScreen() {
             actives = Result.Success(movers),
             losers = Result.Success(movers),
             gainers = Result.Success(movers),
-            refresh = {}
         )
     }
 }
@@ -249,7 +222,6 @@ private fun PreviewLoadingHomeScreen() {
             actives = Result.Loading(),
             losers = Result.Loading(),
             gainers = Result.Loading(),
-            refresh = {}
         )
     }
 }
