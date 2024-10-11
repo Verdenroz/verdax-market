@@ -11,175 +11,146 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.verdenroz.verdaxmarket.core.common.error.DataError
-import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
-import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuotePerformance(
-    snackbarHost: SnackbarHostState,
     symbol: String,
     ytdReturn: String,
     yearReturn: String?,
     threeYearReturn: String?,
     fiveYearReturn: String?,
     sector: String?,
-    sectorPerformance: Result<MarketSector?, DataError.Network>
+    sectorPerformance: MarketSector?
 ) {
-    val context = LocalContext.current
-    when (sectorPerformance) {
-        is Result.Loading -> {
-            StockPerformanceSkeleton()
-        }
-
-        is Result.Error -> {
-            StockPerformanceSkeleton()
-
-            LaunchedEffect(sectorPerformance.error) {
-                snackbarHost.showSnackbar(
-                    message = sectorPerformance.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
-                )
-            }
-        }
-
-        is Result.Success -> {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth()
+    if (sectorPerformance != null) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.feature_quotes_performance) + ": $symbol",
+                style = MaterialTheme.typography.titleMedium,
+                letterSpacing = 1.5.sp,
+                modifier = Modifier.padding(8.dp)
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    8.dp,
+                    Alignment.CenterHorizontally
+                ),
             ) {
-                Text(
-                    text = stringResource(id = R.string.feature_quotes_performance) + ": $symbol",
-                    style = MaterialTheme.typography.titleMedium,
-                    letterSpacing = 1.5.sp,
-                    modifier = Modifier.padding(8.dp)
-                )
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                ) {
-                    ytdReturn.let {
-                        item {
-                            PerformanceCard(
-                                label = stringResource(id = R.string.feature_quotes_ytd_return),
-                                symbol = symbol,
-                                sector = when (sector) {
-                                    "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
-                                    "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
-                                    "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
-                                    "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
-                                    "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
-                                    "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
-                                    "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
-                                    "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
-                                    "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
-                                    "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
-                                    "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
-                                    else -> sector
-                                },
-                                stockPerformance = it,
-                                sectorPerformance = sectorPerformance.data?.ytdReturn
-                            )
-                        }
+                ytdReturn.let {
+                    item {
+                        PerformanceCard(
+                            label = stringResource(id = R.string.feature_quotes_ytd_return),
+                            symbol = symbol,
+                            sector = when (sector) {
+                                "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
+                                "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
+                                "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
+                                "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
+                                "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
+                                "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
+                                "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
+                                "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
+                                "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
+                                "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
+                                "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
+                                else -> sector
+                            },
+                            stockPerformance = it,
+                            sectorPerformance = sectorPerformance.ytdReturn
+                        )
                     }
-                    yearReturn?.let {
-                        item {
-                            PerformanceCard(
-                                label = stringResource(id = R.string.feature_quotes_one_year_return),
-                                symbol = symbol,
-                                sector = when (sector) {
-                                    "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
-                                    "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
-                                    "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
-                                    "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
-                                    "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
-                                    "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
-                                    "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
-                                    "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
-                                    "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
-                                    "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
-                                    "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
-                                    else -> sector
-                                },
-                                stockPerformance = it,
-                                sectorPerformance = sectorPerformance.data?.yearReturn
-                            )
-                        }
+                }
+                yearReturn?.let {
+                    item {
+                        PerformanceCard(
+                            label = stringResource(id = R.string.feature_quotes_one_year_return),
+                            symbol = symbol,
+                            sector = when (sector) {
+                                "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
+                                "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
+                                "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
+                                "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
+                                "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
+                                "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
+                                "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
+                                "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
+                                "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
+                                "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
+                                "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
+                                else -> sector
+                            },
+                            stockPerformance = it,
+                            sectorPerformance = sectorPerformance.yearReturn
+                        )
+                    }
 
+                }
+                threeYearReturn?.let {
+                    item {
+                        PerformanceCard(
+                            label = stringResource(id = R.string.feature_quotes_three_year_return),
+                            symbol = symbol,
+                            sector = when (sector) {
+                                "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
+                                "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
+                                "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
+                                "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
+                                "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
+                                "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
+                                "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
+                                "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
+                                "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
+                                "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
+                                "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
+                                else -> sector
+                            },
+                            stockPerformance = it,
+                            sectorPerformance = sectorPerformance.threeYearReturn
+                        )
                     }
-                    threeYearReturn?.let {
-                        item {
-                            PerformanceCard(
-                                label = stringResource(id = R.string.feature_quotes_three_year_return),
-                                symbol = symbol,
-                                sector = when (sector) {
-                                    "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
-                                    "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
-                                    "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
-                                    "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
-                                    "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
-                                    "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
-                                    "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
-                                    "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
-                                    "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
-                                    "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
-                                    "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
-                                    else -> sector
-                                },
-                                stockPerformance = it,
-                                sectorPerformance = sectorPerformance.data?.threeYearReturn
-                            )
-                        }
 
-                    }
-                    fiveYearReturn?.let {
-                        item {
-                            PerformanceCard(
-                                label = stringResource(id = R.string.feature_quotes_five_year_return),
-                                symbol = symbol,
-                                sector = when (sector) {
-                                    "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
-                                    "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
-                                    "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
-                                    "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
-                                    "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
-                                    "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
-                                    "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
-                                    "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
-                                    "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
-                                    "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
-                                    "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
-                                    else -> sector
-                                },
-                                stockPerformance = it,
-                                sectorPerformance = sectorPerformance.data?.fiveYearReturn
-                            )
-                        }
+                }
+                fiveYearReturn?.let {
+                    item {
+                        PerformanceCard(
+                            label = stringResource(id = R.string.feature_quotes_five_year_return),
+                            symbol = symbol,
+                            sector = when (sector) {
+                                "Technology" -> stringResource(id = R.string.feature_quotes_sector_technology)
+                                "Healthcare" -> stringResource(id = R.string.feature_quotes_sector_healthcare)
+                                "Financial Services" -> stringResource(id = R.string.feature_quotes_sector_financial_services)
+                                "Consumer Cyclical" -> stringResource(id = R.string.feature_quotes_sector_consumer_cyclical)
+                                "Industrials" -> stringResource(id = R.string.feature_quotes_sector_industrials)
+                                "Consumer Defensive" -> stringResource(id = R.string.feature_quotes_sector_consumer_defensive)
+                                "Energy" -> stringResource(id = R.string.feature_quotes_sector_energy)
+                                "Real Estate" -> stringResource(id = R.string.feature_quotes_sector_real_estate)
+                                "Utilities" -> stringResource(id = R.string.feature_quotes_sector_utilities)
+                                "Basic Materials" -> stringResource(id = R.string.feature_quotes_sector_basic_materials)
+                                "Communication Services" -> stringResource(id = R.string.feature_quotes_sector_communication_services)
+                                else -> sector
+                            },
+                            stockPerformance = it,
+                            sectorPerformance = sectorPerformance.fiveYearReturn
+                        )
                     }
                 }
             }
