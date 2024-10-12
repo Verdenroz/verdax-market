@@ -23,10 +23,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -79,11 +77,7 @@ class QuotesViewModel @AssistedInject constructor(
             emptyMap()
         )
 
-    private val _isWatchlisted = MutableStateFlow(false)
-    val isWatchlisted: StateFlow<Boolean> = _isWatchlisted
-        .onStart {
-            watchlistRepository.isSymbolInWatchlist(symbol).collect { _isWatchlisted.value = it }
-        }
+    val isWatchlisted: StateFlow<Boolean> = watchlistRepository.isSymbolInWatchlist(symbol)
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
@@ -92,28 +86,19 @@ class QuotesViewModel @AssistedInject constructor(
 
     fun addToWatchListLocal(quote: SimpleQuoteData) {
         viewModelScope.launch {
-            val result = watchlistRepository.addToWatchList(quote)
-            if (result is Result.Success) {
-                _isWatchlisted.value = true
-            }
+           watchlistRepository.addToWatchList(quote)
         }
     }
 
     fun addToWatchlistNetwork() {
         viewModelScope.launch {
-            val result = watchlistRepository.addToWatchList(symbol)
-            if (result is Result.Success) {
-                _isWatchlisted.value = true
-            }
+            watchlistRepository.addToWatchList(symbol)
         }
     }
 
     fun deleteFromWatchlist() {
         viewModelScope.launch {
-            val result = watchlistRepository.deleteFromWatchList(symbol)
-            if (result is Result.Success) {
-                _isWatchlisted.value = false
-            }
+            watchlistRepository.deleteFromWatchList(symbol)
         }
     }
 
