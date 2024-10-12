@@ -2,8 +2,6 @@ package com.verdenroz.verdaxmarket.core.data.repository
 
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
-import com.verdenroz.verdaxmarket.core.common.error.DataError
-import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asEntity
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleLocalException
@@ -53,75 +51,69 @@ class ImplWatchlistRepository @Inject constructor(
     override suspend fun getWatchlist(): Flow<List<SimpleQuoteData>> =
         quotesDao.getAllQuoteDataFlow().map { it.asExternalModel() }
 
-    override suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local> {
+    override suspend fun updateWatchList(quotes: List<SimpleQuoteData>) {
         return withContext(ioDispatcher) {
             try {
                 val updatedQuotes = quotes.map { it.asEntity() }
                 quotesDao.updateAll(updatedQuotes)
                 _watchlist.value = updatedQuotes.asExternalModel()
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
             }
         }
     }
 
-    override suspend fun updateWatchlist(symbols: List<String>): Result<Unit, DataError.Network> {
+    override suspend fun updateWatchlist(symbols: List<String>) {
         return withContext(ioDispatcher) {
             try {
                 val quotes = api.getBulkQuote(symbols).asEntity()
                 quotesDao.updateAll(quotes)
                 _watchlist.value = quotes.asExternalModel()
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleNetworkException(e)
             }
         }
     }
 
-    override suspend fun addToWatchList(quote: SimpleQuoteData): Result<Unit, DataError.Local> {
+    override suspend fun addToWatchList(quote: SimpleQuoteData) {
         return withContext(ioDispatcher) {
             try {
                 quotesDao.insert(quote.asEntity())
                 _watchlist.value += quote
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
             }
         }
     }
 
-    override suspend fun addToWatchList(symbol: String): Result<Unit, DataError.Local> {
+    override suspend fun addToWatchList(symbol: String){
         return withContext(ioDispatcher) {
             try {
                 val quote = api.getSimpleQuote(symbol).asEntity()
                 quotesDao.insert(quote)
                 _watchlist.value += quote.asExternalModel()
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
             }
         }
     }
 
-    override suspend fun deleteFromWatchList(symbol: String): Result<Unit, DataError.Local> {
+    override suspend fun deleteFromWatchList(symbol: String) {
         return withContext(ioDispatcher) {
             try {
                 quotesDao.delete(symbol)
                 _watchlist.value = _watchlist.value.filterNot { it.symbol == symbol }
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
             }
         }
     }
 
-    override suspend fun clearWatchList(): Result<Unit, DataError.Local> {
+    override suspend fun clearWatchList() {
         return withContext(ioDispatcher) {
             try {
                 quotesDao.deleteAll()
                 _watchlist.value = emptyList()
-                Result.Success(Unit)
             } catch (e: Exception) {
                 handleLocalException(e)
             }

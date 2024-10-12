@@ -1,7 +1,5 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
-import com.verdenroz.verdaxmarket.core.common.error.DataError
-import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import kotlinx.coroutines.flow.Flow
 
@@ -37,33 +35,33 @@ interface WatchlistRepository {
      * Update the user's watch list with new stock data by local data
      * @param quotes the list of [SimpleQuoteData] to upsert
      */
-    suspend fun updateWatchList(quotes: List<SimpleQuoteData>): Result<Unit, DataError.Local>
+    suspend fun updateWatchList(quotes: List<SimpleQuoteData>)
 
     /**
      * Update the user's watch list with new stock data by network connection
      * @param symbols the list of symbols to update
      */
-    suspend fun updateWatchlist(symbols: List<String>): Result<Unit, DataError.Network>
+    suspend fun updateWatchlist(symbols: List<String>)
 
     /**
      * Add a symbol to the user's watch list by local data
      */
-    suspend fun addToWatchList(quote: SimpleQuoteData): Result<Unit, DataError.Local>
+    suspend fun addToWatchList(quote: SimpleQuoteData)
 
     /**
      * Add a symbol from the user's watch list by network
      */
-    suspend fun addToWatchList(symbol: String): Result<Unit, DataError.Local>
+    suspend fun addToWatchList(symbol: String)
 
     /**
      * Delete a symbol from the user's watch list
      */
-    suspend fun deleteFromWatchList(symbol: String): Result<Unit, DataError.Local>
+    suspend fun deleteFromWatchList(symbol: String)
 
     /**
      * Deletes all data from the user's watch list
      */
-    suspend fun clearWatchList(): Result<Unit, DataError.Local>
+    suspend fun clearWatchList()
 
     /**
      * Check if a symbol is in the user's watch list
