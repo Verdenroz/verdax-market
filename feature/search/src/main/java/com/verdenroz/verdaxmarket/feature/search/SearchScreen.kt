@@ -64,6 +64,8 @@ internal fun SearchRoute(
         updateQuery = searchViewModel::updateQuery,
         search = searchViewModel::search,
         onSearch = searchViewModel::onSearch,
+        clearSearchResults = searchViewModel::clearSearchResults,
+        restoreSearchResults = searchViewModel::restoreSearchResults,
         addToWatchList = searchViewModel::addToWatchlist,
         deleteFromWatchList = searchViewModel::deleteFromWatchlist,
         removeRecentQuery = searchViewModel::removeRecentQuery,
@@ -88,6 +90,8 @@ internal fun SearchScreen(
     updateQuery: (String) -> Unit,
     search: (String) -> Unit,
     onSearch: (String) -> Unit,
+    clearSearchResults: () -> Unit,
+    restoreSearchResults: () -> Unit,
     addToWatchList: (SearchResult) -> Unit,
     deleteFromWatchList: (SearchResult) -> Unit,
     removeRecentQuery: (RecentSearchQuery) -> Unit,
@@ -96,6 +100,7 @@ internal fun SearchScreen(
     clearRecentQuotes: () -> Unit
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    var expand: Boolean? by rememberSaveable { mutableStateOf(null) }
     var showFilters by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(query) {
@@ -108,6 +113,15 @@ internal fun SearchScreen(
         onQueryChange = {
             query = it
             updateQuery(it)
+            expand = if (it.isNotBlank()) true else null
+        },
+        expand = expand,
+        onExpandChange = {
+            expand = it
+            when (it) {
+                true -> restoreSearchResults()
+                false -> clearSearchResults()
+            }
         },
         onSearch = { queryString ->
             if (queryString.isNotBlank() && searchResults.isNotEmpty()) {
@@ -159,7 +173,11 @@ internal fun SearchScreen(
             onClick = { onSearch(query) },
             addToWatchList = addToWatchList,
             deleteFromWatchList = deleteFromWatchList,
-            onRecentQueryClick = onSearch,
+            onRecentQueryClick = { recentQuery ->
+                query = recentQuery
+                updateQuery(recentQuery)
+                search(recentQuery)
+            },
             removeRecentQuery = removeRecentQuery,
             removeRecentQuote = removeRecentQuote,
             clearRecentQueries = clearRecentQueries,
@@ -242,6 +260,8 @@ private fun PreviewSearchScreen() {
             updateQuery = {},
             search = {},
             onSearch = {},
+            clearSearchResults = {},
+            restoreSearchResults = {},
             addToWatchList = {},
             deleteFromWatchList = {},
             removeRecentQuery = {},

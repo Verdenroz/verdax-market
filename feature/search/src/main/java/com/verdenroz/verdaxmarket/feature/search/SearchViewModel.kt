@@ -55,6 +55,7 @@ class SearchViewModel @Inject constructor(
     private val query: StateFlow<String> =
         savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
 
+    private val savedSearchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
 
     val recentQueries: StateFlow<List<RecentSearchQuery>> =
@@ -150,6 +151,15 @@ class SearchViewModel @Inject constructor(
         ))
 
         searcher.searchAsync()
+    }
+
+    fun clearSearchResults() {
+        savedSearchResults.value = searchResults.value
+        searchResults.value = emptyList()
+    }
+
+    fun restoreSearchResults() {
+        searchResults.value = savedSearchResults.value
     }
 
     fun addToWatchlist(searchResult: SearchResult) {
