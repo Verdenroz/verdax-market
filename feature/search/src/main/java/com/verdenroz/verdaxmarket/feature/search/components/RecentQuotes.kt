@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -89,11 +90,14 @@ internal fun RecentQuotes(
             )
         }
 
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            recentQuotes.forEach { query ->
+            items(
+                recentQuotes,
+                key = { it.symbol }
+            ) { query ->
                 RecentQuoteBody(
                     quote = query,
                     onClick = { navController.navigateToQuote(query.symbol) },
@@ -309,7 +313,7 @@ private fun PreviewRecentQueries() {
             timestamp = Clock.System.now()
         )
         val negativeRecentQuote = RecentQuoteResult(
-            symbol = "AAPL",
+            symbol = "TSLA",
             name = "Apple Inc.",
             price = 123.45,
             change = "-0.12",
@@ -319,7 +323,7 @@ private fun PreviewRecentQueries() {
         )
         Surface(Modifier.fillMaxSize()) {
             RecentQuotes(
-                recentQuotes = listOf(positveRecentQuote, negativeRecentQuote, positveRecentQuote).shuffled(),
+                recentQuotes = listOf(positveRecentQuote, negativeRecentQuote).shuffled(),
                 navController = rememberNavController(),
                 removeQuote = { },
                 clearAll = {  }
