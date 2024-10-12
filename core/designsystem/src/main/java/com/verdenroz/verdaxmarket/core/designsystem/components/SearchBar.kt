@@ -4,11 +4,9 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -22,16 +20,19 @@ import com.verdenroz.verdaxmarket.core.designsystem.R
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 
 /**
- * VerdaxMarket wrapper around [SearchBar] to provide a search bar with custom styling
+ * VerdaxMarket wrapper around [SearchBar] to provide a search bar with custom styling. This search bar is always active.
+ * @param query The current query in the search bar.
+ * @param onQueryChange Callback that is called when the query changes.
+ * @param onSearch Callback that is called when the search button is clicked or IME action Search.
+ * @param trailingIcon The trailing icon to be displayed in the search bar.
+ * @param content The content to be displayed below the search bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VxmSearchBar(
     query: String,
-    active: Boolean,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
-    onActiveChange: (Boolean) -> Unit,
     trailingIcon: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -52,8 +53,8 @@ fun VxmSearchBar(
         query = query,
         onQueryChange = onQueryChange,
         onSearch = onSearch,
-        active = active,
-        onActiveChange = onActiveChange,
+        active = true,
+        onActiveChange = {},
         placeholder = {
             Text(
                 stringResource(id = R.string.core_designsystem_search),
@@ -62,19 +63,10 @@ fun VxmSearchBar(
             )
         },
         leadingIcon = {
-            if (!active) {
-                Icon(
-                    Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.core_designsystem_search)
-                )
-            } else {
-                IconButton(onClick = { onActiveChange(false) }) {
-                    Icon(
-                        Icons.Default.ArrowDropDown,
-                        contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
-                    )
-                }
-            }
+            Icon(
+                Icons.Default.Search,
+                contentDescription = stringResource(id = R.string.core_designsystem_search)
+            )
         },
         trailingIcon = trailingIcon,
         content = content
@@ -86,10 +78,8 @@ fun VxmSearchBar(
 private fun PreviewSearchBar() {
     VxmSearchBar(
         query = "",
-        active = false,
         onQueryChange = {},
         onSearch = {},
-        onActiveChange = {},
         trailingIcon = {},
         content = {}
     )

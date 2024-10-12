@@ -96,7 +96,6 @@ internal fun SearchScreen(
     clearRecentQuotes: () -> Unit
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
     var showFilters by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(query) {
@@ -106,18 +105,15 @@ internal fun SearchScreen(
 
     VxmSearchBar(
         query = query,
-        active = active,
         onQueryChange = {
             query = it
             updateQuery(it)
         },
         onSearch = { queryString ->
-            active = false
             if (queryString.isNotBlank() && searchResults.isNotEmpty()) {
                 onSearch(queryString)
             }
         },
-        onActiveChange = { active = it },
         trailingIcon = {
             IconButton(onClick = { showFilters = !showFilters }) {
                 Icon(
@@ -160,10 +156,7 @@ internal fun SearchScreen(
             navController = navController,
             recentQueries = recentQueries,
             recentQuotes = recentQuotes,
-            onClick = {
-                onSearch(query)
-                active = false
-            },
+            onClick = { onSearch(query) },
             addToWatchList = addToWatchList,
             deleteFromWatchList = deleteFromWatchList,
             onRecentQueryClick = onSearch,
