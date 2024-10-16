@@ -5,22 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface WatchlistRepository {
 
-    companion object {
-        /**
-         * The refresh interval for [watchlist] when market is open
-         */
-        internal const val WATCHLIST_REFRESH_OPEN = 15000L // 15 seconds
-
-        /**
-         * The refresh interval for [watchlist] when market is closed
-         */
-        internal const val WATCHLIST_REFRESH_CLOSED = 300000L // 5 minutes
-    }
-    /**
-     * The current market status of either open or closed
-     */
-    val isOpen: Flow<Boolean>
-
     /**
      * The user's watch list as a list of [SimpleQuoteData] periodically updated
      */
