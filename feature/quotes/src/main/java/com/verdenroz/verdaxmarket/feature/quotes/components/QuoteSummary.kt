@@ -113,21 +113,21 @@ internal fun QuoteSummary(quote: FullQuoteData) {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_pe_ratio),
             ) {
-                SimpleDetailText(text = it.toString())
+                SimpleDetailText(text = it)
             }
         }
         quote.eps?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_eps),
             ) {
-                SimpleDetailText(text = it.toString())
+                SimpleDetailText(text = it)
             }
         }
         quote.beta?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_beta),
             ) {
-                SimpleDetailText(text = it.toString())
+                SimpleDetailText(text = it)
             }
         }
 
