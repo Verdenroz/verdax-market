@@ -102,6 +102,11 @@ class VxmAppState(
             TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
             TopLevelDestination.WATCHLIST -> navController.navigateToWatchlist(topLevelNavOptions)
         }
+
+        // Pop back to the top-level destination if currently on a QuoteScreen
+        while (navController.currentDestination?.route?.startsWith("quote_route") == true) {
+            navController.popBackStack()
+        }
     }
 
 }
