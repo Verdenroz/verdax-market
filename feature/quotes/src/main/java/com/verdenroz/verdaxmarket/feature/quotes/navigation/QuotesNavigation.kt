@@ -16,7 +16,11 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 private const val QUOTE_ARG = "symbol"
 private const val QUOTE_ROUTE = "quote_route"
 
-fun NavController.navigateToQuote(symbol: String, navOptions: NavOptionsBuilder.() -> Unit = {}) {
+fun NavController.navigateToQuote(
+    symbol: String, navOptions: NavOptionsBuilder.() -> Unit = {
+        popUpTo(QUOTE_ROUTE) { inclusive = true }
+    }
+) {
     navigate(createQuoteRoute(symbol)) {
         navOptions()
     }
