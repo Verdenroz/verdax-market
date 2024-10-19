@@ -24,6 +24,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
+import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
@@ -40,6 +41,7 @@ internal class ConnectivityManagerNetworkMonitor @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : NetworkMonitor {
+    @RequiresApi(VERSION_CODES.N)
     override val isOnline: Flow<Boolean> = callbackFlow {
             val connectivityManager = context.getSystemService<ConnectivityManager>()
             if (connectivityManager == null) {
@@ -71,7 +73,7 @@ internal class ConnectivityManagerNetworkMonitor @Inject constructor(
              * Sends the latest connectivity status to the underlying channel.
              */
             channel.trySend(connectivityManager.isCurrentlyConnected())
-
+            connectivityManager.registerDefaultNetworkCallback(callback)
             awaitClose {
                 connectivityManager.unregisterNetworkCallback(callback)
             }
