@@ -1,7 +1,6 @@
 package com.verdenroz.verdaxmarket.core.designsystem.components
 
 import android.content.Context
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -11,10 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import coil.size.Scale
 import com.verdenroz.verdaxmarket.core.designsystem.R
 
 /**
@@ -34,9 +33,9 @@ fun VxmAsyncImage(
         model = ImageRequest.Builder(context)
             .data(model)
             .crossfade(true)
+            .scale(Scale.FILL)
             .build(),
         contentDescription = description,
-        imageLoader = ImageLoader(context),
         modifier = modifier
     )
 }
@@ -46,7 +45,6 @@ fun VxmAsyncImage(
  * @param context The context to be used to load the image.
  * @param model The URL of the image to be loaded.
  * @param description The content description of the image.
- * @param size The size of the image.
  */
 @Composable
 fun VxmSubcomposeAsyncImage(
@@ -78,7 +76,6 @@ fun VxmSubcomposeAsyncImage(
                 )
             }
         },
-        imageLoader = ImageLoader(context),
         modifier = modifier
     )
 }
