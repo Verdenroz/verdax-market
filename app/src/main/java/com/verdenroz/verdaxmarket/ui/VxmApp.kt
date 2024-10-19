@@ -1,6 +1,16 @@
 package com.verdenroz.verdaxmarket.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -16,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.verdenroz.verdaxmarket.R
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmNavigationSuiteScaffold
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSnackbarHost
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 
 @Composable
@@ -86,5 +97,31 @@ internal fun VxmAppContent(
             appState = appState,
             snackbarHostState = snackbarHostState,
         )
+        Scaffold(
+            snackbarHost = {
+                VxmSnackbarHost(hostState = snackbarHostState)
+            }
+
+        ) { padding ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .consumeWindowInsets(padding)
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal,
+                        ),
+                    ),
+            ) {
+//                }
+                VxmNavHost(
+                    appState = appState,
+                    snackbarHostState = snackbarHostState,
+                )
+
+            }
+        }
+
     }
 }
