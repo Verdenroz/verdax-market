@@ -19,4 +19,8 @@ object DispatchersModule {
     @Provides
     @Dispatcher(FinanceQueryDispatchers.Default)
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
+    @Dispatcher(FinanceQueryDispatchers.Main)
+    fun providesMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
 }

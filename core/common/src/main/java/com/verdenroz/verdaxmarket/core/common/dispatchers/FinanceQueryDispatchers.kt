@@ -8,6 +8,7 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 annotation class Dispatcher(val FinanceQueryDispatcher: FinanceQueryDispatchers)
 
 enum class FinanceQueryDispatchers {
+    Main,
     Default,
     IO,
 }
