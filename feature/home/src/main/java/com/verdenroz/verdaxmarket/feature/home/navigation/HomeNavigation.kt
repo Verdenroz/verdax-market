@@ -12,12 +12,12 @@ const val HOME_ROUTE = "home_route"
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(HOME_ROUTE, navOptions)
 
 fun NavGraphBuilder.homeScreen(
-    onQuoteClick: (String) -> Unit,
+    onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     composable(route = HOME_ROUTE) {
         HomeRoute(
-            onQuoteClick = onQuoteClick,
+            onNavigateToQuote = onNavigateToQuote,
             onShowSnackbar = onShowSnackbar,
         )
     }

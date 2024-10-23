@@ -26,7 +26,7 @@ import com.verdenroz.verdaxmarket.feature.home.components.NewsFeed
 
 @Composable
 internal fun HomeRoute(
-    onQuoteClick: (String) -> Unit,
+    onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -38,7 +38,7 @@ internal fun HomeRoute(
     val gainers by homeViewModel.gainers.collectAsStateWithLifecycle()
 
     HomeScreen(
-        onQuoteClick = onQuoteClick,
+        onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
         sectors = sectors,
         headlines = headlines,
@@ -51,14 +51,14 @@ internal fun HomeRoute(
 
 @Composable
 internal fun HomeScreen(
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     sectors: Result<List<MarketSector>, DataError.Network>,
     indices: Result<List<MarketIndex>, DataError.Network>,
     headlines: Result<List<News>, DataError.Network>,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
-    onQuoteClick: (String) -> Unit
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val listState = rememberLazyListState()
 
@@ -89,7 +89,7 @@ internal fun HomeScreen(
         item {
             MarketMovers(
                 listState = listState,
-                onQuoteClick = onQuoteClick,
+                onNavigateToQuote = onNavigateToQuote,
                 onShowSnackbar = onShowSnackbar,
                 actives = actives,
                 losers = losers,
@@ -193,7 +193,7 @@ private fun PreviewSuccessHomeScreen() {
 
     VxmTheme {
         HomeScreen(
-            onQuoteClick = {},
+            onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Success(sectors),
             headlines = Result.Success(headlines),
@@ -210,7 +210,7 @@ private fun PreviewSuccessHomeScreen() {
 private fun PreviewLoadingHomeScreen() {
     VxmTheme {
         HomeScreen(
-            onQuoteClick = {},
+            onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Loading(),
             indices = Result.Loading(),

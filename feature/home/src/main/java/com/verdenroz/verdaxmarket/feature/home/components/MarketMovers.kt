@@ -58,11 +58,11 @@ import java.util.Locale
 @Composable
 fun MarketMovers(
     listState: LazyListState,
-    onQuoteClick: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val state = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
@@ -104,7 +104,7 @@ fun MarketMovers(
                 0 -> {
                     MarketMoversList(
                         quotes = actives,
-                        onQuoteClick = onQuoteClick,
+                        onQuoteClick = onNavigateToQuote,
                         onShowSnackbar = onShowSnackbar,
                     )
                 }
@@ -113,7 +113,7 @@ fun MarketMovers(
                     MarketMoversList(
                         quotes = gainers,
                         onShowSnackbar = onShowSnackbar,
-                        onQuoteClick = onQuoteClick,
+                        onQuoteClick = onNavigateToQuote,
                     )
                 }
 
@@ -121,7 +121,7 @@ fun MarketMovers(
                     MarketMoversList(
                         quotes = losers,
                         onShowSnackbar = onShowSnackbar,
-                        onQuoteClick = onQuoteClick,
+                        onQuoteClick = onNavigateToQuote,
                     )
                 }
             }
@@ -166,7 +166,7 @@ fun MarketMoversList(
                     items = quotes.data,
                     key = { quote -> quote.symbol }
                 ) { quote ->
-                    MarketMoverStock(mover = quote, onQuoteClick = onQuoteClick)
+                    MarketMoverStock(mover = quote, onNavigateToQuote = onQuoteClick)
                 }
             }
         }
@@ -176,7 +176,7 @@ fun MarketMoversList(
 @Composable
 fun MarketMoverStock(
     mover: MarketMover,
-    onQuoteClick: (String) -> Unit,
+    onNavigateToQuote: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -184,7 +184,7 @@ fun MarketMoverStock(
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(8.dp)
             .clickable {
-                onQuoteClick(mover.symbol)
+                onNavigateToQuote(mover.symbol)
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -267,7 +267,7 @@ private fun PreviewMarketMoverStock() {
                 change = "+100.0",
                 percentChange = "+100%"
             ),
-            onQuoteClick = {}
+            onNavigateToQuote = {}
         )
     }
 }
