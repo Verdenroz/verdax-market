@@ -24,8 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCheckbox
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmFilterChip
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSearchBar
@@ -41,7 +39,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 internal fun SearchRoute(
-    navController: NavController,
+    onNavigateToQuote: (String) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
     val typeFilter by searchViewModel.typeFilter.collectAsStateWithLifecycle()
@@ -52,7 +50,7 @@ internal fun SearchRoute(
     val recentQuotes by searchViewModel.recentQuotes.collectAsStateWithLifecycle()
 
     SearchScreen(
-        navController = navController,
+        onNavigateToQuote = onNavigateToQuote,
         searchResults = searchResults,
         resultsInWatchlist = resultsInWatchlist,
         recentQueries = recentQueries,
@@ -78,13 +76,13 @@ internal fun SearchRoute(
 
 @Composable
 internal fun SearchScreen(
-    navController: NavController,
     searchResults: List<SearchResult>,
     resultsInWatchlist: List<Boolean>,
     recentQueries: List<RecentSearchQuery>,
     recentQuotes: List<RecentQuoteResult>,
     regionFilter: RegionFilter,
     typeFilters: List<TypeFilter>,
+    onNavigateToQuote: (String) -> Unit,
     updateRegionFilter: (RegionFilter) -> Unit,
     updateTypeFilter: (TypeFilter) -> Unit,
     updateQuery: (String) -> Unit,
@@ -167,10 +165,10 @@ internal fun SearchScreen(
         SearchBarContent(
             searchResults = searchResults,
             resultsInWatchlist = resultsInWatchlist,
-            navController = navController,
             recentQueries = recentQueries,
             recentQuotes = recentQuotes,
             onClick = { onSearch(query) },
+            onNavigateToQuote = onNavigateToQuote,
             addToWatchList = addToWatchList,
             deleteFromWatchList = deleteFromWatchList,
             onRecentQueryClick = { recentQuery ->
@@ -248,13 +246,13 @@ private fun RegionFilterContainer(
 private fun PreviewSearchScreen() {
     VxmTheme {
         SearchScreen(
-            navController = rememberNavController(),
             searchResults = emptyList(),
             resultsInWatchlist = emptyList(),
             recentQueries = emptyList(),
             recentQuotes = emptyList(),
             regionFilter = RegionFilter.US,
             typeFilters = emptyList(),
+            onNavigateToQuote = {},
             updateRegionFilter = {},
             updateTypeFilter = {},
             updateQuery = {},

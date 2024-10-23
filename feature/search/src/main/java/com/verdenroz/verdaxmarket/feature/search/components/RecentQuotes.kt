@@ -7,7 +7,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,8 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -49,18 +46,16 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.contrastPositiveTextCo
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveBackgroundColor
 import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import com.verdenroz.verdaxmarket.feature.search.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun RecentQuotes(
     recentQuotes: List<RecentQuoteResult>,
-    navController: NavController,
     removeQuote: (RecentQuoteResult) -> Unit,
+    onNavigateToQuote: (String) -> Unit,
     clearAll: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -100,7 +95,7 @@ internal fun RecentQuotes(
             ) { query ->
                 RecentQuoteBody(
                     quote = query,
-                    onClick = { navController.navigateToQuote(query.symbol) },
+                    onClick = { onNavigateToQuote(query.symbol) },
                     removeQuote = removeQuote
                 )
             }
@@ -324,7 +319,7 @@ private fun PreviewRecentQueries() {
         Surface(Modifier.fillMaxSize()) {
             RecentQuotes(
                 recentQuotes = listOf(positveRecentQuote, negativeRecentQuote).shuffled(),
-                navController = rememberNavController(),
+                onNavigateToQuote = { },
                 removeQuote = { },
                 clearAll = {  }
             )

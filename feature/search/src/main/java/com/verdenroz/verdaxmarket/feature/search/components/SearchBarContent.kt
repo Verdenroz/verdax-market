@@ -20,15 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
 import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import com.verdenroz.verdaxmarket.feature.search.R
 import kotlinx.datetime.Clock
 
@@ -36,10 +33,10 @@ import kotlinx.datetime.Clock
 internal fun SearchBarContent(
     searchResults: List<SearchResult>,
     resultsInWatchlist: List<Boolean>,
-    navController: NavController,
     recentQueries: List<RecentSearchQuery>,
     recentQuotes: List<RecentQuoteResult>,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
+    onNavigateToQuote: (String) -> Unit,
     addToWatchList: (SearchResult) -> Unit,
     deleteFromWatchList: (SearchResult) -> Unit,
     onRecentQueryClick: (String) -> Unit,
@@ -52,8 +49,8 @@ internal fun SearchBarContent(
         VxmListItem(
             modifier = Modifier
                 .clickable {
-                    onClick()
-                    navController.navigateToQuote(match.symbol)
+                    onClick(match.symbol)
+                    onNavigateToQuote(match.symbol)
                 }
                 .fillMaxWidth(),
             headlineContent = {
@@ -122,10 +119,10 @@ internal fun SearchBarContent(
     )
 
     RecentQuotes(
-        navController = navController,
         recentQuotes = recentQuotes,
         removeQuote = removeRecentQuote,
-        clearAll = clearRecentQuotes
+        onNavigateToQuote = onNavigateToQuote,
+        clearAll = clearRecentQuotes,
     )
 
 }
@@ -146,7 +143,6 @@ private fun PreviewSearchBarContent() {
             SearchBarContent(
                 searchResults = List(3) { match },
                 resultsInWatchlist = List(3) { false },
-                navController = rememberNavController(),
                 recentQueries = List(3) { RecentSearchQuery("AAPL") },
                 recentQuotes = List(3) { RecentQuoteResult(
                     symbol = "AAPL",
@@ -158,6 +154,7 @@ private fun PreviewSearchBarContent() {
                     timestamp = Clock.System.now()
                 ) },
                 onClick = {},
+                onNavigateToQuote = {},
                 addToWatchList = {},
                 deleteFromWatchList = {},
                 onRecentQueryClick = {},

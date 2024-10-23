@@ -11,11 +11,11 @@ const val SEARCH_ROUTE = "search_route"
 fun NavController.navigateToSearch(navOptions: NavOptions) = navigate(SEARCH_ROUTE, navOptions)
 
 fun NavGraphBuilder.searchScreen(
-    navController: NavController,
+    onNavigateToQuote: (String) -> Unit,
 ) {
     composable(route = SEARCH_ROUTE) {
         SearchRoute(
-            navController = navController,
+            onNavigateToQuote = onNavigateToQuote,
         )
     }
 }
