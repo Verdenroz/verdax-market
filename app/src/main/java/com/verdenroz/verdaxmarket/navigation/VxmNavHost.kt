@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.homeScreen
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.quoteScreen
+import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
+import com.verdenroz.verdaxmarket.feature.quotes.navigation.quotesScreen
 import com.verdenroz.verdaxmarket.feature.search.navigation.searchScreen
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.watchlistScreen
 import com.verdenroz.verdaxmarket.ui.VxmAppState
@@ -23,7 +24,7 @@ fun VxmNavHost(
         startDestination = startDestination
     ) {
         homeScreen(
-            navController = navController,
+            onQuoteClick = navController::navigateToQuote,
             snackbarHostState = snackbarHostState
         )
         searchScreen(

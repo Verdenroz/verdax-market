@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -29,7 +26,7 @@ import com.verdenroz.verdaxmarket.feature.home.components.NewsFeed
 
 @Composable
 internal fun HomeRoute(
-    navController: NavController,
+    onQuoteClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -41,7 +38,7 @@ internal fun HomeRoute(
     val gainers by homeViewModel.gainers.collectAsStateWithLifecycle()
 
     HomeScreen(
-        navController = navController,
+        onQuoteClick = onQuoteClick,
         snackbarHostState = snackbarHostState,
         sectors = sectors,
         headlines = headlines,
@@ -52,10 +49,8 @@ internal fun HomeRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeScreen(
-    navController: NavController,
     snackbarHostState: SnackbarHostState,
     sectors: Result<List<MarketSector>, DataError.Network>,
     indices: Result<List<MarketIndex>, DataError.Network>,
@@ -63,6 +58,7 @@ internal fun HomeScreen(
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
+    onQuoteClick: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -93,7 +89,7 @@ internal fun HomeScreen(
         item {
             MarketMovers(
                 listState = listState,
-                navController = navController,
+                onQuoteClick = onQuoteClick,
                 snackbarHostState = snackbarHostState,
                 actives = actives,
                 losers = losers,
@@ -197,7 +193,7 @@ private fun PreviewSuccessHomeScreen() {
 
     VxmTheme {
         HomeScreen(
-            navController = rememberNavController(),
+            onQuoteClick = {},
             snackbarHostState = SnackbarHostState(),
             sectors = Result.Success(sectors),
             headlines = Result.Success(headlines),
@@ -214,7 +210,7 @@ private fun PreviewSuccessHomeScreen() {
 private fun PreviewLoadingHomeScreen() {
     VxmTheme {
         HomeScreen(
-            navController = rememberNavController(),
+            onQuoteClick = {},
             snackbarHostState = SnackbarHostState(),
             sectors = Result.Loading(),
             indices = Result.Loading(),

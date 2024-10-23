@@ -39,8 +39,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTabRowPager
@@ -54,15 +52,14 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.feature.home.R
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun MarketMovers(
+fun MarketMovers(
     listState: LazyListState,
-    navController: NavController,
+    onQuoteClick: (String) -> Unit,
     snackbarHostState: SnackbarHostState,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
@@ -107,24 +104,24 @@ internal fun MarketMovers(
             when (page) {
                 0 -> {
                     MarketMoversList(
-                        stocks = actives,
-                        navController = navController,
+                        quotes = actives,
+                        onQuoteClick = onQuoteClick,
                         snackbarHost = snackbarHostState,
                     )
                 }
 
                 1 -> {
                     MarketMoversList(
-                        stocks = gainers,
-                        navController = navController,
+                        quotes = gainers,
+                        onQuoteClick = onQuoteClick,
                         snackbarHost = snackbarHostState,
                     )
                 }
 
                 2 -> {
                     MarketMoversList(
-                        stocks = losers,
-                        navController = navController,
+                        quotes = losers,
+                        onQuoteClick = onQuoteClick,
                         snackbarHost = snackbarHostState,
                     )
                 }
@@ -135,13 +132,13 @@ internal fun MarketMovers(
 
 @Composable
 fun MarketMoversList(
-    stocks: Result<List<MarketMover>, DataError.Network>,
-    navController: NavController,
+    quotes: Result<List<MarketMover>, DataError.Network>,
+    onQuoteClick: (String) -> Unit,
     snackbarHost: SnackbarHostState,
 ) {
     val context = LocalContext.current
 
-    when (stocks) {
+    when (quotes) {
         is Result.Loading -> {
             MarketMoversSkeleton()
         }
@@ -149,9 +146,9 @@ fun MarketMoversList(
         is Result.Error -> {
             MarketIndexSkeleton()
 
-            LaunchedEffect(stocks.error) {
+            LaunchedEffect(quotes.error) {
                 snackbarHost.showSnackbar(
-                    message = stocks.error.asUiText().asString(context),
+                    message = quotes.error.asUiText().asString(context),
                     actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
                         .asString(context),
                     duration = SnackbarDuration.Short
@@ -168,10 +165,10 @@ fun MarketMoversList(
                     .padding(top = 8.dp, start = 8.dp, end = 8.dp)
             ) {
                 items(
-                    items = stocks.data,
-                    key = { stock -> stock.symbol }
-                ) { stock ->
-                    MarketMoverStock(mover = stock, navController = navController)
+                    items = quotes.data,
+                    key = { quote -> quote.symbol }
+                ) { quote ->
+                    MarketMoverStock(mover = quote, onQuoteClick = onQuoteClick)
                 }
             }
         }
@@ -181,7 +178,7 @@ fun MarketMoversList(
 @Composable
 fun MarketMoverStock(
     mover: MarketMover,
-    navController: NavController
+    onQuoteClick: (String) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -189,7 +186,7 @@ fun MarketMoverStock(
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(8.dp)
             .clickable {
-                navController.navigateToQuote(mover.symbol)
+                onQuoteClick(mover.symbol)
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -272,7 +269,7 @@ private fun PreviewMarketMoverStock() {
                 change = "+100.0",
                 percentChange = "+100%"
             ),
-            navController = rememberNavController()
+            onQuoteClick = {}
         )
     }
 }
