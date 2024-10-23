@@ -43,7 +43,7 @@ class ImplSignalRepository @Inject constructor(
                                 api.getSummaryAnalysis(symbol, interval).asExternalModel()
                             analysisMap[interval] = Result.Success(quoteAnalysis)
                         } catch (e: Exception) {
-                            analysisMap[interval] = handleNetworkException(e)
+                            analysisMap[interval] = Result.Error(handleNetworkException(e))
                         }
                     }
                 }

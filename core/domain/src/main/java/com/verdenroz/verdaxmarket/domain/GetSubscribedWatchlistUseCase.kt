@@ -68,6 +68,6 @@ class GetSubscribedWatchlistUseCase @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
 }

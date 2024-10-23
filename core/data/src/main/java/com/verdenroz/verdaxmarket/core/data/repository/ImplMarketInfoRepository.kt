@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -76,7 +77,7 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override val actives: Flow<Result<List<MarketMover>, DataError.Network>> =
         market.flatMapConcat { marketInfo ->
@@ -96,7 +97,7 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override val losers: Flow<Result<List<MarketMover>, DataError.Network>> =
         market.flatMapConcat { marketInfo ->
@@ -116,7 +117,7 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override val gainers: Flow<Result<List<MarketMover>, DataError.Network>> =
         market.flatMapConcat { marketInfo ->
@@ -136,7 +137,7 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override val headlines: Flow<Result<List<News>, DataError.Network>> =
         market.flatMapConcat { marketInfo ->
@@ -156,14 +157,14 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override val sectors: Flow<Result<List<MarketSector>, DataError.Network>> =
         market.flatMapConcat { marketInfo ->
             when (marketInfo) {
                 is Result.Success -> flowOf(Result.Success(marketInfo.data.sectors))
                 is Result.Loading -> flowOf(Result.Loading())
-                else -> isOpen.flatMapMerge { isOpen ->
+                else -> isOpen.flatMapLatest { isOpen ->
                     flow {
                         while (true) {
                             val sectors = api.getSectors().asExternalModel()
@@ -176,5 +177,5 @@ class ImplMarketInfoRepository @Inject constructor(
                     }
                 }
             }
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 }

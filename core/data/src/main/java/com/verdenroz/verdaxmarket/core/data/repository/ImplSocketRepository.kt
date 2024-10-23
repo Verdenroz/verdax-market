@@ -36,7 +36,7 @@ class ImplSocketRepository @Inject constructor(
             ).isSuccess
         }
         awaitClose { marketSocket.close() }
-    }.catch { e -> handleNetworkException(e) }
+    }.catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override fun getProfile(symbol: String): Flow<Result<Profile, DataError.Network>> = callbackFlow {
         profileSocket.open(mapOf("symbol" to symbol))
@@ -66,6 +66,6 @@ class ImplSocketRepository @Inject constructor(
             ).isSuccess
         }
         awaitClose { watchlistSocket.close() }
-    }.catch { e -> handleNetworkException(e) }
+    }.catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
 }

@@ -41,7 +41,7 @@ class GetTimeSeriesMapUseCase @Inject constructor(
                             val historicalData = api.getHistoricalData(symbol, timePeriod, interval).asExternalModel()
                             timeSeriesMap[timePeriod] = Result.Success(historicalData)
                         } catch (e: Exception) {
-                            timeSeriesMap[timePeriod] = handleNetworkException(e)
+                            timeSeriesMap[timePeriod] = Result.Error(handleNetworkException(e))
                         }
                     }
                 }

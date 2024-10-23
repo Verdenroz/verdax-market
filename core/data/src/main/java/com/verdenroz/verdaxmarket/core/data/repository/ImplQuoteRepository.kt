@@ -30,50 +30,52 @@ class ImplQuoteRepository @Inject constructor(
 ) : QuoteRepository {
 
     override fun getFullQuote(symbol: String): Flow<Result<FullQuoteData, DataError.Network>> =
-        flow {
+        flow<Result<FullQuoteData, DataError.Network>> {
             val quote = api.getQuote(symbol).asExternalModel()
             emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override suspend fun getSimpleQuote(symbol: String): Flow<Result<SimpleQuoteData, DataError.Network>> =
-        flow {
+        flow<Result<SimpleQuoteData, DataError.Network>> {
             val quote = api.getSimpleQuote(symbol).asExternalModel()
             emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override fun getNewsForSymbol(symbol: String): Flow<Result<List<News>, DataError.Network>> =
-        flow {
+        flow<Result<List<News>, DataError.Network>> {
             val quote = api.getNewsForSymbol(symbol).asExternalModel()
             emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override fun getSimilarStocks(symbol: String): Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        flow {
+        flow<Result<List<SimpleQuoteData>, DataError.Network>> {
             val quote = api.getSimilarSymbols(symbol).asExternalModel()
             emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override fun getSectorBySymbol(symbol: String): Flow<Result<MarketSector?, DataError.Network>> =
-        flow {
+        flow<Result<MarketSector?, DataError.Network>> {
             val quote = api.getSectorBySymbol(symbol).asExternalModel()
             emit(Result.Success(quote))
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override suspend fun getTimeSeries(
         symbol: String,
         timePeriod: TimePeriod,
         interval: Interval,
-    ): Flow<Result<Map<String, HistoricalData>, DataError.Network>> = flow {
-        val quote = api.getHistoricalData(symbol, timePeriod, interval).asExternalModel()
-        emit(Result.Success(quote))
-    }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+    ): Flow<Result<Map<String, HistoricalData>, DataError.Network>> =
+        flow<Result<Map<String, HistoricalData>, DataError.Network>> {
+            val quote = api.getHistoricalData(symbol, timePeriod, interval).asExternalModel()
+            emit(Result.Success(quote))
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
     override fun getAnalysis(
         symbol: String,
         interval: Interval
-    ): Flow<Result<QuoteAnalysis?, DataError.Network>> = flow {
-        val analysis = api.getSummaryAnalysis(symbol, interval).asExternalModel()
-        emit(Result.Success(analysis))
-    }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+    ): Flow<Result<QuoteAnalysis?, DataError.Network>> =
+        flow<Result<QuoteAnalysis?, DataError.Network>> {
+            val analysis = api.getSummaryAnalysis(symbol, interval).asExternalModel()
+            emit(Result.Success(analysis))
+        }.flowOn(ioDispatcher).catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
 }

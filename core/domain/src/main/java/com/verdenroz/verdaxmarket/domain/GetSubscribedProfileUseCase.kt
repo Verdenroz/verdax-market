@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -29,8 +28,8 @@ class GetSubscribedProfileUseCase @Inject constructor(
      * @param symbol the symbol of the quote to get
      */
     operator fun invoke(symbol: String): Flow<Result<Profile, DataError.Network>> =
-        socket.getProfile(symbol).map { profile ->
-            profile
-        }.flowOn(ioDispatcher).catch { e -> handleNetworkException(e) }
+        socket.getProfile(symbol)
+            .flowOn(ioDispatcher)
+            .catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
 }
