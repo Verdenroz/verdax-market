@@ -24,7 +24,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,7 +59,7 @@ import java.util.Locale
 fun MarketMovers(
     listState: LazyListState,
     onQuoteClick: (String) -> Unit,
-    snackbarHostState: SnackbarHostState,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
     gainers: Result<List<MarketMover>, DataError.Network>,
@@ -106,23 +105,23 @@ fun MarketMovers(
                     MarketMoversList(
                         quotes = actives,
                         onQuoteClick = onQuoteClick,
-                        snackbarHost = snackbarHostState,
+                        onShowSnackbar = onShowSnackbar,
                     )
                 }
 
                 1 -> {
                     MarketMoversList(
                         quotes = gainers,
+                        onShowSnackbar = onShowSnackbar,
                         onQuoteClick = onQuoteClick,
-                        snackbarHost = snackbarHostState,
                     )
                 }
 
                 2 -> {
                     MarketMoversList(
                         quotes = losers,
+                        onShowSnackbar = onShowSnackbar,
                         onQuoteClick = onQuoteClick,
-                        snackbarHost = snackbarHostState,
                     )
                 }
             }
@@ -134,7 +133,7 @@ fun MarketMovers(
 fun MarketMoversList(
     quotes: Result<List<MarketMover>, DataError.Network>,
     onQuoteClick: (String) -> Unit,
-    snackbarHost: SnackbarHostState,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
 
@@ -147,11 +146,10 @@ fun MarketMoversList(
             MarketIndexSkeleton()
 
             LaunchedEffect(quotes.error) {
-                snackbarHost.showSnackbar(
-                    message = quotes.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
+                onShowSnackbar(
+                    quotes.error.asUiText().asString(context),
+                    UiText.StringResource(R.string.feature_home_dismiss).asString(context),
+                    SnackbarDuration.Short
                 )
             }
         }

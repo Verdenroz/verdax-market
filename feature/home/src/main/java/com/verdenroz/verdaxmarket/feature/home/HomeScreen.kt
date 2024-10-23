@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,7 +27,7 @@ import com.verdenroz.verdaxmarket.feature.home.components.NewsFeed
 @Composable
 internal fun HomeRoute(
     onQuoteClick: (String) -> Unit,
-    snackbarHostState: SnackbarHostState,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
@@ -39,7 +39,7 @@ internal fun HomeRoute(
 
     HomeScreen(
         onQuoteClick = onQuoteClick,
-        snackbarHostState = snackbarHostState,
+        onShowSnackbar = onShowSnackbar,
         sectors = sectors,
         headlines = headlines,
         indices = indices,
@@ -51,7 +51,7 @@ internal fun HomeRoute(
 
 @Composable
 internal fun HomeScreen(
-    snackbarHostState: SnackbarHostState,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     sectors: Result<List<MarketSector>, DataError.Network>,
     indices: Result<List<MarketIndex>, DataError.Network>,
     headlines: Result<List<News>, DataError.Network>,
@@ -71,26 +71,26 @@ internal fun HomeScreen(
         item {
             MarketIndices(
                 indices = indices,
-                snackbarHostState = snackbarHostState,
+                onShowSnackbar = onShowSnackbar,
             )
         }
         item {
             MarketSectors(
                 sectors = sectors,
-                snackbarHostState = snackbarHostState,
+                onShowSnackbar = onShowSnackbar,
             )
         }
         item {
             NewsFeed(
                 headlines = headlines,
-                snackbarHostState = snackbarHostState,
+                onShowSnackbar = onShowSnackbar,
             )
         }
         item {
             MarketMovers(
                 listState = listState,
                 onQuoteClick = onQuoteClick,
-                snackbarHostState = snackbarHostState,
+                onShowSnackbar = onShowSnackbar,
                 actives = actives,
                 losers = losers,
                 gainers = gainers,
@@ -194,7 +194,7 @@ private fun PreviewSuccessHomeScreen() {
     VxmTheme {
         HomeScreen(
             onQuoteClick = {},
-            snackbarHostState = SnackbarHostState(),
+            onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Success(sectors),
             headlines = Result.Success(headlines),
             indices = Result.Success(indices),
@@ -211,7 +211,7 @@ private fun PreviewLoadingHomeScreen() {
     VxmTheme {
         HomeScreen(
             onQuoteClick = {},
-            snackbarHostState = SnackbarHostState(),
+            onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Loading(),
             indices = Result.Loading(),
             headlines = Result.Loading(),

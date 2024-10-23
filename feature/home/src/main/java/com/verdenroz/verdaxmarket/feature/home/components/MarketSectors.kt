@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -46,8 +45,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun MarketSectors(
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     sectors: Result<List<MarketSector>, DataError.Network>,
-    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     Column(
@@ -73,11 +72,10 @@ internal fun MarketSectors(
                 MarketSectorsSkeleton()
 
                 LaunchedEffect(sectors.error) {
-                    snackbarHostState.showSnackbar(
-                        message = sectors.error.asUiText().asString(context),
-                        actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
-                            .asString(context),
-                        duration = SnackbarDuration.Short
+                    onShowSnackbar(
+                        sectors.error.asUiText().asString(context),
+                        UiText.StringResource(R.string.feature_home_dismiss).asString(context),
+                        SnackbarDuration.Short
                     )
                 }
             }

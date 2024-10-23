@@ -18,7 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,8 +43,8 @@ import com.verdenroz.verdaxmarket.feature.home.R
 
 @Composable
 internal fun NewsFeed(
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     headlines: Result<List<News>, DataError.Network>,
-    snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     Column(
@@ -70,11 +69,10 @@ internal fun NewsFeed(
                 NewsFeedSkeleton()
 
                 LaunchedEffect(headlines.error) {
-                    snackbarHostState.showSnackbar(
-                        message = headlines.error.asUiText().asString(context),
-                        actionLabel = UiText.StringResource(R.string.feature_home_dismiss)
-                            .asString(context),
-                        duration = SnackbarDuration.Short
+                    onShowSnackbar(
+                        headlines.error.asUiText().asString(context),
+                        UiText.StringResource(R.string.feature_home_dismiss).asString(context),
+                        SnackbarDuration.Short
                     )
                 }
             }
