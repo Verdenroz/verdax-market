@@ -15,26 +15,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 
 @Composable
 internal fun QuoteCard(
     quote: SimpleQuoteData,
-    navController: NavController
+    onNavigateToQuote: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier
             .size(width = 125.dp, height = 75.dp)
-            .clickable {
-                navController.navigateToQuote(quote.symbol)
-            }
+            .clickable { onNavigateToQuote(quote.symbol) }
     ) {
         Column(
             modifier = Modifier
@@ -85,7 +80,7 @@ private fun PreviewStockCard() {
                 percentChange = "+5%",
                 logo = "https://logo.clearbit.com/apple.com"
             ),
-            navController = rememberNavController()
+            onNavigateToQuote = {}
         )
     }
 }

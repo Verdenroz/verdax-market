@@ -16,7 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,8 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
@@ -56,8 +54,9 @@ import com.verdenroz.verdaxmarket.feature.quotes.components.SimilarQuoteFeed
 @Composable
 internal fun QuotesRoute(
     symbol: String,
-    navController: NavController,
-    snackbarHostState: SnackbarHostState,
+    onNavigateBack: () -> Unit,
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     quotesViewModel: QuotesViewModel = hiltViewModel(
         creationCallback = { factory: QuotesViewModel.QuotesViewModelFactory ->
             factory.create(symbol)
@@ -71,14 +70,15 @@ internal fun QuotesRoute(
     val isWatchlisted by quotesViewModel.isWatchlisted.collectAsStateWithLifecycle()
 
     QuotesScreen(
-        navController = navController,
-        snackbarHostState = snackbarHostState,
         symbol = symbol,
         profile = profile,
         timeSeries = timeSeries,
         signals = signals,
         signalSummary = signalSummary,
         isWatchlisted = isWatchlisted,
+        onNavigateBack = onNavigateBack,
+        onNavigateToQuote = onNavigateToQuote,
+        onShowSnackbar = onShowSnackbar,
         addToWatchlistLocal = quotesViewModel::addToWatchListLocal,
         addToWatchListNetwork = quotesViewModel::addToWatchlistNetwork,
         deleteFromWatchlist = quotesViewModel::deleteFromWatchlist,
@@ -91,13 +91,14 @@ internal fun QuotesRoute(
 @Composable
 internal fun QuotesScreen(
     symbol: String,
-    navController: NavController,
-    snackbarHostState: SnackbarHostState,
     profile: Result<Profile, DataError.Network>,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
     isWatchlisted: Boolean,
+    onNavigateBack: () -> Unit,
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     addToWatchlistLocal: (SimpleQuoteData) -> Unit,
     addToWatchListNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
@@ -119,7 +120,7 @@ internal fun QuotesScreen(
                 else -> null
             }
             QuoteTopBar(
-                navController = navController,
+                onNavigateBack = onNavigateBack,
                 symbol = symbol,
                 quote = quoteData,
                 isWatchlisted = isWatchlisted,
@@ -210,7 +211,7 @@ internal fun QuotesScreen(
                                     .fillMaxWidth()
                                     .heightIn(min = 200.dp, max = 400.dp),
                                 listState = listState,
-                                snackbarHostState = snackbarHostState,
+                                onShowSnackbar = onShowSnackbar,
                                 timeSeries = timeSeries,
                             )
                         }
@@ -233,17 +234,17 @@ internal fun QuotesScreen(
                             SimilarQuoteFeed(
                                 symbol = profile.data.quote.symbol,
                                 similarQuotes = profile.data.similar,
-                                navController = navController,
+                                onNavigateToQuote = onNavigateToQuote
                             )
                         }
 
                         item {
                             QuoteScreenPager(
-                                snackbarHostState = snackbarHostState,
                                 quote = profile.data.quote,
                                 news = profile.data.news,
                                 signals = signals,
-                                signalSummary = signalSummary
+                                signalSummary = signalSummary,
+                                onShowSnackbar = onShowSnackbar,
                             )
                         }
                     }
@@ -301,8 +302,6 @@ private fun PreviewQuoteScreen() {
     VxmTheme {
         QuotesScreen(
             symbol = "AAPL",
-            navController = rememberNavController(),
-            snackbarHostState = SnackbarHostState(),
             timeSeries = mapOf(TimePeriod.YEAR_TO_DATE to Result.Success(emptyMap())),
             profile = Result.Success(
                 Profile(
@@ -322,6 +321,9 @@ private fun PreviewQuoteScreen() {
             signals = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             signalSummary = mapOf(Interval.DAILY to Result.Success(emptyMap())),
             isWatchlisted = false,
+            onNavigateBack = {},
+            onNavigateToQuote = {},
+            onShowSnackbar = { _, _, _ -> true },
             addToWatchlistLocal = { },
             addToWatchListNetwork = { },
             deleteFromWatchlist = {},

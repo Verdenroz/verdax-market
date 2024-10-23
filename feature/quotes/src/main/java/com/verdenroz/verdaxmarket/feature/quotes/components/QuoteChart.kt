@@ -19,7 +19,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,9 +74,9 @@ private const val SPACING = 75f
 internal fun QuoteChart(
     modifier: Modifier = Modifier,
     listState: LazyListState,
-    snackbarHostState: SnackbarHostState,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
     var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.YEAR_TO_DATE) }
@@ -98,11 +97,10 @@ internal fun QuoteChart(
             )
 
             LaunchedEffect(timeSeries) {
-                snackbarHostState.showSnackbar(
-                    message = currentTimeSeries.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
+                onShowSnackbar(
+                    currentTimeSeries.error.asUiText().asString(context),
+                    UiText.StringResource(R.string.feature_quotes_dismiss).asString(context),
+                    SnackbarDuration.Short
                 )
             }
         }

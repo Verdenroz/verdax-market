@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,11 +60,11 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuoteAnalysis(
-    snackbarHostState: SnackbarHostState,
     interval: Interval,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
-    updateInterval: (Interval) -> Unit
+    updateInterval: (Interval) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
     when (val analysisSignals = signals[interval]) {
@@ -100,11 +99,10 @@ internal fun QuoteAnalysis(
 
             if (analysisSignals is Result.Error) {
                 LaunchedEffect(analysisSignals.error) {
-                    snackbarHostState.showSnackbar(
-                        message = analysisSignals.error.asUiText().asString(context),
-                        actionLabel = UiText.StringResource(R.string.feature_quotes_dismiss)
-                            .asString(context),
-                        duration = SnackbarDuration.Short
+                    onShowSnackbar(
+                        analysisSignals.error.asUiText().asString(context),
+                        UiText.StringResource(R.string.feature_quotes_dismiss).asString(context),
+                        SnackbarDuration.Short
                     )
                 }
             }

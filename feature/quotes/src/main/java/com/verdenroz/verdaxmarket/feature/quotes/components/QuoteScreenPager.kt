@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.error.DataError
@@ -40,11 +39,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun QuoteScreenPager(
-    snackbarHostState: SnackbarHostState,
     quote: FullQuoteData,
     news: List<News>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
-    signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>
+    signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val state = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
@@ -100,11 +99,11 @@ internal fun QuoteScreenPager(
 
                 2 -> {
                     QuoteAnalysis(
-                        snackbarHostState = snackbarHostState,
                         interval = interval,
                         signals = signals,
                         signalSummary = signalSummary,
-                        updateInterval = { interval = it }
+                        updateInterval = { interval = it },
+                        onShowSnackbar = onShowSnackbar
                     )
                 }
             }
@@ -117,7 +116,6 @@ internal fun QuoteScreenPager(
 private fun PreviewQuoteScreenPager() {
     VxmTheme {
         QuoteScreenPager(
-            snackbarHostState = SnackbarHostState(),
             quote = previewFullQuoteData,
             news = emptyList(),
             signals = mapOf(
@@ -129,29 +127,8 @@ private fun PreviewQuoteScreenPager() {
                 Interval.DAILY to Result.Success(emptyMap()),
                 Interval.WEEKLY to Result.Success(emptyMap()),
                 Interval.MONTHLY to Result.Success(emptyMap())
-            )
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun ImplPreviewQuoteScreenPager() {
-    VxmTheme {
-        QuoteScreenPager(
-            snackbarHostState = SnackbarHostState(),
-            quote = previewFullQuoteData,
-            news = emptyList(),
-            signals = mapOf(
-                Interval.DAILY to Result.Success(emptyMap()),
-                Interval.WEEKLY to Result.Success(emptyMap()),
-                Interval.MONTHLY to Result.Success(emptyMap())
             ),
-            signalSummary = mapOf(
-                Interval.DAILY to Result.Success(emptyMap()),
-                Interval.WEEKLY to Result.Success(emptyMap()),
-                Interval.MONTHLY to Result.Success(emptyMap())
-            )
+            onShowSnackbar = { _, _, _ -> true }
         )
     }
 }

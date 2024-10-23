@@ -25,8 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
@@ -36,10 +34,10 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuoteTopBar(
-    navController: NavController,
     symbol: String,
     quote: SimpleQuoteData?,
     isWatchlisted: Boolean,
+    onNavigateBack: () -> Unit,
     addToWatchlistLocal: (SimpleQuoteData) -> Unit,
     addToWatchlistNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
@@ -55,9 +53,7 @@ internal fun QuoteTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = {
-                    navController.popBackStack()
-                },
+                onClick = onNavigateBack,
                 modifier = Modifier.align(Alignment.CenterVertically)
             ) {
                 Icon(
@@ -106,7 +102,6 @@ private fun PreviewStockTopBar() {
     VxmTheme {
         Surface {
             QuoteTopBar(
-                navController = rememberNavController(),
                 symbol = "AAPL",
                 quote = SimpleQuoteData(
                     symbol = "AAPL",
@@ -117,6 +112,7 @@ private fun PreviewStockTopBar() {
                     logo = "https://logo.clearbit.com/apple.com",
                 ),
                 isWatchlisted = true,
+                onNavigateBack = {},
                 addToWatchlistLocal = { Result.Success(Unit) },
                 addToWatchlistNetwork = { Result.Success(Unit) },
                 deleteFromWatchlist = { Result.Success(Unit) },

@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
@@ -26,7 +24,7 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 fun SimilarQuoteFeed(
     symbol: String,
     similarQuotes: List<SimpleQuoteData>,
-    navController: NavController,
+    onNavigateToQuote: (String) -> Unit,
 ) {
     if (similarQuotes.isNotEmpty()) {
         Column(
@@ -47,11 +45,11 @@ fun SimilarQuoteFeed(
             ) {
                 items(
                     items = similarQuotes,
-                    key = { stock -> stock.symbol }
+                    key = { quote -> quote.symbol }
                 ) {
                     QuoteCard(
                         quote = it,
-                        navController = navController
+                        onNavigateToQuote = onNavigateToQuote
                     )
                 }
             }
@@ -63,7 +61,6 @@ fun SimilarQuoteFeed(
 @Composable
 private fun PreviewSimilarStockFeed() {
     VxmTheme {
-
         SimilarQuoteFeed(
             symbol = "AAPL",
             similarQuotes =
@@ -93,7 +90,7 @@ private fun PreviewSimilarStockFeed() {
                     logo = "https://logo.clearbit.com/microsoft.com",
                 )
             ),
-            navController = rememberNavController(),
+            onNavigateToQuote = {}
         )
     }
 }
