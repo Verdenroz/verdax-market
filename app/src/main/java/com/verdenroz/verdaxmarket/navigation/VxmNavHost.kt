@@ -1,6 +1,6 @@
 package com.verdenroz.verdaxmarket.navigation
 
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
@@ -14,8 +14,8 @@ import com.verdenroz.verdaxmarket.ui.VxmAppState
 @Composable
 fun VxmNavHost(
     appState: VxmAppState,
-    snackbarHostState: SnackbarHostState,
-    startDestination: String = HOME_ROUTE
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
+    startDestination: String = HOME_ROUTE,
 ) {
     val navController = appState.navController
 
@@ -24,19 +24,20 @@ fun VxmNavHost(
         startDestination = startDestination
     ) {
         homeScreen(
-            onQuoteClick = navController::navigateToQuote,
-            snackbarHostState = snackbarHostState
+            onNavigateToQuote = navController::navigateToQuote,
+            onShowSnackbar = onShowSnackbar,
         )
         searchScreen(
-            navController = navController,
+            onNavigateToQuote = navController::navigateToQuote,
         )
         watchlistScreen(
-            navController = navController,
-            snackbarHostState = snackbarHostState
+            onNavigateToQuote = navController::navigateToQuote,
+            onShowSnackbar = onShowSnackbar,
         )
-        quoteScreen(
-            navController = navController,
-            snackbarHostState = snackbarHostState
+        quotesScreen(
+            onNavigateBack = navController::popBackStack,
+            onNavigateToQuote = navController::navigateToQuote,
+            onShowSnackbar = onShowSnackbar,
         )
     }
 }

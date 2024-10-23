@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -117,7 +118,13 @@ internal fun VxmAppContent(
 //                }
                 VxmNavHost(
                     appState = appState,
-                    snackbarHostState = snackbarHostState,
+                    onShowSnackbar = { message, action, duration ->
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            actionLabel = action,
+                            duration = duration,
+                        ) == SnackbarResult.ActionPerformed
+                    },
                 )
 
             }
