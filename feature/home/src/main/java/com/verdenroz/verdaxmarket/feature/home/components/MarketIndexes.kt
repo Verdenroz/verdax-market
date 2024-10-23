@@ -131,7 +131,7 @@ fun MarketIndexCard(index: MarketIndex) {
                 Text(
                     text = index.name,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -139,7 +139,7 @@ fun MarketIndexCard(index: MarketIndex) {
                 Text(
                     text = String.format(Locale.US, "%.2f", index.value.toDouble()),
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -148,11 +148,13 @@ fun MarketIndexCard(index: MarketIndex) {
                     Text(
                         text = index.change,
                         style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
                         color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
                     )
                     Text(
                         text = index.percentChange,
                         style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
                         color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
                     )
                 }
