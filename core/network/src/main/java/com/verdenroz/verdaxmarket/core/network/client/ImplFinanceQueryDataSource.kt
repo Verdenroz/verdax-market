@@ -25,6 +25,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.InputStream
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -56,7 +58,9 @@ class ImplFinanceQueryDataSource @Inject constructor(
                 throw HttpException(code = response.code)
             }
             return response.body!!.byteStream()
-        } catch (e: Exception) {
+        } catch (e: UnknownHostException) {
+            throw NetworkException(e)
+        } catch (e: SocketTimeoutException) {
             throw NetworkException(e)
         }
     }
