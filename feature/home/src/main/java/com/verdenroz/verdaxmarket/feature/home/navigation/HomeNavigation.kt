@@ -1,6 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.home.navigation
 
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,12 +13,12 @@ fun NavController.navigateToHome(navOptions: NavOptions) = navigate(HOME_ROUTE, 
 
 fun NavGraphBuilder.homeScreen(
     onQuoteClick: (String) -> Unit,
-    snackbarHostState: SnackbarHostState
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     composable(route = HOME_ROUTE) {
         HomeRoute(
             onQuoteClick = onQuoteClick,
-            snackbarHostState = snackbarHostState
+            onShowSnackbar = onShowSnackbar,
         )
     }
 }

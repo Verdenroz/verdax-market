@@ -28,7 +28,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -54,8 +53,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -65,7 +62,6 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import kotlinx.coroutines.delay
@@ -76,15 +72,15 @@ import kotlin.math.pow
 
 @Composable
 internal fun WatchlistRoute(
-    navController: NavController,
-    snackbarHostState: SnackbarHostState,
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
     val watchlist by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
     WatchlistScreen(
-        navController = navController,
-        snackbarHostState = snackbarHostState,
         watchList = watchlist,
+        onNavigateToQuote = onNavigateToQuote,
+        onShowSnackbar = onShowSnackbar,
         addToWatchlist = watchlistViewModel::addToWatchlist,
         deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
         clearWatchlist = watchlistViewModel::clearWatchlist
@@ -94,9 +90,9 @@ internal fun WatchlistRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WatchlistScreen(
-    navController: NavController,
-    snackbarHostState: SnackbarHostState,
     watchList: Result<List<SimpleQuoteData>, DataError.Network>,
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
@@ -113,11 +109,10 @@ internal fun WatchlistScreen(
             WatchlistSkeleton()
 
             LaunchedEffect(watchList.error) {
-                snackbarHostState.showSnackbar(
-                    message = watchList.error.asUiText().asString(context),
-                    actionLabel = UiText.StringResource(R.string.feature_watchlist_dismiss)
-                        .asString(context),
-                    duration = SnackbarDuration.Short
+                onShowSnackbar(
+                    watchList.error.asUiText().asString(context),
+                    UiText.StringResource(R.string.feature_watchlist_dismiss).asString(context),
+                    SnackbarDuration.Short
                 )
             }
         }
@@ -167,7 +162,7 @@ internal fun WatchlistScreen(
                         quote = quote,
                         addToWatchlist = addToWatchlist,
                         deleteFromWatchlist = deleteFromWatchlist,
-                        modifier = Modifier.clickable { navController.navigateToQuote(quote.symbol) }
+                        modifier = Modifier.clickable { onNavigateToQuote(quote.symbol) }
                     )
                 },
                 scaffoldState = bottomSheetScaffoldState
@@ -192,7 +187,7 @@ internal fun WatchlistScreen(
                         ) { item ->
                             WatchlistQuote(
                                 quote = item,
-                                navController = navController,
+                                onNavigateToQuote = onNavigateToQuote,
                                 deleteFromWatchList = deleteFromWatchlist,
                                 onClick = {
                                     quote = item
@@ -213,7 +208,7 @@ internal fun WatchlistScreen(
 @Composable
 private fun WatchlistQuote(
     quote: SimpleQuoteData,
-    navController: NavController,
+    onNavigateToQuote: (String) -> Unit,
     deleteFromWatchList: (String) -> Unit,
     onClick: () -> Unit
 ) {
@@ -239,14 +234,14 @@ private fun WatchlistQuote(
                     onTap = {
                         // Workaround for double tap gesture without the delay
                         if (isTapped) {
-                            navController.navigateToQuote(quote.symbol)
+                            onNavigateToQuote(quote.symbol)
                         } else {
                             onClick()
                             isTapped = true
                         }
                     },
                     onLongPress = {
-                        navController.navigateToQuote(quote.symbol)
+                        onNavigateToQuote(quote.symbol)
                     }
                 )
             }
@@ -368,8 +363,6 @@ private fun WatchlistSkeleton() {
 private fun PreviewWatchlistScreen() {
     VxmTheme {
         WatchlistScreen(
-            navController = rememberNavController(),
-            snackbarHostState = SnackbarHostState(),
             watchList = Result.Success(
                 listOf(
                     SimpleQuoteData(
@@ -398,6 +391,8 @@ private fun PreviewWatchlistScreen() {
                     ),
                 )
             ),
+            onNavigateToQuote = {},
+            onShowSnackbar = { _, _, _ -> true },
             addToWatchlist = {},
             deleteFromWatchlist = {},
             clearWatchlist = {}

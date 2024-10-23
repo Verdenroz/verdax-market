@@ -1,6 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.watchlist.navigation
 
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,13 +13,13 @@ fun NavController.navigateToWatchlist(navOptions: NavOptions) = navigate(WATCHLI
 
 
 fun NavGraphBuilder.watchlistScreen(
-    navController: NavController,
-    snackbarHostState: SnackbarHostState
-) {
+    onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
+    ) {
     composable(route = WATCHLIST_ROUTE) {
         WatchlistRoute(
-            navController = navController,
-            snackbarHostState = snackbarHostState
+            onNavigateToQuote = onNavigateToQuote,
+            onShowSnackbar = onShowSnackbar
         )
     }
 }
