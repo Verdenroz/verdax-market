@@ -52,7 +52,7 @@ class QuotesViewModel @AssistedInject constructor(
     val profile: StateFlow<Result<Profile, DataError.Network>> =
         getSubscribedProfileUseCase(symbol).stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000L),
+            SharingStarted.WhileSubscribed(),
             Result.Loading(true)
         )
 
