@@ -1,30 +1,22 @@
 package com.verdenroz.verdaxmarket.core.network
 
-import okhttp3.WebSocket
+import kotlinx.coroutines.channels.Channel
 
-interface FinanceQuerySocket<T> {
-
-    var webSocket: WebSocket?
-    var messageListener: ((T) -> Unit)?
-
+interface FinanceQuerySocket<T, P> {
     companion object {
         internal const val SOCKET_URL = BuildConfig.socketURL
     }
 
     /**
-     * Set a listener for new messages
-     * @param listener Function to be called when a new message is received
+     * Connect to the socket and return a channel for receiving messages
+     * @param params Connection parameters (e.g., symbol for ProfileSocket)
+     * @return Channel that will receive socket messages
      */
-    fun setOnNewMessageListener(listener: (T) -> Unit)
+    suspend fun connect(params: P): Channel<T?>
 
     /**
-     * Open a socket connection
-     * @param params Map of parameters to be sent to the socket
+     * Disconnect from the socket
+     * @param params Parameters needed for disconnection (e.g., symbol for ProfileSocket)
      */
-    suspend fun open(params: Map<String, String>)
-
-    /**
-     * Close the socket connection
-     */
-    fun close()
+    suspend fun disconnect(params: P)
 }
