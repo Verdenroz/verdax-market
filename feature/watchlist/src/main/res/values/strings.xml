@@ -5,4 +5,9 @@
     <string name="feature_watchlist_dismiss">Dismiss</string>
     <string name="feature_watchlist_clear">Clear watchlist</string>
     <string name="feature_watchlist_empty">Your watchlist is empty</string>
+    <string name="feature_watchlist_confirm_delete_title">Delete from watchlist</string>
+    <string name="feature_watchlist_confirm_delete_message">Are you sure you want to delete %1$s from the watchlist?</string>
+    <string name="feature_watchlist_confirm">Confirm</string>
+    <string name="feature_watchlist_cancel">Cancel</string>
+    <string name="feature_watchlist_logo_description">%1$s logo</string>
 </resources>

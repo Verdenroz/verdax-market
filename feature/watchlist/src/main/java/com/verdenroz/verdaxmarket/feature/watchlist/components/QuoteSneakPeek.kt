@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
@@ -37,17 +38,47 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.feature.quotes.R
+import com.verdenroz.verdaxmarket.feature.watchlist.R
 import java.util.Locale
 
 @Composable
 internal fun QuoteSneakPeek(
     quote: SimpleQuoteData,
-    addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isWatchlisted by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = stringResource(id = R.string.feature_watchlist_confirm_delete_title)) },
+            text = { Text(text = stringResource(id = R.string.feature_watchlist_confirm_delete_message, quote.symbol)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        deleteFromWatchlist(quote.symbol)
+                        showDialog = false
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.feature_watchlist_confirm),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.feature_watchlist_cancel),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        )
+    }
 
     VxmListItem(
         modifier = modifier,
@@ -68,7 +99,7 @@ internal fun QuoteSneakPeek(
                     text = quote.change,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (quote.change.startsWith("-")) negativeTextColor else positiveTextColor },
+                    color = if (quote.change.startsWith("-")) negativeTextColor else positiveTextColor,
                 )
             }
         },
@@ -87,7 +118,7 @@ internal fun QuoteSneakPeek(
                     text = quote.percentChange,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (quote.percentChange.startsWith("-")) negativeTextColor else positiveTextColor },
+                    color = if (quote.percentChange.startsWith("-")) negativeTextColor else positiveTextColor,
                 )
             }
         },
@@ -96,7 +127,7 @@ internal fun QuoteSneakPeek(
                 VxmAsyncImage(
                     context = LocalContext.current,
                     model = quote.logo!!,
-                    description = stringResource(id = R.string.feature_quotes_logo_description),
+                    description = stringResource(id = R.string.feature_watchlist_logo_description, quote.symbol),
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
@@ -121,28 +152,14 @@ internal fun QuoteSneakPeek(
             }
         },
         trailingContent = {
-            val onClick = {
-                isWatchlisted = !isWatchlisted
-                if (isWatchlisted) {
-                    deleteFromWatchlist(quote.symbol)
-                } else {
-                    addToWatchlist(quote)
-                }
-            }
             SmallFloatingActionButton(
-                onClick = onClick,
+                onClick = { showDialog = true },
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
             ) {
-                if (isWatchlisted) {
-                    VxmDeleteIconButton(
-                        onClick = onClick
-                    )
-                } else {
-                    VxmAddIconButton(
-                        onClick = onClick
-                    )
-                }
+                VxmDeleteIconButton(
+                    onClick = { showDialog = true }
+                )
             }
         },
         colors = ListItemDefaults.colors(
@@ -172,7 +189,6 @@ private fun PreviewBottomSheetContent() {
                 percentChange = "+0.12%",
                 logo = "https://logo.clearbit.com/https://www.apple.com"
             ),
-            addToWatchlist = {},
             deleteFromWatchlist = {},
         )
     }

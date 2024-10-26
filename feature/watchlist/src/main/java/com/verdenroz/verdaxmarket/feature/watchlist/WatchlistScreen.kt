@@ -81,7 +81,6 @@ internal fun WatchlistRoute(
         watchList = watchlist,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
-        addToWatchlist = watchlistViewModel::addToWatchlist,
         deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
         clearWatchlist = watchlistViewModel::clearWatchlist
     )
@@ -93,7 +92,6 @@ internal fun WatchlistScreen(
     watchList: Result<List<SimpleQuoteData>, DataError.Network>,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
-    addToWatchlist: (SimpleQuoteData) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
 ) {
@@ -160,7 +158,6 @@ internal fun WatchlistScreen(
                 sheetContent = {
                     QuoteSneakPeek(
                         quote = quote,
-                        addToWatchlist = addToWatchlist,
                         deleteFromWatchlist = deleteFromWatchlist,
                         modifier = Modifier.clickable { onNavigateToQuote(quote.symbol) }
                     )
@@ -393,7 +390,6 @@ private fun PreviewWatchlistScreen() {
             ),
             onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
-            addToWatchlist = {},
             deleteFromWatchlist = {},
             clearWatchlist = {}
         )
