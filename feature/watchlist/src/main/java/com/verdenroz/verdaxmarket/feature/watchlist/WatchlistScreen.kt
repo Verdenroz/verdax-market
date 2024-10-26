@@ -76,7 +76,7 @@ internal fun WatchlistRoute(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
-    val watchlist by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
+    val watchlist by watchlistViewModel.displayedWatchlist.collectAsStateWithLifecycle()
     WatchlistScreen(
         watchList = watchlist,
         onNavigateToQuote = onNavigateToQuote,
