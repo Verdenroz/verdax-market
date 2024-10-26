@@ -9,7 +9,7 @@ android {
 }
 
 dependencies {
-    api(project(":core:model"))
+    api(projects.core.model)
 
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)

@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-    api(project(":core:common"))
+    api(projects.core.common)
     api(libs.okhttp)
 
     implementation(libs.androidx.core.ktx)

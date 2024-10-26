@@ -8,8 +8,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:data"))
-    implementation(project(":core:domain"))
-
-    implementation(project(":feature:quotes"))
+    implementation(projects.core.data)
+    implementation(projects.core.domain)
 }

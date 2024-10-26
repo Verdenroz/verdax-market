@@ -8,6 +8,6 @@ android {
 }
 
 dependencies {
-    api(project(":core:data"))
-    api(project(":core:model"))
+    api(projects.core.data)
+    api(projects.core.model)
 }

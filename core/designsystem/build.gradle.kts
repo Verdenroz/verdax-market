@@ -16,7 +16,7 @@ dependencies {
     api(libs.androidx.compose.runtime)
     api(libs.androidx.compose.ui.util)
 
-    implementation(project(":core:common"))
+    implementation(projects.core.common)
 
     implementation(libs.coil.kt.compose)
     implementation(libs.androidx.ui.text.google.fonts)

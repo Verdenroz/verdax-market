@@ -21,6 +21,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "verdaxmarket"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core:common")
 include(":core:data")

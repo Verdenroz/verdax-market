@@ -29,9 +29,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:data"))
-
-    implementation(project(":feature:quotes"))
+    implementation(projects.core.data)
 
     implementation(libs.instantsearch.android)
     implementation(libs.instantsearch.compose)
