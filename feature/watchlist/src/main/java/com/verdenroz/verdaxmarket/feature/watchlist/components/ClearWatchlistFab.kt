@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.feature.watchlist.R
 
 @Composable
@@ -54,7 +54,7 @@ internal fun ClearWatchlistFab(
             text = { Text(text = stringResource(id = R.string.feature_watchlist_clear)) },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = VxmIcons.Delete,
                     contentDescription = stringResource(id = R.string.feature_watchlist_clear)
                 )
             },
