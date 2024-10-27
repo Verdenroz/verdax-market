@@ -9,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
@@ -51,6 +52,7 @@ fun VxmSubcomposeAsyncImage(
     context: Context,
     model: String,
     description: String,
+    contentScale: ContentScale = ContentScale.Fit,
     modifier: Modifier = Modifier,
 ) {
     SubcomposeAsyncImage(
@@ -76,6 +78,7 @@ fun VxmSubcomposeAsyncImage(
                 )
             }
         },
+        contentScale = contentScale,
         modifier = modifier
     )
 }
