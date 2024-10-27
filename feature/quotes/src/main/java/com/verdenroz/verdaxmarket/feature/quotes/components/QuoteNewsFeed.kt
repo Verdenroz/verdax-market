@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,11 +36,12 @@ import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @Composable
 internal fun QuoteNewsFeed(
-    news: List<News>
+    news: List<News>,
+    modifier: Modifier = Modifier
 ) {
     if (news.isEmpty()) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .height(300.dp)
                 .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center
@@ -53,19 +55,20 @@ internal fun QuoteNewsFeed(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(100))
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .padding(16.dp)
             )
         }
     } else {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = modifier
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceContainer),
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(
                 items = news,
-                key = { news -> news.title },
+                key = { newsItem -> newsItem.title }
             ) { item ->
                 QuoteNewsItem(news = item)
             }
@@ -73,18 +76,34 @@ internal fun QuoteNewsFeed(
     }
 }
 
-
 @Composable
-private fun QuoteNewsItem(news: News) {
+private fun QuoteNewsItem(
+    news: News,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
+
     ListItem(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .clickable {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(news.link))
+                context.startActivity(intent)
+            },
         leadingContent = {
-            VxmSubcomposeAsyncImage(
-                context = context,
-                model = news.img,
-                description = stringResource(id = R.string.feature_quotes_news_image_description),
-                modifier = Modifier.fillMaxSize(.33f)
-            )
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(4.dp))
+            ) {
+                VxmSubcomposeAsyncImage(
+                    context = context,
+                    model = news.img,
+                    description = stringResource(id = R.string.feature_quotes_news_image_description),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         },
         headlineContent = {
             Text(
@@ -111,14 +130,7 @@ private fun QuoteNewsItem(news: News) {
                     style = MaterialTheme.typography.labelSmall
                 )
             }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .clickable {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(news.link))
-                context.startActivity(intent)
-            }
+        }
     )
 }
 
