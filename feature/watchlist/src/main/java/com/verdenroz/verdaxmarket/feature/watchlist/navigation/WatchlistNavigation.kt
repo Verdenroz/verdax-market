@@ -7,7 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.verdenroz.verdaxmarket.feature.watchlist.WatchlistRoute
 
-private const val WATCHLIST_ROUTE = "watchlist_route"
+const val WATCHLIST_ROUTE = "watchlist_route"
 
 fun NavController.navigateToWatchlist(navOptions: NavOptions) = navigate(WATCHLIST_ROUTE, navOptions)
 

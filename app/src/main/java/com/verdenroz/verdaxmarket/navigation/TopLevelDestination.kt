@@ -1,10 +1,7 @@
 package com.verdenroz.verdaxmarket.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.List
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.feature.home.R as homeR
 import com.verdenroz.verdaxmarket.feature.search.R as searchR
 import com.verdenroz.verdaxmarket.feature.watchlist.R as watchlistR
@@ -15,14 +12,14 @@ enum class TopLevelDestination(
 ) {
     HOME(
         title = homeR.string.feature_home_title,
-        icon = Icons.Rounded.Home
+        icon = VxmIcons.Home
     ),
     SEARCH(
         title = searchR.string.feature_search_search,
-        icon = Icons.Rounded.Search
+        icon = VxmIcons.Search
     ),
     WATCHLIST(
         title = watchlistR.string.feature_watchlist_title,
-        icon = Icons.AutoMirrored.Rounded.List
+        icon = VxmIcons.List
     )
 }

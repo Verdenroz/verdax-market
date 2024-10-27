@@ -12,8 +12,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
+import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.navigateToHome
+import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE
 import com.verdenroz.verdaxmarket.feature.search.navigation.navigateToSearch
+import com.verdenroz.verdaxmarket.feature.settings.navigation.navigateToSettings
+import com.verdenroz.verdaxmarket.feature.watchlist.navigation.WATCHLIST_ROUTE
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.navigateToWatchlist
 import com.verdenroz.verdaxmarket.navigation.TopLevelDestination
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +58,14 @@ class VxmAppState(
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
+
+    val isTopLevelDestination: Boolean
+        @Composable get() = when (currentDestination?.route) {
+            HOME_ROUTE,
+            SEARCH_ROUTE,
+            WATCHLIST_ROUTE -> true
+            else -> false
+        }
 
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
 
@@ -107,6 +119,10 @@ class VxmAppState(
         while (navController.currentDestination?.route?.startsWith("quote_route") == true) {
             navController.popBackStack()
         }
+    }
+
+    fun navigateToSettings() {
+        navController.navigateToSettings()
     }
 
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarHostState
@@ -28,6 +29,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import com.verdenroz.verdaxmarket.R
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmNavigationSuiteScaffold
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSnackbarHost
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 
 @Composable
@@ -55,6 +58,7 @@ fun VxmApp(
         appState = appState,
         snackbarHostState = snackbarHostState,
         windowAdaptiveInfo = windowAdaptiveInfo,
+        onNavigateToSettings = appState::navigateToSettings,
         modifier = modifier,
     )
 }
@@ -64,6 +68,7 @@ internal fun VxmAppContent(
     appState: VxmAppState,
     snackbarHostState: SnackbarHostState,
     windowAdaptiveInfo: WindowAdaptiveInfo,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier,
 ) {
     val currentDestination = appState.currentDestination
@@ -73,7 +78,6 @@ internal fun VxmAppContent(
         windowAdaptiveInfo = windowAdaptiveInfo,
         navigationSuiteItems = {
             appState.topLevelDestinations.forEach { destination ->
-
                 // see what top level destination is selected based on the current destination
                 val selected = currentDestination?.hierarchy?.any {
                     it.route?.contains(destination.name, ignoreCase = true)
@@ -94,13 +98,26 @@ internal fun VxmAppContent(
             }
         }
     ) {
-        VxmNavHost(
-            appState = appState,
-            snackbarHostState = snackbarHostState,
-        )
         Scaffold(
             snackbarHost = {
                 VxmSnackbarHost(hostState = snackbarHostState)
+            },
+            topBar = {
+                if (appState.isTopLevelDestination) {
+                    VxmTopBar(
+                        title = {
+                            Text(text = stringResource(R.string.app_name))
+                        },
+                        actions = {
+                            IconButton(onClick = onNavigateToSettings) {
+                                Icon(
+                                    imageVector = VxmIcons.Settings,
+                                    contentDescription = stringResource(id = R.string.settings)
+                                )
+                            }
+                        }
+                    )
+                }
             }
 
         ) { padding ->
@@ -115,7 +132,6 @@ internal fun VxmAppContent(
                         ),
                     ),
             ) {
-//                }
                 VxmNavHost(
                     appState = appState,
                     onShowSnackbar = { message, action, duration ->
@@ -126,9 +142,7 @@ internal fun VxmAppContent(
                         ) == SnackbarResult.ActionPerformed
                     },
                 )
-
             }
         }
-
     }
 }
