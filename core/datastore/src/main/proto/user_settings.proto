@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "com.verdenroz.core.datastore";
+option java_multiple_files = true;
+
+message UserSettings {
+  enum ThemePreference {
+    SYSTEM = 0;
+    LIGHT = 1;
+    DARK = 2;
+  }
+
+  ThemePreference theme_preference = 1;
+  bool notifications_enabled = 2;
+  bool hints_enabled = 3;
+  bool show_market_hours = 4;
+  bool enable_analytics = 5;
+  bool is_onboarding_complete = 6;
+  bool is_first_launch = 7;
+}
