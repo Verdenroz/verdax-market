@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="feature_settings_theme">Theme</string>
+    <string name="feature_settings_theme_description">Choose your preferred theme</string>
+    <string name="feature_settings_appearane">Appearance</string>
+    <string name="feature_settings_back">Return to previous screen</string>
+    <string name="feature_settings_display">Display Preferences</string>
+    <string name="feature_settings_hints">Show Hints</string>
+    <string name="feature_settings_hints_description">Display tooltips for complex financial terms</string>
+    <string name="feature_settings_market_data">Market Data</string>
+    <string name="feature_settings_market_hours">Market Hours</string>
+    <string name="feature_settings_market_hours_description">Show market open/close status</string>
+    <string name="feature_settings_pre_market_data">Pre-Market Data</string>
+    <string name="feature_settings_pre_market_data_description">Display pre-market trading information</string>
+    <string name="feature_settings_after_hours_data">After-Hours Data</string>
+    <string name="feature_settings_after_hours_data_description">Display after-hours trading information</string>
+    <string name="feature_settings_notifications">Notifications</string>
+    <string name="feature_settings_notifications_title">Enable Notifications</string>
+    <string name="feature_settings_notifications_description">Receive updates about your watchlist and market events</string>
+    <string name="feature_settings_privacy">Privacy</string>
+    <string name="feature_settings_analytics">Anonymous Analytics</string>
+    <string name="feature_settings_analytics_description">Help improve the app by sending anonymous usage data</string>
+</resources>
