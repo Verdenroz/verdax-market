@@ -52,15 +52,16 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature:home"))
-    implementation(project(":feature:quotes"))
-    implementation(project(":feature:watchlist"))
-    implementation(project(":feature:search"))
+    implementation(projects.feature.home)
+    implementation(projects.feature.watchlist)
+    implementation(projects.feature.search)
+    implementation(projects.feature.quotes)
+    implementation(projects.feature.settings)
 
-    implementation(project(":core:common"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:model"))
-    implementation(project(":core:data"))
+    implementation(projects.core.common)
+    implementation(projects.core.designsystem)
+    implementation(projects.core.model)
+    implementation(projects.core.data)
 
 
     implementation(libs.androidx.activity.compose)
