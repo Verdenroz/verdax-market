@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCheckbox
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmFilterChip
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSearchBar
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
@@ -129,7 +128,7 @@ internal fun SearchScreen(
         trailingIcon = {
             IconButton(onClick = { showFilters = !showFilters }) {
                 Icon(
-                    Icons.Default.MoreVert,
+                    VxmIcons.Filter,
                     contentDescription = stringResource(id = R.string.feature_search_filter)
                 )
             }

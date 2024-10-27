@@ -3,10 +3,6 @@ package com.verdenroz.verdaxmarket.core.designsystem.components
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.verdenroz.verdaxmarket.core.designsystem.R
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 
 /**
@@ -70,18 +67,18 @@ fun VxmSearchBar(
         leadingIcon = {
             when (expand) {
                 null -> Icon(
-                    Icons.Default.Search,
+                    VxmIcons.Search,
                     contentDescription = stringResource(id = R.string.core_designsystem_search)
                 )
                 true -> IconButton(onClick = { onExpandChange(false)  }) {
                     Icon(
-                        Icons.Default.KeyboardArrowUp,
+                        VxmIcons.KeyboardUp,
                         contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
                     )
                 }
                 false -> IconButton(onClick = { onExpandChange(true)  }) {
                     Icon(
-                        Icons.Default.KeyboardArrowDown,
+                        VxmIcons.KeyboardDown,
                         contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
                     )
                 }
