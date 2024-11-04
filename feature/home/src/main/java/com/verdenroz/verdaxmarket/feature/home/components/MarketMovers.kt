@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.feature.home.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +53,6 @@ import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MarketMovers(
     listState: LazyListState,
@@ -143,7 +141,7 @@ fun MarketMoversList(
         }
 
         is Result.Error -> {
-            MarketIndexSkeleton()
+            MarketMoversSkeleton()
 
             LaunchedEffect(quotes.error) {
                 onShowSnackbar(
