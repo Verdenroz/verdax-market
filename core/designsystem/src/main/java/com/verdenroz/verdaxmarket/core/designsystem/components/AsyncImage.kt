@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
@@ -25,10 +26,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.R
  */
 @Composable
 fun VxmAsyncImage(
-    context: Context,
+    modifier: Modifier = Modifier,
+    context: Context = LocalContext.current,
     model: String,
     description: String,
-    modifier: Modifier = Modifier
 ) {
     AsyncImage(
         model = ImageRequest.Builder(context)
@@ -49,11 +50,11 @@ fun VxmAsyncImage(
  */
 @Composable
 fun VxmSubcomposeAsyncImage(
+    modifier: Modifier = Modifier,
     context: Context,
     model: String,
     description: String,
     contentScale: ContentScale = ContentScale.Fit,
-    modifier: Modifier = Modifier,
 ) {
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)
