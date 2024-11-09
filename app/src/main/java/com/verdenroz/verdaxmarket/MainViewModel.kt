@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.ui
+package com.verdenroz.verdaxmarket
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

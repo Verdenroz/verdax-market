@@ -12,6 +12,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,8 +20,6 @@ import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
-import com.verdenroz.verdaxmarket.ui.MainActivityUiState
-import com.verdenroz.verdaxmarket.ui.MainViewModel
 import com.verdenroz.verdaxmarket.ui.VxmApp
 import com.verdenroz.verdaxmarket.ui.rememberVxmAppState
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,9 +35,10 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var marketMonitor: MarketMonitor
 
-    val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         var uiState: MainActivityUiState by mutableStateOf(MainActivityUiState.Loading)
@@ -48,6 +48,13 @@ class MainActivity : ComponentActivity() {
                 viewModel.uiState
                     .onEach { uiState = it }
                     .collect { }
+            }
+        }
+
+        splashScreen.setKeepOnScreenCondition {
+            when (uiState) {
+                MainActivityUiState.Loading -> true
+                is MainActivityUiState.Success -> false
             }
         }
 
@@ -74,10 +81,7 @@ class MainActivity : ComponentActivity() {
                 marketMonitor = marketMonitor
             )
 
-
-            VxmTheme(
-                isDarkTheme = isDarkTheme
-            ) {
+            VxmTheme(isDarkTheme = isDarkTheme) {
                 VxmApp(appState = appState)
             }
         }
