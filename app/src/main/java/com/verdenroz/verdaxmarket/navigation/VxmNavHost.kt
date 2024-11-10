@@ -37,6 +37,7 @@ fun VxmNavHost(
         )
         settingsScreen(
             onNavigateBack = navController::popBackStack,
+            onShowSnackbar = onShowSnackbar,
         )
         quotesScreen(
             onNavigateBack = navController::popBackStack,
