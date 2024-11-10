@@ -87,12 +87,12 @@ private val darkScheme = darkColorScheme(
 @Composable
 fun VxmTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable (isDarkTheme: Boolean) -> Unit
 ) {
     MaterialTheme(
         colorScheme = if (isDarkTheme) darkScheme else lightScheme,
         typography = AppTypography,
-        content = content
+        content = { content(isDarkTheme) }
     )
 }
 
