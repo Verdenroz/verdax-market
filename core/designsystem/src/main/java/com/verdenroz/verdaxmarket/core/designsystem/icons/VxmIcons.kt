@@ -4,6 +4,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Help
 import androidx.compose.material.icons.automirrored.rounded.List
+import androidx.compose.material.icons.automirrored.rounded.Login
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Analytics
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Palette
@@ -25,6 +28,9 @@ object VxmIcons {
     val Search = Icons.Rounded.Search
     val List = Icons.AutoMirrored.Rounded.List
     val Account = Icons.Rounded.AccountCircle
+    val Login = Icons.AutoMirrored.Rounded.Login
+    val Logout = Icons.AutoMirrored.Rounded.Logout
+    val Email = Icons.Rounded.Email
     val Settings = Icons.Rounded.Settings
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val Add = Icons.Rounded.Add

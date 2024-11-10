@@ -27,6 +27,13 @@ val displayFontFamily = FontFamily(
     )
 )
 
+val authFontFamily = FontFamily(
+    Font(
+        googleFont = GoogleFont("Roboto"),
+        fontProvider = provider,
+    )
+)
+
 // Default Material 3 typography values
 val baseline = Typography()
 
