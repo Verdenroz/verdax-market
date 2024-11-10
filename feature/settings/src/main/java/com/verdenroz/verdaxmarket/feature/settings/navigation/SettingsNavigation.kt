@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.settings.navigation
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -12,10 +13,12 @@ fun NavController.navigateToSettings(navOptions: NavOptions? = null) = navigate(
 
 fun NavGraphBuilder.settingsScreen(
     onNavigateBack: () -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean
 ) {
     composable(route = SETTINGS_ROUTE) {
         SettingsRoute(
             onNavigateBack = onNavigateBack,
+            onShowSnackbar = onShowSnackbar
         )
     }
 }

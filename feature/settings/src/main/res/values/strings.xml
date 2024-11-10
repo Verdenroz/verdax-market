@@ -21,4 +21,22 @@
     <string name="feature_settings_privacy">Privacy</string>
     <string name="feature_settings_analytics">Anonymous Analytics</string>
     <string name="feature_settings_analytics_description">Help improve the app by sending anonymous usage data</string>
+
+    <string name="feature_settings_default_web_client_id">164158213127-l8dqusc0au44n2ubcm2kfl2io67tn23c.apps.googleusercontent.com</string>
+    <string name="feature_settings_sign_in_with_google">Sign in with Google</string>
+    <string name="feature_settings_sign_out">Sign Out</string>
+    <string name="feature_settings_sign_in">Sign in</string>
+    <string name="feature_settings_profile_picture">Profile picture</string>
+    <string name="feature_settings_sign_in_with_github">Sign in with Github</string>
+    <string name="feature_settings_email">Email</string>
+    <string name="feature_settings_password">Password</string>
+    <string name="feature_settings_sign_up_prompt">Don\'t have an account?</string>
+    <string name="feature_settings_sign_up">Sign up</string>
+    <string name="feature_settings_sign_in_with_email">Sign in with email</string>
+    <string name="feature_settings_forgot_password">Forgot password?</string>
+    <string name="feature_settings_continue_with">Continue with</string>
+    <string name="feature_settings_close">Close</string>
+    <string name="feature_settings_create_account">Create an Account</string>
+    <string name="feature_settings_welcome">Welcome to Verdax Market</string>
+    <string name="feature_settings_created_on">"Created on "</string>
 </resources>
