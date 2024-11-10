@@ -8,6 +8,7 @@ val positiveBackgroundColor = Color(0xFFA2EBD3)
 val negativeTextColor = Color(0xFFF7284D)
 val contrastNegativeTextColor = Color(0xFFE5E5E5)
 val negativeBackgroundColor = Color(0x55DF4661)
+val authActionColor = Color(0xFF1E88E5)
 
 val primaryLight = Color(0xFFFFFFFF)
 val onPrimaryLight = Color(0xFF1A1C18)
