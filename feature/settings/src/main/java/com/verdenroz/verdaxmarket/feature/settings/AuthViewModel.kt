@@ -191,11 +191,16 @@ class AuthViewModel @Inject constructor(
     }
 
     private suspend fun handleSignInError(e: Exception) {
+        if (e is GetCredentialCancellationException) {
+            // do nothing if user cancels sign-in
+            _authState.value = UserAuthState.SignedOut
+            return
+        }
+
         val errorMessage = when (e) {
             is FirebaseAuthInvalidCredentialsException -> "Invalid credentials. Please check your email and password."
             is FirebaseAuthInvalidUserException -> "No user found with this email."
             is FirebaseAuthUserCollisionException -> "An account already exists with this email."
-            is GetCredentialCancellationException -> "Sign-in cancelled."
             is NoCredentialException -> "No saved credentials found."
             is GoogleIdTokenParsingException -> "Failed to parse Google Sign-In token."
             else -> "Sign-in failed: ${e.message}"
