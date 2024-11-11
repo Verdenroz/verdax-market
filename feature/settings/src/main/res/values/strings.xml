@@ -39,4 +39,7 @@
     <string name="feature_settings_create_account">Create an Account</string>
     <string name="feature_settings_welcome">Welcome to Verdax Market</string>
     <string name="feature_settings_created_on">"Created on "</string>
+    <string name="feature_settings_sign_out_confirmation">Are you sure you want to log out?</string>
+    <string name="feature_settings_confirm">Confirm</string>
+    <string name="feature_settings_cancel">Cancel</string>
 </resources>
