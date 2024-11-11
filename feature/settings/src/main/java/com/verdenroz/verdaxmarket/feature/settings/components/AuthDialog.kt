@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -129,20 +130,32 @@ internal fun AuthDialog(
                             value = email,
                             onValueChange = { email = it },
                             label = { Text(stringResource(R.string.feature_settings_email)) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedLabelColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.inverseSurface,
+                                cursorColor = MaterialTheme.colorScheme.inverseSurface,
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text(stringResource(R.string.feature_settings_password)) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedLabelColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.inverseSurface,
+                                cursorColor = MaterialTheme.colorScheme.inverseSurface,
+                            ),
+                            visualTransformation = PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
-                            visualTransformation = PasswordVisualTransformation()
                         )
                         AuthButton(
                             text = stringResource(R.string.feature_settings_sign_in),
                             onClick = {
                                 onSignInWithEmail(email, password)
-                                isSigningIn = false
+                                onDismiss()
                             },
                         )
                         TextButton(onClick = { TODO("Forgot passwordf flow") }) {
@@ -150,7 +163,7 @@ internal fun AuthDialog(
                                 text = stringResource(R.string.feature_settings_forgot_password),
                                 color = authActionColor,
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
 
@@ -159,23 +172,36 @@ internal fun AuthDialog(
                             value = email,
                             onValueChange = { email = it },
                             label = { Text(stringResource(R.string.feature_settings_email)) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedLabelColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.inverseSurface,
+                                cursorColor = MaterialTheme.colorScheme.inverseSurface,
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text(stringResource(R.string.feature_settings_password)) },
+                            visualTransformation = PasswordVisualTransformation(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedLabelColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                                focusedTextColor = MaterialTheme.colorScheme.inverseSurface,
+                                cursorColor = MaterialTheme.colorScheme.inverseSurface,
+                            ),
                             modifier = Modifier.fillMaxWidth(),
-                            visualTransformation = PasswordVisualTransformation()
                         )
                         AuthButton(
                             text = stringResource(R.string.feature_settings_sign_up),
                             onClick = {
                                 onSignUpWithEmail(email, password)
                                 isSigningUp = false
+                                onDismiss()
                             },
                             contentDescription = stringResource(id = R.string.feature_settings_sign_up),
-                            modifier = Modifier.padding(horizontal = 32.dp)
+                            modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                         )
                     } else {
                         Text(
@@ -188,13 +214,19 @@ internal fun AuthDialog(
                             logo = painterResource(id = R.drawable.feature_settings_google_logo),
                             contentDescription = stringResource(id = R.string.feature_settings_sign_in_with_google),
                             text = stringResource(id = R.string.feature_settings_sign_in_with_google),
-                            onClick = onSignInWithGoogle
+                            onClick = {
+                                onSignInWithGoogle()
+                                onDismiss()
+                            }
                         )
                         AuthButton(
                             logo = painterResource(id = R.drawable.feature_settings_github_logo),
                             contentDescription = stringResource(id = R.string.feature_settings_sign_in_with_github),
                             text = stringResource(id = R.string.feature_settings_sign_in_with_github),
-                            onClick = onSignInWithGithub
+                            onClick = {
+                                onSignInWithGithub()
+                                onDismiss()
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))

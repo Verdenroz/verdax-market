@@ -1,11 +1,14 @@
 package com.verdenroz.verdaxmarket.feature.settings.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
@@ -36,6 +40,7 @@ fun AccountSection(
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showAccountDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
     var showSignOutDialog by remember { mutableStateOf(false) }
 
@@ -67,26 +72,40 @@ fun AccountSection(
                     )
                 },
                 headlineContent = {
-                    Text(
-                        text = userState.displayName,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                supportingContent = {
-                    Text(
-                        text = stringResource(id = R.string.feature_settings_created_on) + userState.creationDate,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    if (userState.displayName.isNotBlank()) {
+                        Text(
+                            text = userState.displayName,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    } else
+                        Text(
+                            text = stringResource(id = R.string.feature_settings_created_on) + userState.creationDate,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                 },
                 trailingContent = {
-                    Icon(
-                        imageVector = VxmIcons.Logout,
-                        contentDescription = stringResource(R.string.feature_settings_sign_out)
-                    )
+                    IconButton(
+                        onClick = { showSignOutDialog = true },
+                        modifier = Modifier.pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                awaitFirstDown(false)
+                                // Consume the event to prevent parent click
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = VxmIcons.Logout,
+                            contentDescription = stringResource(R.string.feature_settings_sign_out)
+                        )
+                    }
                 },
-                modifier = modifier.clickable { onSignOut() }
+                modifier = modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { showAccountDialog = true }
+                    )
+                }
             )
         }
 
@@ -140,6 +159,15 @@ fun AccountSection(
             )
         }
     }
+
+    if (showAccountDialog && userState is UserAuthState.SignedIn) {
+        AccountDialog(
+            user = userState,
+            onDismiss = { showAccountDialog = false },
+            onSignOut = onSignOut
+        )
+    }
+
     if (showAuthDialog) {
         AuthDialog(
             onSignInWithEmail = onSignInWithEmail,
@@ -148,6 +176,13 @@ fun AccountSection(
             onSignInWithGithub = onSignInWithGithub,
             onForgetPassword = onForgetPassword,
             onDismiss = { showAuthDialog = false },
+        )
+    }
+
+    if (showSignOutDialog) {
+        SignOutDialog(
+            onDismiss = { showSignOutDialog = false },
+            onSignOut = onSignOut
         )
     }
 }
