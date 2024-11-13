@@ -11,7 +11,10 @@
     <string name="core_designsystem_throttled">Too many requests</string>
     <string name="core_designsystem_server_down">Server can\'t be reached</string>
     <string name="core_designsystem_unknown_error">Unknown error</string>
-    <string name="core_designsystem_database">Unable to query data</string>
     <string name="core_designsystem_search">Search</string>
     <string name="core_designsystem_cancel_search">Cancel search</string>
+    <string name="core_designsystem_invalid_email">Invalid email</string>
+    <string name="core_designsystem_invalid_password">Password cannot be less than 6 characters long</string>
+    <string name="core_designsystem_blank_email">Email cannot be blank</string>
+    <string name="core_designsystem_blank_password">Password is empty</string>
 </resources>

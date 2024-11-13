@@ -33,8 +33,10 @@ sealed class UiText {
 
 fun DataError.asString(): UiText {
     return when (this) {
-        DataError.Local.DATABASE -> UiText.StringResource(R.string.core_designsystem_database)
-        DataError.Local.UNKNOWN -> UiText.StringResource(R.string.core_designsystem_unknown_error)
+        DataError.Local.INVALID_EMAIL -> UiText.StringResource(R.string.core_designsystem_invalid_email)
+        DataError.Local.INVALID_PASSWORD -> UiText.StringResource(R.string.core_designsystem_invalid_password)
+        DataError.Local.BLANK_EMAIL -> UiText.StringResource(R.string.core_designsystem_blank_email)
+        DataError.Local.BLANK_PASSWORD -> UiText.StringResource(R.string.core_designsystem_blank_password)
         DataError.Network.NO_INTERNET -> UiText.StringResource(R.string.core_designsystem_no_internet)
         DataError.Network.TIMEOUT -> UiText.StringResource(R.string.core_designsystem_timeout)
         DataError.Network.BAD_REQUEST -> UiText.StringResource(R.string.core_designsystem_bad_request)
