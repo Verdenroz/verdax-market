@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.core.data.utils
 
-import android.database.sqlite.SQLiteException
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.error.DataException
 import com.verdenroz.verdaxmarket.core.common.error.HttpException
@@ -27,15 +26,5 @@ fun handleNetworkException(e: Throwable): DataError.Network {
             }
         }
         else -> DataError.Network.UNKNOWN
-    }
-}
-
-fun handleLocalException(e: Throwable): DataError.Local {
-    return when (e) {
-        is SQLiteException -> {
-            DataError.Local.DATABASE
-        }
-
-        else -> DataError.Local.UNKNOWN
     }
 }
