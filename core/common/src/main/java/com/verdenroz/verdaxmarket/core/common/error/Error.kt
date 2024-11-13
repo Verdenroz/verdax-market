@@ -24,8 +24,10 @@ sealed interface DataError : Error {
     }
 
     enum class Local: DataError {
-        DATABASE,
-        UNKNOWN,
+        BLANK_EMAIL,
+        INVALID_EMAIL,
+        BLANK_PASSWORD,
+        INVALID_PASSWORD,
     }
 
 }
