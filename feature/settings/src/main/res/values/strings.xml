@@ -42,4 +42,9 @@
     <string name="feature_settings_sign_out_confirmation">Are you sure you want to log out?</string>
     <string name="feature_settings_confirm">Confirm</string>
     <string name="feature_settings_cancel">Cancel</string>
+    <string name="feature_settings_forgot_password_description">Reset Password</string>
+    <string name="feature_settings_send_reset_link">Send email</string>
+    <string name="feature_settings_reset_link_sent">We\'ve sent a password reset link to %s</string>
+    <string name="feature_settings_check_email_instructions">See email instructions to reset password</string>
+    <string name="feature_settings_back_to_sign_in">Return to Sign In</string>
 </resources>

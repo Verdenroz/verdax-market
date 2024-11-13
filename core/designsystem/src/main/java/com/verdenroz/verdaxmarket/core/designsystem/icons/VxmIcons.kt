@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.Email
@@ -32,6 +33,7 @@ object VxmIcons {
     val Logout = Icons.AutoMirrored.Rounded.Logout
     val Email = Icons.Rounded.Email
     val Settings = Icons.Rounded.Settings
+    val CheckCircle = Icons.Rounded.CheckCircle
     val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
     val Add = Icons.Rounded.Add
     val Remove = Icons.Rounded.Clear
