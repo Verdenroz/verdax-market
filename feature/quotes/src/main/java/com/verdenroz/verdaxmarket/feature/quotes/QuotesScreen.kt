@@ -68,6 +68,7 @@ internal fun QuotesRoute(
     val signals by quotesViewModel.signals.collectAsStateWithLifecycle()
     val signalSummary by quotesViewModel.signalSummary.collectAsStateWithLifecycle()
     val isWatchlisted by quotesViewModel.isWatchlisted.collectAsStateWithLifecycle()
+    val isHintsEnabled by quotesViewModel.isHintsEnabled.collectAsStateWithLifecycle()
 
     QuotesScreen(
         symbol = symbol,

@@ -7,6 +7,7 @@ import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
+import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
@@ -25,6 +26,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -33,6 +35,7 @@ class QuotesViewModel @AssistedInject constructor(
     @Assisted private val symbol: String,
     private val recentSearchRepository: RecentSearchRepository,
     private val watchlistRepository: WatchlistRepository,
+    userDataRepository: UserDataRepository,
     getSubscribedProfileUseCase: GetSubscribedProfileUseCase,
     getTimeSeriesMapUseCase: GetTimeSeriesMapUseCase,
     getAnalysisSignalsUseCase: GetAnalysisSignalsUseCase,
@@ -82,6 +85,14 @@ class QuotesViewModel @AssistedInject constructor(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
             false
+        )
+
+    val isHintsEnabled: StateFlow<Boolean> = userDataRepository.userSetting
+        .map { it.hintsEnabled }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            true
         )
 
     fun addToWatchListLocal(quote: SimpleQuoteData) {
