@@ -18,7 +18,6 @@ fun NavController.navigateToQuote(
 }
 
 fun NavGraphBuilder.quotesScreen(
-    isHintsEnabled: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
@@ -31,7 +30,6 @@ fun NavGraphBuilder.quotesScreen(
 
         QuotesRoute(
             symbol = symbol,
-            isHintsEnabled = isHintsEnabled,
             onNavigateBack = onNavigateBack,
             onNavigateToQuote = onNavigateToQuote,
             onShowSnackbar = onShowSnackbar

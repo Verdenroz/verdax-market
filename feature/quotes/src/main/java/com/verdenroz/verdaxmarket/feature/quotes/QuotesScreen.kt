@@ -54,7 +54,6 @@ import com.verdenroz.verdaxmarket.feature.quotes.components.SimilarQuoteFeed
 @Composable
 internal fun QuotesRoute(
     symbol: String,
-    isHintsEnabled: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,

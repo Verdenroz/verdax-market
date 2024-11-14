@@ -10,10 +10,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
-import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.navigateToHome
 import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE
@@ -32,7 +30,6 @@ import kotlinx.coroutines.flow.stateIn
 fun rememberVxmAppState(
     networkMonitor: NetworkMonitor,
     marketMonitor: MarketMonitor,
-    userDataRepository: UserDataRepository,
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): VxmAppState {
@@ -46,7 +43,6 @@ fun rememberVxmAppState(
             coroutineScope = coroutineScope,
             networkMonitor = networkMonitor,
             marketMonitor = marketMonitor,
-            userDataRepository = userDataRepository,
         )
     }
 }
@@ -57,7 +53,6 @@ class VxmAppState(
     coroutineScope: CoroutineScope,
     networkMonitor: NetworkMonitor,
     marketMonitor: MarketMonitor,
-    userDataRepository: UserDataRepository,
 ) {
 
     val currentDestination: NavDestination?
@@ -89,12 +84,6 @@ class VxmAppState(
             initialValue = false,
         )
 
-    val userSettings: StateFlow<UserSetting> = userDataRepository.userSetting
-        .stateIn(
-            scope = coroutineScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = UserSetting(),
-        )
 
     /**
      * UI logic for navigating to a top level destination in the app. Top level destinations have

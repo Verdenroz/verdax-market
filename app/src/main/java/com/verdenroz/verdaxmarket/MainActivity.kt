@@ -16,7 +16,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -35,9 +34,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var marketMonitor: MarketMonitor
-
-    @Inject
-    lateinit var userDataRepository: UserDataRepository
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -83,7 +79,6 @@ class MainActivity : ComponentActivity() {
             val appState = rememberVxmAppState(
                 networkMonitor = networkMonitor,
                 marketMonitor = marketMonitor,
-                userDataRepository = userDataRepository,
             )
 
             VxmTheme(isDarkTheme = isDarkTheme) {
