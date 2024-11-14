@@ -54,6 +54,7 @@ import com.verdenroz.verdaxmarket.feature.quotes.components.SimilarQuoteFeed
 @Composable
 internal fun QuotesRoute(
     symbol: String,
+    isHintsEnabled: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
@@ -71,6 +72,7 @@ internal fun QuotesRoute(
 
     QuotesScreen(
         symbol = symbol,
+        isHintsEnabled = isHintsEnabled,
         profile = profile,
         timeSeries = timeSeries,
         signals = signals,
@@ -91,6 +93,7 @@ internal fun QuotesRoute(
 @Composable
 internal fun QuotesScreen(
     symbol: String,
+    isHintsEnabled: Boolean,
     profile: Result<Profile, DataError.Network>,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
@@ -244,6 +247,7 @@ internal fun QuotesScreen(
                                 news = profile.data.news,
                                 signals = signals,
                                 signalSummary = signalSummary,
+                                isHintsEnabled = isHintsEnabled,
                                 onShowSnackbar = onShowSnackbar,
                             )
                         }
@@ -254,7 +258,7 @@ internal fun QuotesScreen(
     }
 }
 
-val previewFullQuoteData = FullQuoteData(
+internal val previewFullQuoteData = FullQuoteData(
     name = "Apple Inc.",
     symbol = "AAPL",
     price = 113.2,
@@ -302,6 +306,7 @@ private fun PreviewQuoteScreen() {
     VxmTheme {
         QuotesScreen(
             symbol = "AAPL",
+            isHintsEnabled = true,
             timeSeries = mapOf(TimePeriod.YEAR_TO_DATE to Result.Success(emptyMap())),
             profile = Result.Success(
                 Profile(

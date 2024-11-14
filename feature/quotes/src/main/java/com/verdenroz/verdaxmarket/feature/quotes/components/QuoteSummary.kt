@@ -12,12 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,7 +38,10 @@ import com.verdenroz.verdaxmarket.feature.quotes.previewFullQuoteData
 import java.util.Locale
 
 @Composable
-internal fun QuoteSummary(quote: FullQuoteData) {
+internal fun QuoteSummary(
+    quote: FullQuoteData,
+    isHintsEnabled: Boolean,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -232,13 +234,12 @@ private fun Profile(quote: FullQuoteData) {
         quote.about?.let {
             val isExpanded = remember { mutableStateOf(false) }
             val showMore = remember { mutableStateOf(false) }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     letterSpacing = 1.25.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = if (isExpanded.value) Int.MAX_VALUE else 10,
                     overflow = TextOverflow.Ellipsis,
                     onTextLayout = { textLayoutResult ->
@@ -248,17 +249,20 @@ private fun Profile(quote: FullQuoteData) {
                     }
                 )
                 if (showMore.value) {
-                    ClickableText(
-                        text = if (isExpanded.value) AnnotatedString(stringResource(id = R.string.feature_quotes_show_less))
-                        else AnnotatedString(stringResource(id = R.string.feature_quotes_show_more)),
-                        modifier = Modifier.align(Alignment.End),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            letterSpacing = 1.25.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.End
-                        ),
+                    TextButton(
                         onClick = { isExpanded.value = !isExpanded.value },
-                    )
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Text(
+                            text = if (isExpanded.value) AnnotatedString(stringResource(id = R.string.feature_quotes_show_less))
+                            else AnnotatedString(stringResource(id = R.string.feature_quotes_show_more)),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                letterSpacing = 1.25.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        )
+                    }
+
                 }
             }
         }
@@ -399,6 +403,9 @@ private fun formatText(text: String): String {
 @Composable
 private fun PreviewQuoteSummary() {
     VxmTheme {
-        QuoteSummary(quote = previewFullQuoteData)
+        QuoteSummary(
+            quote = previewFullQuoteData,
+            isHintsEnabled = true
+        )
     }
 }

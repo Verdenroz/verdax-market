@@ -43,6 +43,7 @@ internal fun QuoteScreenPager(
     news: List<News>,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
+    isHintsEnabled: Boolean,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val state = rememberPagerState(pageCount = { 3 })
@@ -88,7 +89,10 @@ internal fun QuoteScreenPager(
         ) { page ->
             when (page) {
                 0 -> {
-                    QuoteSummary(quote = quote)
+                    QuoteSummary(
+                        quote = quote,
+                        isHintsEnabled = isHintsEnabled
+                    )
                 }
 
                 1 -> {
@@ -128,6 +132,7 @@ private fun PreviewQuoteScreenPager() {
                 Interval.WEEKLY to Result.Success(emptyMap()),
                 Interval.MONTHLY to Result.Success(emptyMap())
             ),
+            isHintsEnabled = true,
             onShowSnackbar = { _, _, _ -> true }
         )
     }
