@@ -2,6 +2,8 @@ package com.verdenroz.verdaxmarket.navigation
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.homeScreen
@@ -19,6 +21,7 @@ fun VxmNavHost(
     startDestination: String = HOME_ROUTE,
 ) {
     val navController = appState.navController
+    val userSettings by appState.userSettings.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -40,6 +43,7 @@ fun VxmNavHost(
             onShowSnackbar = onShowSnackbar,
         )
         quotesScreen(
+            isHintsEnabled = userSettings.hintsEnabled,
             onNavigateBack = navController::popBackStack,
             onNavigateToQuote = navController::navigateToQuote,
             onShowSnackbar = onShowSnackbar,
