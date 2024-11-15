@@ -6,6 +6,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
 
 private val lightScheme = lightColorScheme(
@@ -84,16 +86,20 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+val LocalTheme = compositionLocalOf { false }
+
 @Composable
 fun VxmTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable (isDarkTheme: Boolean) -> Unit
+    content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = if (isDarkTheme) darkScheme else lightScheme,
-        typography = AppTypography,
-        content = { content(isDarkTheme) }
-    )
+    CompositionLocalProvider(LocalTheme provides isDarkTheme) {
+        MaterialTheme(
+            colorScheme = if (isDarkTheme) darkScheme else lightScheme,
+            typography = AppTypography,
+            content = { content() }
+        )
+    }
 }
 
 /**
