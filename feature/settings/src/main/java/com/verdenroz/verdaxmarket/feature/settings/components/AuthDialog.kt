@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
+import com.verdenroz.verdaxmarket.core.designsystem.theme.LocalTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.authActionColor
@@ -540,63 +541,62 @@ private fun AuthButton(
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
-    VxmTheme { isDarkTheme ->
-        val backgroundColor = if (isDarkTheme) Color(0xFF131314) else Color(0xFFFFFFFF)
-        val strokeColor = if (isDarkTheme) Color(0xFF8E918F) else Color(0xFF747775)
-        val textColor = if (isDarkTheme) Color(0xFFE3E3E3) else Color(0xFF1F1F1F)
+    val isDarkTheme = LocalTheme.current
+    val backgroundColor = if (isDarkTheme) Color(0xFF131314) else Color(0xFFFFFFFF)
+    val strokeColor = if (isDarkTheme) Color(0xFF8E918F) else Color(0xFF747775)
+    val textColor = if (isDarkTheme) Color(0xFFE3E3E3) else Color(0xFF1F1F1F)
 
-        Row(
-            horizontalArrangement = when {
-                logo != null || imageVector != null -> Arrangement.spacedBy(8.dp)
-                else -> Arrangement.Center
-            },
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .height(44.dp)
-                .let {
-                    if (logo != null || imageVector != null) it else it.fillMaxWidth()
-                }
-                .clip(CircleShape)
-                .background(if (enabled) backgroundColor else Color.Gray)
-                .border(1.dp, strokeColor, CircleShape)
-                .clickable(onClick = onClick, enabled = enabled)
-                .padding(horizontal = 16.dp)
-        ) {
-            if (logo != null || imageVector != null) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                ) {
-                    when {
-                        logo != null -> {
-                            Image(
-                                painter = logo,
-                                contentDescription = contentDescription,
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+    Row(
+        horizontalArrangement = when {
+            logo != null || imageVector != null -> Arrangement.spacedBy(8.dp)
+            else -> Arrangement.Center
+        },
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .height(44.dp)
+            .let {
+                if (logo != null || imageVector != null) it else it.fillMaxWidth()
+            }
+            .clip(CircleShape)
+            .background(if (enabled) backgroundColor else Color.Gray)
+            .border(1.dp, strokeColor, CircleShape)
+            .clickable(onClick = onClick, enabled = enabled)
+            .padding(horizontal = 16.dp)
+    ) {
+        if (logo != null || imageVector != null) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+            ) {
+                when {
+                    logo != null -> {
+                        Image(
+                            painter = logo,
+                            contentDescription = contentDescription,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
-                        imageVector != null -> {
-                            Icon(
-                                imageVector = imageVector,
-                                contentDescription = contentDescription,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                    imageVector != null -> {
+                        Icon(
+                            imageVector = imageVector,
+                            contentDescription = contentDescription,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }
-            if (text != null) {
-                Text(
-                    text = text,
-                    fontFamily = authFontFamily,
-                    color = textColor,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
-            }
+        }
+        if (text != null) {
+            Text(
+                text = text,
+                fontFamily = authFontFamily,
+                color = textColor,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
         }
     }
 }
