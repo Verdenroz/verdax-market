@@ -110,22 +110,24 @@ internal fun QuotesScreen(
 ) {
     Scaffold(
         topBar = {
-            val quoteData = when (profile) {
-                is Result.Success -> SimpleQuoteData(
-                    symbol = profile.data.quote.symbol,
-                    name = profile.data.quote.name,
-                    price = profile.data.quote.price,
-                    change = profile.data.quote.change,
-                    percentChange = profile.data.quote.percentChange,
-                    logo = profile.data.quote.logo
+            val quote: Result<SimpleQuoteData, DataError.Network> = when (profile) {
+                is Result.Success -> Result.Success(
+                    SimpleQuoteData(
+                        symbol = profile.data.quote.symbol,
+                        name = profile.data.quote.name,
+                        price = profile.data.quote.price,
+                        change = profile.data.quote.change,
+                        percentChange = profile.data.quote.percentChange,
+                        logo = profile.data.quote.logo
+                    )
                 )
-
-                else -> null
+                is Result.Error -> Result.Error(profile.error)
+                else -> Result.Loading()
             }
             QuoteTopBar(
                 onNavigateBack = onNavigateBack,
                 symbol = symbol,
-                quote = quoteData,
+                quote = quote,
                 isWatchlisted = isWatchlisted,
                 addToWatchlistLocal = addToWatchlistLocal,
                 addToWatchlistNetwork = addToWatchListNetwork,
