@@ -1,15 +1,42 @@
 package com.verdenroz.verdaxmarket.core.designsystem.theme
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val positiveTextColor = Color(0xFF12D698)
-val contrastPositiveTextColor = Color(0xFF0B3024)
-val positiveBackgroundColor = Color(0xFFA2EBD3)
-val negativeTextColor = Color(0xFFF7284D)
-val contrastNegativeTextColor = Color(0xFFE5E5E5)
-val negativeBackgroundColor = Color(0x55DF4661)
-val authActionColor = Color(0xFF1E88E5)
+val positiveTextColorLight = Color(0xFF29816D)
+val positiveTextColorDark = Color(0xFF11FFB2)
+val positiveBackgroundColorLight = Color(0xFFA2EBD3)
+val positiveBackgroundColorDark = Color(0xFF004D40)
+val negativeTextColorLight = Color(0xFFFF0000)
+val negativeTextColorDark = Color(0xFFFFDDDD)
+val negativeBackgroundColorLight = Color(0x55DF4661)
+val negativeBackgroundColorDark = Color(0xFFB71C1C)
 
+@Composable
+fun getPositiveTextColor(): Color {
+    val isDarkTheme = LocalTheme.current
+    return if (isDarkTheme) positiveTextColorDark else positiveTextColorLight
+}
+
+@Composable
+fun getNegativeTextColor(): Color {
+    val isDarkTheme = LocalTheme.current
+    return if (isDarkTheme) negativeTextColorDark else negativeTextColorLight
+}
+
+@Composable
+fun getPositiveBackgroundColor(): Color {
+    val isDarkTheme = LocalTheme.current
+    return if (isDarkTheme) positiveBackgroundColorDark else positiveBackgroundColorLight
+}
+
+@Composable
+fun getNegativeBackgroundColor(): Color {
+    val isDarkTheme = LocalTheme.current
+    return if (isDarkTheme) negativeBackgroundColorDark else negativeBackgroundColorLight
+}
+
+val authActionColor = Color(0xFF1E88E5)
 val primaryLight = Color(0xFFFFFFFF)
 val onPrimaryLight = Color(0xFF1A1C18)
 val primaryContainerLight = Color(0xFFB5C4B5)
