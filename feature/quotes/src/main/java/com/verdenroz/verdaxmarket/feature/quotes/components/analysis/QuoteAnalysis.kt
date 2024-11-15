@@ -17,15 +17,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -37,8 +34,6 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
-import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.QuoteSignal
@@ -64,9 +59,7 @@ internal fun QuoteAnalysis(
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
     updateInterval: (Interval) -> Unit,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
-    val context = LocalContext.current
     when (val analysisSignals = signals[interval]) {
         is Result.Loading -> {
             StockAnalysisSkeleton()
@@ -97,15 +90,6 @@ internal fun QuoteAnalysis(
                 )
             }
 
-            if (analysisSignals is Result.Error) {
-                LaunchedEffect(analysisSignals.error) {
-                    onShowSnackbar(
-                        analysisSignals.error.asUiText().asString(context),
-                        UiText.StringResource(R.string.feature_quotes_dismiss).asString(context),
-                        SnackbarDuration.Short
-                    )
-                }
-            }
         }
 
         is Result.Success -> {

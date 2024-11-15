@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.feature.quotes.navigation
 
-import androidx.compose.material3.SnackbarDuration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -20,7 +19,6 @@ fun NavController.navigateToQuote(
 fun NavGraphBuilder.quotesScreen(
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     composable(
         route = "$QUOTES_ROUTE/{$QUOTE_SYMBOL_ARG}",
@@ -32,7 +30,6 @@ fun NavGraphBuilder.quotesScreen(
             symbol = symbol,
             onNavigateBack = onNavigateBack,
             onNavigateToQuote = onNavigateToQuote,
-            onShowSnackbar = onShowSnackbar
         )
     }
 }

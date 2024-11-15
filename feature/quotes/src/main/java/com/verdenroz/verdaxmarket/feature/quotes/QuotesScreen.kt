@@ -16,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +55,6 @@ internal fun QuotesRoute(
     symbol: String,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     quotesViewModel: QuotesViewModel = hiltViewModel(
         creationCallback = { factory: QuotesViewModel.QuotesViewModelFactory ->
             factory.create(symbol)
@@ -80,7 +78,6 @@ internal fun QuotesRoute(
         isWatchlisted = isWatchlisted,
         onNavigateBack = onNavigateBack,
         onNavigateToQuote = onNavigateToQuote,
-        onShowSnackbar = onShowSnackbar,
         addToWatchlistLocal = quotesViewModel::addToWatchListLocal,
         addToWatchListNetwork = quotesViewModel::addToWatchlistNetwork,
         deleteFromWatchlist = quotesViewModel::deleteFromWatchlist,
@@ -101,7 +98,6 @@ internal fun QuotesScreen(
     isWatchlisted: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     addToWatchlistLocal: (SimpleQuoteData) -> Unit,
     addToWatchListNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
@@ -216,7 +212,6 @@ internal fun QuotesScreen(
                                     .fillMaxWidth()
                                     .heightIn(min = 200.dp, max = 400.dp),
                                 listState = listState,
-                                onShowSnackbar = onShowSnackbar,
                                 timeSeries = timeSeries,
                             )
                         }
@@ -250,7 +245,6 @@ internal fun QuotesScreen(
                                 signals = signals,
                                 signalSummary = signalSummary,
                                 isHintsEnabled = isHintsEnabled,
-                                onShowSnackbar = onShowSnackbar,
                             )
                         }
                     }
@@ -330,7 +324,6 @@ private fun PreviewQuoteScreen() {
             isWatchlisted = false,
             onNavigateBack = {},
             onNavigateToQuote = {},
-            onShowSnackbar = { _, _, _ -> true },
             addToWatchlistLocal = { },
             addToWatchListNetwork = { },
             deleteFromWatchlist = {},

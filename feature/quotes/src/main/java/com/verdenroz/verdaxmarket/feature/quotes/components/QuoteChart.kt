@@ -17,10 +17,8 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +40,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,14 +56,12 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundC
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
-import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 import kotlinx.coroutines.launch
-import java.lang.Math.round
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.roundToInt
 
 private const val SPACING = 75f
 
@@ -75,9 +70,7 @@ internal fun QuoteChart(
     modifier: Modifier = Modifier,
     listState: LazyListState,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
-    val context = LocalContext.current
     val isDarkTheme = LocalTheme.current
 
     val positiveTextColor = getPositiveTextColor()
@@ -101,14 +94,6 @@ internal fun QuoteChart(
                 currentTimePeriod = timePeriod,
                 updateTimeSeries = { timePeriod = it },
             )
-
-            LaunchedEffect(timeSeries) {
-                onShowSnackbar(
-                    currentTimeSeries.error.asUiText().asString(context),
-                    UiText.StringResource(R.string.feature_quotes_dismiss).asString(context),
-                    SnackbarDuration.Short
-                )
-            }
         }
 
         is Result.Success -> {
@@ -408,7 +393,7 @@ private fun drawYAxis(
     val priceStep = (upperValue - lowerValue) / 5f
     (0..4).forEach { i ->
         drawScope.drawContext.canvas.nativeCanvas.apply {
-            val price = round(lowerValue + priceStep * i).toString()
+            val price = (lowerValue + priceStep * i).roundToInt().toString()
             val yPos = size.height - SPACING - i * size.height / 5f
 
             drawText(price, 5f, yPos - SPACING / 2 + 50f, textPaint)

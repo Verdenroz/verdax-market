@@ -41,7 +41,6 @@ fun VxmNavHost(
         quotesScreen(
             onNavigateBack = navController::popBackStack,
             onNavigateToQuote = navController::navigateToQuote,
-            onShowSnackbar = onShowSnackbar,
         )
     }
 }

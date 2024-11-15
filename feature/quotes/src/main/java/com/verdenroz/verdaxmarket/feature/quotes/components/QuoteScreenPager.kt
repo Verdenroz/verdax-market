@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +43,6 @@ internal fun QuoteScreenPager(
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
     isHintsEnabled: Boolean,
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val state = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
@@ -107,7 +105,6 @@ internal fun QuoteScreenPager(
                         signals = signals,
                         signalSummary = signalSummary,
                         updateInterval = { interval = it },
-                        onShowSnackbar = onShowSnackbar
                     )
                 }
             }
@@ -133,7 +130,6 @@ private fun PreviewQuoteScreenPager() {
                 Interval.MONTHLY to Result.Success(emptyMap())
             ),
             isHintsEnabled = true,
-            onShowSnackbar = { _, _, _ -> true }
         )
     }
 }
