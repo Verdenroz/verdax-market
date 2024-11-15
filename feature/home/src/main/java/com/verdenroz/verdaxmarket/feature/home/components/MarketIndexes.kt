@@ -35,8 +35,8 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketIndex
@@ -147,13 +147,13 @@ fun MarketIndexCard(index: MarketIndex) {
                         text = index.change,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
+                        color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                     )
                     Text(
                         text = index.percentChange,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (index.change.contains('+')) positiveTextColor else negativeTextColor
+                        color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                     )
                 }
             }

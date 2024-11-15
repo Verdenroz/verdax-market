@@ -56,8 +56,8 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
@@ -321,7 +321,7 @@ private fun WatchlistQuote(
                     text = String.format(Locale.US, "%.2f", quote.price),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
-                    color = if (quote.change.startsWith("-")) negativeTextColor else positiveTextColor,
+                    color = if (quote.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
                     maxLines = 1,
                     modifier = Modifier
                         .weight(.2f)

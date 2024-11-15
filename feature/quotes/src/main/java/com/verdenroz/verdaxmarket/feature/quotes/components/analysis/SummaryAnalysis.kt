@@ -20,10 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.feature.quotes.R
@@ -94,6 +94,8 @@ private fun OverallSummaryCircle(
     val buyWeight = buy.toFloat() / total
     val neutralWeight = neutral.toFloat() / total
     val sellWeight = sell.toFloat() / total
+    val positiveBackground = getPositiveBackgroundColor()
+    val negativeBackgroundColor = getNegativeBackgroundColor()
 
     val suggestion = when {
         buy > 2 * (sell + neutral) -> stringResource(id = R.string.feature_quotes_strong_buy)
@@ -122,7 +124,7 @@ private fun OverallSummaryCircle(
             val sweepAngleSell = 360 * sellWeight
 
             drawArc(
-                color = positiveBackgroundColor,
+                color = positiveBackground,
                 startAngle = 0f,
                 sweepAngle = sweepAngleBuy,
                 useCenter = true
@@ -144,8 +146,8 @@ private fun OverallSummaryCircle(
             text = suggestion,
             style = MaterialTheme.typography.titleLarge,
             color = when (suggestion) {
-                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> positiveTextColor
-                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> negativeTextColor
+                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> getPositiveTextColor()
+                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> getNegativeTextColor()
                 else -> MaterialTheme.colorScheme.onSurface
             },
             letterSpacing = 1.25.sp,
@@ -166,6 +168,8 @@ private fun FlowRowScope.SummaryCircle(
     val buyWeight = buy.toFloat() / total
     val neutralWeight = neutral.toFloat() / total
     val sellWeight = sell.toFloat() / total
+    val positiveBackgroundColor = getPositiveBackgroundColor()
+    val negativeBackgroundColor = getNegativeBackgroundColor()
 
     val suggestion = when {
         // If buy is greater than sell and neutral combined by 2 times, then it is a strong buy
@@ -226,8 +230,8 @@ private fun FlowRowScope.SummaryCircle(
             text = suggestion,
             style = MaterialTheme.typography.titleMedium,
             color = when (suggestion) {
-                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> positiveTextColor
-                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> negativeTextColor
+                stringResource(id = R.string.feature_quotes_buy), stringResource(id = R.string.feature_quotes_strong_buy) -> getPositiveTextColor()
+                stringResource(id = R.string.feature_quotes_sell), stringResource(id = R.string.feature_quotes_strong_sell) -> getNegativeTextColor()
                 else -> MaterialTheme.colorScheme.onSurface
             },
             letterSpacing = 1.25.sp,

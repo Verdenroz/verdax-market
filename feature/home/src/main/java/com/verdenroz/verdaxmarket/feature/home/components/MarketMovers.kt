@@ -42,10 +42,10 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTabRowPager
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketMover
@@ -225,13 +225,13 @@ fun MarketMoverStock(
             text = mover.change,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = let { if (mover.change.startsWith("-")) negativeTextColor else positiveTextColor },
+            color = let { if (mover.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
             modifier = Modifier
                 .weight(1f)
                 .wrapContentSize()
                 .clip(CircleShape)
                 .background(
-                    if (mover.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
+                    if (mover.change.startsWith("-")) getNegativeBackgroundColor() else getPositiveBackgroundColor()
                 )
                 .padding(4.dp)
         )
@@ -240,13 +240,13 @@ fun MarketMoverStock(
             text = mover.percentChange,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = let { if (mover.change.startsWith("-")) negativeTextColor else positiveTextColor },
+            color = let { if (mover.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
             modifier = Modifier
                 .weight(1f)
                 .wrapContentSize()
                 .clip(CircleShape)
                 .background(
-                    if (mover.change.startsWith("-")) negativeBackgroundColor else positiveBackgroundColor
+                    if (mover.change.startsWith("-")) getNegativeBackgroundColor() else getPositiveBackgroundColor()
                 )
                 .padding(4.dp)
         )
@@ -257,16 +257,29 @@ fun MarketMoverStock(
 @Composable
 private fun PreviewMarketMoverStock() {
     VxmTheme {
-        MarketMoverStock(
-            mover = MarketMover(
-                symbol = "AAPL",
-                name = "Apple Inc.",
-                price = "100.0",
-                change = "+100.0",
-                percentChange = "+100%"
-            ),
-            onNavigateToQuote = {}
-        )
+        Column {
+            MarketMoverStock(
+                mover = MarketMover(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = "100.0",
+                    change = "+100.0",
+                    percentChange = "+100%"
+                ),
+                onNavigateToQuote = {}
+            )
+            MarketMoverStock(
+                mover = MarketMover(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = "100.0",
+                    change = "-100.0",
+                    percentChange = "-100%"
+                ),
+                onNavigateToQuote = {}
+            )
+        }
+
     }
 }
 

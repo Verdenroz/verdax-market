@@ -35,8 +35,8 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.MarketSector
@@ -137,17 +137,17 @@ fun MarketSectorCard(sector: MarketSector) {
                     PerformanceRow(
                         title = stringResource(id = R.string.feature_home_day_return),
                         value = sector.dayReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
+                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
                     )
                     PerformanceRow(
                         title = stringResource(id = R.string.feature_home_ytd_return),
                         value = sector.ytdReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
+                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
                     )
                     PerformanceRow(
                         title = stringResource(id = R.string.feature_home_three_year_return),
                         value = sector.threeYearReturn,
-                        color = if (sector.dayReturn.contains("-")) negativeTextColor else positiveTextColor
+                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
                     )
                 }
             }

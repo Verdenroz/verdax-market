@@ -34,8 +34,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButt
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.feature.watchlist.R
 import java.util.Locale
@@ -98,7 +98,7 @@ internal fun QuoteSneakPeek(
                     text = quote.change,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (quote.change.startsWith("-")) negativeTextColor else positiveTextColor,
+                    color = if (quote.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
                 )
             }
         },
@@ -117,7 +117,7 @@ internal fun QuoteSneakPeek(
                     text = quote.percentChange,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (quote.percentChange.startsWith("-")) negativeTextColor else positiveTextColor,
+                    color = if (quote.percentChange.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
                 )
             }
         },

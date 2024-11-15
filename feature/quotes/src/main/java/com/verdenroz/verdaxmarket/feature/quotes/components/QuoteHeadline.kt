@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.feature.quotes.R
 import java.util.Locale
 
@@ -74,13 +74,13 @@ internal fun QuoteHeadline(
                     text = change,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (change.startsWith("-")) negativeTextColor else positiveTextColor },
+                    color = let { if (change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
                 )
                 Text(
                     text = percentChange,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (percentChange.startsWith("-")) negativeTextColor else positiveTextColor },
+                    color = let { if (percentChange.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
                 )
             }
         },
@@ -102,7 +102,7 @@ internal fun QuoteHeadline(
                         ),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = let { if (afterHoursPrice < price) negativeTextColor else positiveTextColor },
+                        color = let { if (afterHoursPrice < price) getNegativeTextColor() else getPositiveTextColor() },
                     )
                     Text(
                         text = String.format(
@@ -112,7 +112,7 @@ internal fun QuoteHeadline(
                         ),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = let { if (afterHoursPrice < price) negativeTextColor else positiveTextColor },
+                        color = let { if (afterHoursPrice < price) getNegativeTextColor() else getPositiveTextColor() },
                     )
                 }
             }

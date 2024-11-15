@@ -4,7 +4,6 @@ import android.graphics.Paint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,10 +54,11 @@ import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmRadioButton
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.LocalTheme
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
@@ -75,11 +75,17 @@ internal fun QuoteChart(
     modifier: Modifier = Modifier,
     listState: LazyListState,
     timeSeries: Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>,
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
+    val isDarkTheme = LocalTheme.current
+
+    val positiveTextColor = getPositiveTextColor()
+    val negativeTextColor = getNegativeTextColor()
+    val positiveBackgroundColor = getPositiveBackgroundColor()
+    val negativeBackgroundColor = getNegativeBackgroundColor()
     var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.YEAR_TO_DATE) }
+
     when (val currentTimeSeries = timeSeries[timePeriod]) {
         is Result.Loading, null -> {
             StockChartSkeleton()

@@ -35,8 +35,8 @@ import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
@@ -263,9 +263,9 @@ private fun AnalysisDetail(
                     style = MaterialTheme.typography.titleSmall,
                     letterSpacing = if (signal.name.length <= 4) 1.25.sp else 1.sp,
                     color = when (signal) {
-                        QuoteSignal.BUY -> positiveTextColor
+                        QuoteSignal.BUY -> getPositiveTextColor()
                         QuoteSignal.NEUTRAL -> MaterialTheme.colorScheme.onSurface
-                        QuoteSignal.SELL -> negativeTextColor
+                        QuoteSignal.SELL -> getNegativeTextColor()
                     },
                     fontSize = 14.sp
                 )

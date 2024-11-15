@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
@@ -167,7 +167,7 @@ private fun PerformanceCard(
     sectorPerformance: String?
 ) {
     Card(
-        modifier = Modifier.size(300.dp, 125.dp),
+        modifier = Modifier.size(325.dp, 125.dp),
     ) {
         Column(
             modifier = Modifier
@@ -198,7 +198,7 @@ private fun PerformanceCard(
                     Text(
                         text = stockPerformance,
                         style = MaterialTheme.typography.labelLarge,
-                        color = if (stockPerformance.contains('+')) positiveTextColor else negativeTextColor
+                        color = if (stockPerformance.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                     )
                 }
                 if (sector != null && sectorPerformance != null) {
@@ -214,7 +214,7 @@ private fun PerformanceCard(
                         Text(
                             text = sectorPerformance,
                             style = MaterialTheme.typography.labelLarge,
-                            color = if (sectorPerformance.contains('+')) positiveTextColor else negativeTextColor
+                            color = if (sectorPerformance.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                         )
                     }
                 }
@@ -250,13 +250,26 @@ private fun StockPerformanceSkeleton(
 @Composable
 private fun PreviewPerformanceCard() {
     VxmTheme {
-        PerformanceCard(
-            label = "YTD Return",
-            symbol = "AAPL",
-            sector = "Communication Services",
-            stockPerformance = "-10.00%",
-            sectorPerformance = "-5.00%"
-        )
+        LazyRow {
+            item(key = 0) {
+                PerformanceCard(
+                    label = "YTD Return",
+                    symbol = "AAPL",
+                    sector = "Communication Services",
+                    stockPerformance = "+10.00%",
+                    sectorPerformance = "+5.00%"
+                )
+            }
+            item(key = 1) {
+                PerformanceCard(
+                    label = "YTD Return",
+                    symbol = "AAPL",
+                    sector = "Communication Services",
+                    stockPerformance = "-10.00%",
+                    sectorPerformance = "-5.00%"
+                )
+            }
+        }
     }
 }
 

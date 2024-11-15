@@ -40,10 +40,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.contrastNegativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.contrastPositiveTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
 import com.verdenroz.verdaxmarket.feature.search.R
 import kotlinx.coroutines.delay
@@ -220,10 +220,10 @@ private fun RecentQuoteBody(
                     Text(
                         text = quote.price.toString(),
                         style = MaterialTheme.typography.labelLarge,
-                        color = if (quote.change.toDouble() > 0) contrastPositiveTextColor else contrastNegativeTextColor,
+                        color = if (quote.change.toDouble() > 0) getPositiveTextColor() else getNegativeTextColor(),
                         modifier = Modifier
                             .clip(RoundedCornerShape(25))
-                            .background(if (quote.change.toDouble() > 0) positiveBackgroundColor else negativeBackgroundColor)
+                            .background(if (quote.change.toDouble() > 0) getPositiveBackgroundColor() else getNegativeBackgroundColor())
                             .padding(4.dp)
                     )
                     RotatingText(quote = quote)
@@ -284,10 +284,10 @@ private fun RotatingText(quote: RecentQuoteResult) {
     Text(
         text = if (showChange) quote.change else quote.percentChange,
         style = MaterialTheme.typography.labelLarge,
-        color = if (quote.change.toDouble() > 0) contrastPositiveTextColor else contrastNegativeTextColor,
+        color = if (quote.change.toDouble() > 0) getPositiveTextColor() else getNegativeTextColor(),
         modifier = Modifier
             .clip(RoundedCornerShape(25))
-            .background(if (quote.change.toDouble() > 0) positiveBackgroundColor else negativeBackgroundColor)
+            .background(if (quote.change.toDouble() > 0) getPositiveBackgroundColor() else getNegativeBackgroundColor())
             .padding(4.dp)
     )
 }

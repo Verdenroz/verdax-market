@@ -17,8 +17,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.negativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.positiveTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 
 @Composable
@@ -55,12 +55,12 @@ internal fun QuoteCard(
                 Text(
                     text = quote.change,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (quote.change.contains('+')) positiveTextColor else negativeTextColor
+                    color = if (quote.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                 )
                 Text(
                     text = quote.percentChange,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (quote.change.contains('+')) positiveTextColor else negativeTextColor
+                    color = if (quote.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                 )
             }
         }
@@ -71,16 +71,29 @@ internal fun QuoteCard(
 @Composable
 private fun PreviewStockCard() {
     VxmTheme {
-        QuoteCard(
-            quote = SimpleQuoteData(
-                symbol = "AAPL",
-                name = "Apple Inc.",
-                price = 150.0,
-                change = "+5.0",
-                percentChange = "+5%",
-                logo = "https://logo.clearbit.com/apple.com"
-            ),
-            onNavigateToQuote = {}
-        )
+        Column {
+            QuoteCard(
+                quote = SimpleQuoteData(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = 150.0,
+                    change = "+5.0",
+                    percentChange = "+5%",
+                    logo = "https://logo.clearbit.com/apple.com"
+                ),
+                onNavigateToQuote = {}
+            )
+            QuoteCard(
+                quote = SimpleQuoteData(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = 150.0,
+                    change = "-5.0",
+                    percentChange = "-5%",
+                    logo = "https://logo.clearbit.com/apple.com"
+                ),
+                onNavigateToQuote = {}
+            )
+        }
     }
 }
