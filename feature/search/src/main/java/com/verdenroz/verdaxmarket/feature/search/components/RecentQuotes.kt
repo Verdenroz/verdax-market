@@ -60,7 +60,9 @@ internal fun RecentQuotes(
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp)
     ) {
         Row(
             modifier = Modifier

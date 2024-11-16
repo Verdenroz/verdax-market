@@ -120,6 +120,7 @@ internal fun WatchlistScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -170,6 +171,8 @@ internal fun WatchlistScreen(
                             clearWatchlist = clearWatchlist,
                         )
                     },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 ) { padding ->
                     LazyColumn(
                         modifier = Modifier
