@@ -1,7 +1,10 @@
 package com.verdenroz.verdaxmarket.core.designsystem.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -15,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.R
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
+import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
 /**
  * VerdaxMarket wrapper around [SearchBar] to provide a search bar with custom styling. This search bar is always active.
@@ -30,6 +35,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VxmSearchBar(
+    modifier: Modifier = Modifier,
     query: String,
     onQueryChange: (String) -> Unit,
     expand: Boolean? = null,
@@ -38,54 +44,65 @@ fun VxmSearchBar(
     trailingIcon: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
-
     SearchBar(
-        modifier = Modifier.fillMaxWidth(),
-        colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceDim,
-            dividerColor = Color.Transparent,
-            inputFieldColors = SearchBarDefaults.inputFieldColors(
-                cursorColor = MaterialTheme.colorScheme.secondary,
-                selectionColors = TextSelectionColors(
-                    handleColor = MaterialTheme.colorScheme.secondary,
-                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer
-                )
-            )
-        ),
-        query = query,
-        onQueryChange = onQueryChange,
-        onSearch = onSearch,
-        active = true,
-        onActiveChange = {},
-        placeholder = {
-            Text(
-                stringResource(id = R.string.core_designsystem_search),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Black
-            )
-        },
-        leadingIcon = {
-            when (expand) {
-                null -> Icon(
-                    VxmIcons.Search,
-                    contentDescription = stringResource(id = R.string.core_designsystem_search)
-                )
-                true -> IconButton(onClick = { onExpandChange(false)  }) {
-                    Icon(
-                        VxmIcons.KeyboardUp,
-                        contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = onSearch,
+                expanded = true,
+                onExpandedChange = {},
+                enabled = true,
+                placeholder = {
+                    Text(
+                        stringResource(id = R.string.core_designsystem_search),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black
                     )
-                }
-                false -> IconButton(onClick = { onExpandChange(true)  }) {
-                    Icon(
-                        VxmIcons.KeyboardDown,
-                        contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
-                    )
-                }
+                },
+                leadingIcon = {
+                    when (expand) {
+                        null -> Icon(
+                            VxmIcons.Search,
+                            contentDescription = stringResource(id = R.string.core_designsystem_search)
+                        )
 
-            }
+                        true -> IconButton(onClick = { onExpandChange(false) }) {
+                            Icon(
+                                VxmIcons.KeyboardUp,
+                                contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
+                            )
+                        }
+
+                        false -> IconButton(onClick = { onExpandChange(true) }) {
+                            Icon(
+                                VxmIcons.KeyboardDown,
+                                contentDescription = stringResource(id = R.string.core_designsystem_cancel_search)
+                            )
+                        }
+                    }
+                },
+                trailingIcon = trailingIcon,
+                colors = SearchBarDefaults.inputFieldColors(
+                    cursorColor = MaterialTheme.colorScheme.secondary,
+                    selectionColors = TextSelectionColors(
+                        handleColor = MaterialTheme.colorScheme.secondary,
+                        backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ),
+                modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+            )
         },
-        trailingIcon = trailingIcon,
+        expanded = true,
+        onExpandedChange = {},
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = SearchBarDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            dividerColor = Color.Transparent
+        ),
         content = content
     )
 }
@@ -93,13 +110,15 @@ fun VxmSearchBar(
 @ThemePreviews
 @Composable
 private fun PreviewSearchBar() {
-    VxmSearchBar(
-        query = "",
-        onQueryChange = {},
-        expand = false,
-        onExpandChange = {},
-        onSearch = {},
-        trailingIcon = {},
-        content = {}
-    )
+    VxmTheme {
+        VxmSearchBar(
+            query = "",
+            onQueryChange = {},
+            expand = false,
+            onExpandChange = {},
+            onSearch = {},
+            trailingIcon = {},
+            content = {}
+        )
+    }
 }
