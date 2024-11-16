@@ -101,5 +101,27 @@
     <string name="feature_quotes_bbands">Bollinger Bands (20, 2)</string>
     <string name="feature_quotes_ichimoku">Ichimoku Cloud (9, 26, 52, 26)</string>
     <string name="feature_quotes_chart_error">Unable to load history</string>
-
+    <string name="feature_quotes_open_hint">The price of the quote at the beginning of the trading day</string>
+    <string name="feature_quotes_hint_icon_description">Define %s</string>
+    <string name="feature_quotes_days_range_hint">The lowest and highest price of the day</string>
+    <string name="feature_quotes_fifty_two_week_range_hint">The lowest and highest price of the year</string>
+    <string name="feature_quotes_volume_hint">The number of shares traded during the day</string>
+    <string name="feature_quotes_avg_volume_hint">The average number of shares traded in a day</string>
+    <string name="feature_quotes_market_cap_hint">The total market valuation of a company\'s outstanding shares</string>
+    <string name="feature_quotes_net_assets_hint">The total market value of all the assets the fund holds minus its liabilities</string>
+    <string name="feature_quotes_nav_hint">The value of a single share based on underlying assets and cash</string>
+    <string name="feature_quotes_pe_ratio_hint">Compares current price to earnings per share in the last 12 months</string>
+    <string name="feature_quotes_eps_hint">A measure of how profitable each outstanding share over the last 12 months</string>
+    <string name="feature_quotes_beta_hint">A measure of volatility over 5 years using monthly data. A beta greater than 1 is more volatile and less than 1 is less volatile compared to market</string>
+    <string name="feature_quotes_expense_ratio_hint">"The percentage of assets used to manage a fund after waivers and reimbursements. Lower ratios are more cost effective. Anything higher than 1.5% is considered high "</string>
+    <string name="feature_quotes_dividend_yield_hint">The total amount of dividends an equity is expected to pay over the next 12 months, where yield is the expected annual dividend as a percent.</string>
+    <string name="feature_quotes_last_dividend_hint">The most recent dividend payment made to its shareholders</string>
+    <string name="feature_quotes_ex_dividend_hint">Eligibility date for dividends. To receive upcoming dividends, shares must be bought strictly before this date</string>
+    <string name="feature_quotes_last_capital_gain_hint">The most recent distribution of profits made by an investment fund</string>
+    <string name="feature_quotes_holdings_turnover_hint">Measures how frequently a mutual fund or investment portfolio replaces its holdings, where high ratios indicate frequent trade activities</string>
+    <string name="feature_quotes_fund_category_hint">Used to describe the investment style of the fund</string>
+    <string name="feature_quotes_morningstar_rating_hint">Rating given by Morningstar to evaluate funds compared to its peers, where higher stars indicate consistent high performance</string>
+    <string name="feature_quotes_morningstar_risk_hint">Rating given by Morningstar to evaluate funds compared to its peers, where high stars indicate higher risk</string>
+    <string name="feature_quotes_earnings_date_hint">The next scheduled date when a publicly traded company announces its financial results</string>
+    <string name="feature_quotes_inception_date_hint">Date when the fund was first established</string>
 </resources>

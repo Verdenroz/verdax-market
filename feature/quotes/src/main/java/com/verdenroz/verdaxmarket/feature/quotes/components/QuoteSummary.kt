@@ -1,6 +1,8 @@
 package com.verdenroz.verdaxmarket.feature.quotes.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,28 +15,41 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 import com.verdenroz.verdaxmarket.feature.quotes.previewFullQuoteData
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
@@ -51,7 +66,11 @@ internal fun QuoteSummary(
     ) {
         Profile(quote = quote)
         quote.open?.let {
-            QuoteDetailCell(label = stringResource(id = R.string.feature_quotes_open)) {
+            QuoteDetailCell(
+                label = stringResource(id = R.string.feature_quotes_open),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_open_hint)
+            ) {
                 SimpleDetailText(
                     text = quote.open.toString()
                 )
@@ -60,6 +79,8 @@ internal fun QuoteSummary(
         if (quote.low != null && quote.high != null)
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_days_range),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_days_range_hint)
             ) {
                 PriceRangeLine(
                     low = quote.low!!,
@@ -70,6 +91,8 @@ internal fun QuoteSummary(
         if (quote.yearLow != null && quote.yearHigh != null)
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_fifty_two_week_range),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_fifty_two_week_range_hint)
             ) {
                 PriceRangeLine(
                     low = quote.yearLow!!,
@@ -80,19 +103,25 @@ internal fun QuoteSummary(
         if (quote.volume != null)
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_volume),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_volume_hint)
             ) {
-                SimpleDetailText(text = quote.volume.toString())
+                SimpleDetailText(text = formatVolume(quote.volume!!))
             }
         if (quote.avgVolume != null)
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_avg_volume),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_avg_volume_hint)
             ) {
-                SimpleDetailText(text = quote.avgVolume.toString())
+                SimpleDetailText(text =formatVolume(quote.avgVolume!!))
             }
 
         quote.marketCap?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_market_cap),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_market_cap_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -100,6 +129,8 @@ internal fun QuoteSummary(
         quote.netAssets?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_net_assets),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_net_assets_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -107,6 +138,8 @@ internal fun QuoteSummary(
         quote.nav?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_nav),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_nav_hint)
             ) {
                 SimpleDetailText(text = it.toString())
             }
@@ -114,6 +147,8 @@ internal fun QuoteSummary(
         quote.pe?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_pe_ratio),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_pe_ratio_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -121,6 +156,8 @@ internal fun QuoteSummary(
         quote.eps?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_eps),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_eps_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -128,6 +165,8 @@ internal fun QuoteSummary(
         quote.beta?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_beta),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_beta_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -136,6 +175,8 @@ internal fun QuoteSummary(
         quote.expenseRatio?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_expense_ratio),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_expense_ratio_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -144,6 +185,8 @@ internal fun QuoteSummary(
         quote.dividend?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_dividend_yield),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_dividend_yield_hint)
             ) {
                 SimpleDetailText(text = it + " (" + quote.yield + ")")
             }
@@ -152,6 +195,8 @@ internal fun QuoteSummary(
         quote.lastDividend?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_last_dividend),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_last_dividend_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -160,6 +205,8 @@ internal fun QuoteSummary(
         quote.exDividend?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_ex_dividend),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_ex_dividend_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -168,6 +215,8 @@ internal fun QuoteSummary(
         quote.lastCapitalGain?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_last_capital_gain),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_last_capital_gain_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -176,6 +225,8 @@ internal fun QuoteSummary(
         quote.holdingsTurnover?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_holdings_turnover),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_holdings_turnover_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -184,6 +235,8 @@ internal fun QuoteSummary(
         quote.category?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_fund_category),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_fund_category_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -192,6 +245,8 @@ internal fun QuoteSummary(
         quote.morningstarRating?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_morningstar_rating),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_morningstar_rating_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -200,6 +255,8 @@ internal fun QuoteSummary(
         quote.morningstarRisk?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_morningstar_risk),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_morningstar_risk_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -208,6 +265,8 @@ internal fun QuoteSummary(
         quote.earningsDate?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_earnings_date),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_earnings_date_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -216,6 +275,8 @@ internal fun QuoteSummary(
         quote.inceptionDate?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_inception_date),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_inception_date_hint)
             ) {
                 SimpleDetailText(text = it)
             }
@@ -299,20 +360,78 @@ private fun Profile(quote: FullQuoteData) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QuoteDetailCell(
     label: String,
+    isHintsEnabled: Boolean = false,
+    hint: String = "",
     detailValue: @Composable () -> Unit,
 ) {
     VxmListItem(
         headlineContent = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleSmall,
-                letterSpacing = 1.25.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            var tooltipVisible by remember { mutableStateOf(false) }
+            val tooltipState = rememberTooltipState(initialIsVisible = tooltipVisible)
+            val scope = rememberCoroutineScope()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip(
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        modifier = Modifier.border(
+                            1.dp,
+                            MaterialTheme.colorScheme.secondary,
+                            CircleShape
+                        )
+                    ) {
+                        Text(
+                            text = hint,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                },
+                state = tooltipState
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.titleSmall,
+                        letterSpacing = 1.25.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    if (isHintsEnabled) scope.launch { tooltipState.show() }
+                                },
+                                onTap = {
+                                    if (isHintsEnabled) scope.launch { tooltipState.show() }
+                                }
+                            )
+                        }
+                    )
+                    if (isHintsEnabled && hint.isNotEmpty()) {
+                        Box {
+                            IconButton(
+                                onClick = { scope.launch { tooltipState.show() } },
+                                modifier = Modifier.size(16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = VxmIcons.Help,
+                                    contentDescription = stringResource(
+                                        R.string.feature_quotes_hint_icon_description,
+                                        label
+                                    ),
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         },
         trailingContent = detailValue,
         colors = ListItemDefaults.colors(
@@ -323,13 +442,14 @@ private fun QuoteDetailCell(
 
 @Composable
 private fun SimpleDetailText(
-    text: String
+    text: String,
+    modifier: Modifier = Modifier
 ) {
     Text(
         text = formatText(text),
         style = MaterialTheme.typography.labelLarge,
         letterSpacing = 1.5.sp,
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .padding(4.dp)
@@ -344,7 +464,7 @@ private fun PriceRangeLine(low: Double, high: Double, current: Double) {
     }
     Row(
         modifier = Modifier
-            .fillMaxWidth(.65f),
+            .fillMaxWidth(.5f),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SimpleDetailText(text = String.format(Locale.US, "%.2f", low))
@@ -379,13 +499,13 @@ private fun formatText(text: String): String {
 
         val formattedFirstPart = try {
             String.format(Locale.US, "%.2f", firstPart.toDouble())
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             firstPart
         }
 
         val formattedSecondPart = try {
             String.format(Locale.US, "%.2f", secondPart.toDouble())
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             secondPart
         }
 
@@ -394,8 +514,17 @@ private fun formatText(text: String): String {
 
     return try {
         String.format(Locale.US, "%.2f", text.toDouble())
-    } catch (e: NumberFormatException) {
+    } catch (_: NumberFormatException) {
         text
+    }
+}
+
+private fun formatVolume(volume: Long): String {
+    return when {
+        volume >= 1_000_000_000 -> String.format(Locale.US, "%.2fB", volume / 1_000_000_000.0)
+        volume >= 1_000_000 -> String.format(Locale.US, "%.2fM", volume / 1_000_000.0)
+        volume >= 1_000 -> String.format(Locale.US, "%.2fK", volume / 1_000.0)
+        else -> volume.toString()
     }
 }
 
