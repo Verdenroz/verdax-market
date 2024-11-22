@@ -4,7 +4,7 @@ import kotlinx.coroutines.channels.Channel
 
 interface FinanceQuerySocket<T, P> {
     companion object {
-        internal const val SOCKET_URL = BuildConfig.socketURL
+        internal const val SOCKET_URL = "wss://finance-query.onrender.com"
     }
 
     /**
