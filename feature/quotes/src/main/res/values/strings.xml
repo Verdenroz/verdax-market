@@ -124,4 +124,6 @@
     <string name="feature_quotes_morningstar_risk_hint">Rating given by Morningstar to evaluate funds compared to its peers, where high stars indicate higher risk</string>
     <string name="feature_quotes_earnings_date_hint">The next scheduled date when a publicly traded company announces its financial results</string>
     <string name="feature_quotes_inception_date_hint">Date when the fund was first established</string>
+    <string name="feature_quotes_employees">Employees</string>
+    <string name="feature_quotes_employees_hint">The number of employees hired by the company</string>
 </resources>

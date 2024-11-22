@@ -262,6 +262,16 @@ internal fun QuoteSummary(
             }
         }
 
+        quote.employees?.let {
+            QuoteDetailCell(
+                label = stringResource(id = R.string.feature_quotes_employees),
+                isHintsEnabled = isHintsEnabled,
+                hint = stringResource(id = R.string.feature_quotes_employees_hint)
+            ) {
+                SimpleDetailText(text = it)
+            }
+        }
+
         quote.earningsDate?.let {
             QuoteDetailCell(
                 label = stringResource(id = R.string.feature_quotes_earnings_date),
