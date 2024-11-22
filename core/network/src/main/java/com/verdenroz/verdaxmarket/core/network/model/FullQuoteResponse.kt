@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
  * @param symbol the stock symbol
  * @param name the stock name
  * @param price the current price
+ * @param preMarketPrice the price before market open
  * @param afterHoursPrice the price after market close
  * @param change the change in price
  * @param percentChange the percentage change in price
@@ -43,20 +44,22 @@ import kotlinx.serialization.Serializable
  * @param threeYearReturn the three year return
  * @param fiveYearReturn the five year return
  * @param logo the URL of the company logo
+ * @param employees the number of employees
  */
 @Serializable
 data class FullQuoteResponse(
     val symbol: String,
     val name: String,
-    val price: Double,
-    val afterHoursPrice: Double? = null,
+    val price: String,
+    val preMarketPrice: String? = null,
+    val afterHoursPrice: String? = null,
     val change: String,
     val percentChange: String,
-    val open: Double? = null,
-    val high: Double? = null,
-    val low: Double? = null,
-    val yearHigh: Double? = null,
-    val yearLow: Double? = null,
+    val open: String? = null,
+    val high: String? = null,
+    val low: String? = null,
+    val yearHigh: String? = null,
+    val yearLow: String? = null,
     val volume: Long? = null,
     val avgVolume: Long? = null,
     val marketCap: String? = null,
@@ -66,7 +69,7 @@ data class FullQuoteResponse(
     val dividend: String? = null,
     val yield: String? = null,
     val netAssets: String? = null,
-    val nav: Double? = null,
+    val nav: String? = null,
     val expenseRatio: String? = null,
     val category: String? = null,
     val lastCapitalGain: String? = null,
@@ -84,5 +87,6 @@ data class FullQuoteResponse(
     val yearReturn: String? = null,
     val threeYearReturn: String? = null,
     val fiveYearReturn: String? = null,
-    val logo: String? = null
+    val logo: String? = null,
+    val employees: String? = null,
 )

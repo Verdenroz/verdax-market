@@ -38,6 +38,7 @@ fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     symbol = symbol,
     name = name,
     price = price,
+    preMarketPrice = preMarketPrice,
     afterHoursPrice = afterHoursPrice,
     change = change,
     percentChange = percentChange,
@@ -74,6 +75,7 @@ fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     threeYearReturn = threeYearReturn,
     fiveYearReturn = fiveYearReturn,
     logo = logo,
+    employees = employees,
 )
 
 

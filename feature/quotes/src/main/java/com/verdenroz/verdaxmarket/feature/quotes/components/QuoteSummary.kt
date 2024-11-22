@@ -457,17 +457,22 @@ private fun SimpleDetailText(
 }
 
 @Composable
-private fun PriceRangeLine(low: Double, high: Double, current: Double) {
-    val fraction = ((current - low) / (high - low)).toFloat().coerceAtLeast(.01f)
+private fun PriceRangeLine(low: String, high: String, current: String) {
+    val lowValue = low.replace(",", "").toDoubleOrNull() ?: return
+    val highValue = high.replace(",", "").toDoubleOrNull() ?: return
+    val currentValue = current.replace(",", "").toDoubleOrNull() ?: return
+
+    val fraction = ((currentValue - lowValue) / (highValue - lowValue)).toFloat().coerceAtLeast(.01f)
     if (fraction.isNaN()) {
         return
     }
+
     Row(
         modifier = Modifier
             .fillMaxWidth(.5f),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SimpleDetailText(text = String.format(Locale.US, "%.2f", low))
+        SimpleDetailText(text = String.format(Locale.US, "%.2f", lowValue))
         Box(
             modifier = Modifier
                 .weight(fraction)
@@ -486,7 +491,7 @@ private fun PriceRangeLine(low: Double, high: Double, current: Double) {
                 .height(1.dp)
                 .background(MaterialTheme.colorScheme.onSurface),
         )
-        SimpleDetailText(text = String.format(Locale.US, "%.2f", high))
+        SimpleDetailText(text = String.format(Locale.US, "%.2f", highValue))
     }
 }
 

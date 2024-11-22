@@ -12,7 +12,7 @@ import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 data class QuoteEntity(
     @PrimaryKey val symbol: String,
     val name: String,
-    val price: Double,
+    val price: String,
     val change: String,
     val percentChange: String,
     val logo: String?

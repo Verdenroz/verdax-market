@@ -12,7 +12,7 @@ package com.verdenroz.verdaxmarket.core.model
 data class SimpleQuoteData(
     val symbol: String,
     val name: String,
-    val price: Double,
+    val price: String,
     val change: String,
     val percentChange: String,
     val logo: String?
@@ -63,15 +63,16 @@ data class SimpleQuoteData(
 data class FullQuoteData(
     val symbol: String,
     val name: String,
-    val price: Double,
-    val afterHoursPrice: Double?,
+    val price: String,
+    val preMarketPrice: String?,
+    val afterHoursPrice: String?,
     val change: String,
     val percentChange: String,
-    val open: Double?,
-    val high: Double?,
-    val low: Double?,
-    val yearHigh: Double?,
-    val yearLow: Double?,
+    val open: String?,
+    val high: String?,
+    val low: String?,
+    val yearHigh: String?,
+    val yearLow: String?,
     val volume: Long?,
     val avgVolume: Long?,
     val marketCap: String?,
@@ -81,7 +82,7 @@ data class FullQuoteData(
     val dividend: String?,
     val yield: String?,
     val netAssets: String?,
-    val nav: Double?,
+    val nav: String?,
     val expenseRatio: String?,
     val category: String?,
     val lastCapitalGain: String?,
@@ -99,5 +100,6 @@ data class FullQuoteData(
     val yearReturn: String?,
     val threeYearReturn: String?,
     val fiveYearReturn: String?,
-    val logo: String?
+    val logo: String?,
+    val employees: String?
 )
