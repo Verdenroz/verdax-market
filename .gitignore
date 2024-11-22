@@ -32,3 +32,5 @@ bin/
 gen/
 out/
 build/
+
+/secrets.properties

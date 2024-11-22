@@ -49,7 +49,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
     override suspend fun getByteStream(url: HttpUrl): InputStream {
         val request = Request.Builder()
             .url(url)
-            .addHeader("x-api-key", BuildConfig.financeQueryAPIKey)
+            .addHeader("x-api-key", BuildConfig.FINANCE_QUERY_API_KEY)
             .build()
         val call = client.newCall(request)
         try {

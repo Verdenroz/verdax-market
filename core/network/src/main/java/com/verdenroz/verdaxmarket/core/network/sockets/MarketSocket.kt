@@ -7,7 +7,6 @@ import com.verdenroz.verdaxmarket.core.network.model.MarketInfoResponse
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -32,7 +31,7 @@ class MarketSocket @Inject constructor(
         val url = "$SOCKET_URL/market"
         val request = Request.Builder()
             .url(url)
-            .addHeader("x-api-key", BuildConfig.financeQueryAPIKey)
+            .addHeader("x-api-key", BuildConfig.FINANCE_QUERY_API_KEY)
             .build()
 
         webSocket = client.newWebSocket(request, this)

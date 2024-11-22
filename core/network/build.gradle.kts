@@ -1,28 +1,13 @@
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.verdaxmarket.android.library)
     alias(libs.plugins.verdaxmarket.hilt)
     alias(libs.plugins.kotlin.serialization)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
-
-val properties = Properties()
-properties.load(File(projectDir, "secrets.properties").reader())
 
 android {
     namespace = "com.verdenroz.verdaxmarket.core.network"
-    defaultConfig {
-        buildConfigField(
-            "String",
-            "financeQueryAPIKey",
-            properties.getProperty("FINANCE_QUERY_API_KEY")
-        )
-        buildConfigField(
-            "String",
-            "socketURL",
-            properties.getProperty("SOCKET_URL")
-        )
-    }
     buildFeatures {
         buildConfig = true
     }
@@ -31,6 +16,17 @@ android {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
         }
+    }
+}
+
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions {
+        freeCompilerArgs.add("-Xopt-in=kotlinx.serialization.InternalSerializationApi")
     }
 }
 
