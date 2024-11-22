@@ -198,10 +198,11 @@ internal fun QuotesScreen(
                             QuoteHeadline(
                                 name = profile.data.quote.name,
                                 symbol = profile.data.quote.symbol,
-                                price = profile.data.quote.price,
-                                afterHoursPrice = profile.data.quote.afterHoursPrice,
+                                price = profile.data.quote.price.replace(",", "").toDouble(),
                                 change = profile.data.quote.change,
                                 percentChange = profile.data.quote.percentChange,
+                                preMarketPrice = profile.data.quote.preMarketPrice?.replace(",", "")?.toDouble(),
+                                afterHoursPrice = profile.data.quote.afterHoursPrice?.replace(",", "")?.toDouble(),
                                 logo = profile.data.quote.logo,
                             )
                         }
@@ -257,20 +258,21 @@ internal fun QuotesScreen(
 internal val previewFullQuoteData = FullQuoteData(
     name = "Apple Inc.",
     symbol = "AAPL",
-    price = 113.2,
-    afterHoursPrice = 179.74,
+    price = "113.2",
+    preMarketPrice = "113.2",
+    afterHoursPrice = "179.74",
     change = "+1.23",
     percentChange = "+1.5%",
-    high = 143.45,
-    low = 110.45,
-    open = 123.45,
+    high = "143.45",
+    low = "110.45",
+    open = "123.45",
     volume = 12345678,
     marketCap = "1.23T",
     pe = "12.34",
     eps = "1.23",
     beta = "1.23",
-    yearHigh = 163.45,
-    yearLow = 100.45,
+    yearHigh = "163.45",
+    yearLow = "100.45",
     dividend = "1.23",
     yield = "1.23%",
     netAssets = null,
@@ -293,7 +295,8 @@ internal val previewFullQuoteData = FullQuoteData(
     yearReturn = "1.23%",
     threeYearReturn = "1.23%",
     fiveYearReturn = "1.23%",
-    logo = "https://logo.clearbit.com/apple.com"
+    logo = "https://logo.clearbit.com/apple.com",
+    employees = "100,000",
 )
 
 @ThemePreviews

@@ -182,7 +182,7 @@ private fun PreviewBottomSheetContent() {
             quote = SimpleQuoteData(
                 symbol = "AAPL",
                 name = "Apple Inc.",
-                price = 145.12,
+                price = "145.12",
                 change = "+0.12",
                 percentChange = "+0.12%",
                 logo = "https://logo.clearbit.com/https://www.apple.com"

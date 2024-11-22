@@ -171,7 +171,7 @@ private fun PreviewSearchBarContent() {
         RecentQuoteResult(
             symbol = "AAPL",
             name = "Apple Inc.",
-            price = 145.86,
+            price = "145.86",
             change = "+0.01",
             percentChange = "+0.01%",
             logo = "https://logo.clearbit.com/apple.com",
@@ -180,7 +180,7 @@ private fun PreviewSearchBarContent() {
         RecentQuoteResult(
             symbol = "GOOGL",
             name = "Alphabet Inc.",
-            price = 2734.87,
+            price = "2734.87",
             change = "+0.02",
             percentChange = "+0.02%",
             logo = "https://logo.clearbit.com/abc.xyz",
@@ -189,7 +189,7 @@ private fun PreviewSearchBarContent() {
         RecentQuoteResult(
             symbol = "MSFT",
             name = "Microsoft Corp.",
-            price = 299.35,
+            price = "299.35",
             change = "+0.03",
             percentChange = "+0.03%",
             logo = "https://logo.clearbit.com/microsoft.com",

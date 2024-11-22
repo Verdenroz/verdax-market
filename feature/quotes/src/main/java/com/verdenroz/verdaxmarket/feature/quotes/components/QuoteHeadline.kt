@@ -47,6 +47,7 @@ internal fun QuoteHeadline(
     price: Double,
     change: String,
     percentChange: String,
+    preMarketPrice: Double?,
     afterHoursPrice: Double?,
     logo: String?
 ) {
@@ -74,45 +75,53 @@ internal fun QuoteHeadline(
                     text = change,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
+                    color = let { if (change.contains("-")) getNegativeTextColor() else getPositiveTextColor() },
                 )
                 Text(
                     text = percentChange,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = let { if (percentChange.startsWith("-")) getNegativeTextColor() else getPositiveTextColor() },
+                    color = let { if (percentChange.contains("-")) getNegativeTextColor() else getPositiveTextColor() },
                 )
             }
         },
         supportingContent = {
-            if (afterHoursPrice != null) {
+            if (preMarketPrice != null || afterHoursPrice != null) {
+                val displayPrice = preMarketPrice ?: afterHoursPrice
+                val priceDifference = displayPrice?.minus(price)
+                val percentageDifference = (priceDifference ?: 0.0) / price * 100
+
+                if (priceDifference == null) {
+                    return@ListItem
+                }
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(id = R.string.feature_quotes_after_hours) + afterHoursPrice,
+                        text = stringResource(id = R.string.feature_quotes_after_hours) + displayPrice,
                         style = MaterialTheme.typography.labelLarge,
                     )
                     Text(
                         text = String.format(
                             Locale.US,
                             "%.2f",
-                            (afterHoursPrice - price)
+                            priceDifference
                         ),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = let { if (afterHoursPrice < price) getNegativeTextColor() else getPositiveTextColor() },
+                        color = if (priceDifference < 0) getNegativeTextColor() else getPositiveTextColor(),
                     )
                     Text(
                         text = String.format(
                             Locale.US,
                             "(%.2f%%)",
-                            (afterHoursPrice - price) / price * 100
+                            percentageDifference
                         ),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = let { if (afterHoursPrice < price) getNegativeTextColor() else getPositiveTextColor() },
+                        color = if (priceDifference < 0) getNegativeTextColor() else getPositiveTextColor(),
                     )
                 }
             }
@@ -169,6 +178,7 @@ private fun PreviewStockHeadline() {
             price = 145.86,
             change = "-0.14",
             percentChange = "(-0.10%)",
+            preMarketPrice = 145.86,
             afterHoursPrice = 145.86,
             logo = "https://logo.clearbit.com/apple.com"
         )

@@ -301,7 +301,7 @@ private fun PreviewRecentQueries() {
         val positveRecentQuote = RecentQuoteResult(
             symbol = "AAPL",
             name = "Apple Inc.",
-            price = 123.45,
+            price = "123.45",
             change = "+0.12",
             percentChange = "+0.12%",
             logo = null,
@@ -310,7 +310,7 @@ private fun PreviewRecentQueries() {
         val negativeRecentQuote = RecentQuoteResult(
             symbol = "TSLA",
             name = "Apple Inc.",
-            price = 123.45,
+            price = "123.45",
             change = "-0.12",
             percentChange = "-0.12%",
             logo = null,

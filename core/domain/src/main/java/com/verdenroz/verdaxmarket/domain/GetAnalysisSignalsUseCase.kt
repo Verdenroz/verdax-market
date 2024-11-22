@@ -37,7 +37,7 @@ class GetAnalysisSignalsUseCase @Inject constructor(
         quote.mapNotNull { result ->
             if (result is Result.Success) result.data.quote.price else null
         }.flatMapLatest { price ->
-            signalRepository.getIntervalAnalysisSignalMap(symbol, price)
+            signalRepository.getIntervalAnalysisSignalMap(symbol, price.replace(",", "").toDouble())
         }.flowOn(ioDispatcher)
 
 }

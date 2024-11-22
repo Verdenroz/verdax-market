@@ -367,7 +367,7 @@ private fun PreviewWatchlistScreen() {
                     SimpleQuoteData(
                         symbol = "AAPL",
                         name = "Apple Inc.",
-                        price = 145.86,
+                        price = "145.86",
                         change = "+0.12",
                         percentChange = "+0.08%",
                         logo = "https://logo.clearbit.com/apple.com"
@@ -375,7 +375,7 @@ private fun PreviewWatchlistScreen() {
                     SimpleQuoteData(
                         symbol = "TSLA",
                         name = "Tesla Inc.",
-                        price = 1145.86,
+                        price = "1145.86",
                         change = "-0.12",
                         percentChange = "-0.08%",
                         logo = "https://logo.clearbit.com/tesla.com"
@@ -383,7 +383,7 @@ private fun PreviewWatchlistScreen() {
                     SimpleQuoteData(
                         symbol = "NVDIA",
                         name = "NVIDIA Inc.",
-                        price = 145.86,
+                        price = "145.86",
                         change = "+0.12",
                         percentChange = "+0.08%",
                         logo = "https://logo.clearbit.com/nvidia.com"

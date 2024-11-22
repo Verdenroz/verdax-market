@@ -45,7 +45,7 @@ internal fun QuoteCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = quote.price.toString(),
+                text = quote.price,
                 style = MaterialTheme.typography.titleSmall
             )
             Row(
@@ -76,7 +76,7 @@ private fun PreviewStockCard() {
                 quote = SimpleQuoteData(
                     symbol = "AAPL",
                     name = "Apple Inc.",
-                    price = 150.0,
+                    price = "150.0",
                     change = "+5.0",
                     percentChange = "+5%",
                     logo = "https://logo.clearbit.com/apple.com"
@@ -87,7 +87,7 @@ private fun PreviewStockCard() {
                 quote = SimpleQuoteData(
                     symbol = "AAPL",
                     name = "Apple Inc.",
-                    price = 150.0,
+                    price = "150.0",
                     change = "-5.0",
                     percentChange = "-5%",
                     logo = "https://logo.clearbit.com/apple.com"
