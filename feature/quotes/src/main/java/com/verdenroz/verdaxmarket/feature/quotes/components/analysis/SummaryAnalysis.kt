@@ -114,7 +114,8 @@ private fun OverallSummaryCircle(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             letterSpacing = 1.25.sp,
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Canvas(
             modifier = modifier
@@ -198,7 +199,8 @@ private fun FlowRowScope.SummaryCircle(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             letterSpacing = 1.25.sp,
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Canvas(
             modifier = modifier
@@ -268,11 +270,13 @@ private fun SummaryCountCell(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
