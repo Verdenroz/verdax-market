@@ -126,4 +126,44 @@
     <string name="feature_quotes_inception_date_hint">Date when the fund was first established</string>
     <string name="feature_quotes_employees">Employees</string>
     <string name="feature_quotes_employees_hint">The number of employees hired by the company</string>
+
+    <string name="feature_quotes_sma10_hint">10-day price average. Buy signal: price crosses above SMA</string>
+    <string name="feature_quotes_sma20_hint">20-day price average. Buy signal: price crosses above SMA</string>
+    <string name="feature_quotes_sma50_hint">50-day price average. Buy signal: price crosses above SMA</string>
+    <string name="feature_quotes_sma100_hint">100-day price average. Buy signal: price crosses above SMA</string>
+    <string name="feature_quotes_sma200_hint">200-day price average. Buy signal: price crosses above SMA</string>
+
+    <string name="feature_quotes_ema10_hint">10-day exponential average, more reactive to price changes. Buy signal: price crosses above EMA</string>
+    <string name="feature_quotes_ema20_hint">20-day exponential average, more reactive to price changes. Buy signal: price crosses above EMA</string>
+    <string name="feature_quotes_ema50_hint">50-day exponential average, more reactive to price changes. Buy signal: price crosses above EMA</string>
+    <string name="feature_quotes_ema100_hint">100-day exponential average, more reactive to price changes. Buy signal: price crosses above EMA</string>
+    <string name="feature_quotes_ema200_hint">200-day exponential average, more reactive to price changes. Buy signal: price crosses above EMA</string>
+
+    <string name="feature_quotes_wma10_hint">10-day weighted average favoring recent prices. Buy signal: price crosses above WMA</string>
+    <string name="feature_quotes_wma20_hint">20-day weighted average favoring recent prices. Buy signal: price crosses above WMA</string>
+    <string name="feature_quotes_wma50_hint">50-day weighted average favoring recent prices. Buy signal: price crosses above WMA</string>
+    <string name="feature_quotes_wma100_hint">100-day weighted average favoring recent prices. Buy signal: price crosses above WMA</string>
+    <string name="feature_quotes_wma200_hint">200-day weighted average favoring recent prices. Buy signal: price crosses above WMA</string>
+
+    <string name="feature_quotes_vwma20_hint">20-day volume-weighted average. Buy signal: price crosses above VWMA</string>
+
+    <string name="feature_quotes_rsi14_hint">Momentum oscillator (0–100). Buy: crosses below 30, sell: above 70. Watch for divergences</string>
+
+    <string name="feature_quotes_srsi14_hint">Stochastic RSI with %K and %D lines. Buy: %K crosses below 20, sell: above 80</string>
+
+    <string name="feature_quotes_stoch_hint">Stochastic oscillator with %K/%D lines. Buy: %K crosses below 20, sell: above 80</string>
+
+    <string name="feature_quotes_cci20_hint">Measures price deviation from average. Buy: below -100, sell: above 100</string>
+
+    <string name="feature_quotes_adx14_hint">Measures trend strength (0–100). Above 25: strong trend, below 20: weak trend</string>
+
+    <string name="feature_quotes_macd_hint">Trend and momentum indicator. Buy: MACD crosses above signal line, sell: below</string>
+
+    <string name="feature_quotes_aroon_hint">Measures trend strength and direction. Buy: Aroon-Up crosses above Aroon-Down</string>
+
+    <string name="feature_quotes_super_trend_hint">Trend indicator. Buy: price crosses above line, sell: below</string>
+
+    <string name="feature_quotes_bbands_hint">Volatility bands. Buy: price touches lower band, sell: touches upper band</string>
+
+    <string name="feature_quotes_ichimoku_hint">Trend indicator using Conversion, Base Lines and Cloud (Span A/B). Buy: price above cloud</string>
 </resources>
