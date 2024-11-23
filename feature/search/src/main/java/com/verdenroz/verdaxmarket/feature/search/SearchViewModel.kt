@@ -76,7 +76,7 @@ class SearchViewModel @Inject constructor(
         searchResults,
         watchlistRepository.watchlist
     ) { results, watchlist ->
-        results.map { result -> watchlist.any { it.symbol == result.symbol } }
+        results.map { result -> watchlist.any { it == result.symbol } }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
