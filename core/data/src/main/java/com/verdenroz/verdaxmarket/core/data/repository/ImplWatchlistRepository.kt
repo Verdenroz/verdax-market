@@ -2,11 +2,8 @@ package com.verdenroz.verdaxmarket.core.data.repository
 
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
-import com.verdenroz.verdaxmarket.core.data.model.asEntity
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
-import com.verdenroz.verdaxmarket.core.database.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,40 +14,15 @@ import javax.inject.Singleton
 @Singleton
 class ImplWatchlistRepository @Inject constructor(
     private val quotesDao: QuoteDao,
-    private val api: FinanceQueryDataSource,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : WatchlistRepository {
 
-    override val watchlist: Flow<List<SimpleQuoteData>> =
-        quotesDao.getAllQuoteDataFlow().map { it.asExternalModel() }
-
-    override suspend fun getWatchlist(): Flow<List<SimpleQuoteData>> =
-        quotesDao.getAllQuoteDataFlow().map { it.asExternalModel() }
-
-    override suspend fun updateWatchList(quotes: List<SimpleQuoteData>) {
-        withContext(ioDispatcher) {
-            val updatedQuotes = quotes.map { it.asEntity() }
-            quotesDao.updateAll(updatedQuotes)
-        }
-    }
-
-    override suspend fun updateWatchlist(symbols: List<String>) {
-        withContext(ioDispatcher) {
-            val quotes = api.getBulkQuote(symbols).asEntity()
-            quotesDao.updateAll(quotes)
-        }
-    }
-
-    override suspend fun addToWatchList(quote: SimpleQuoteData) {
-        withContext(ioDispatcher) {
-            quotesDao.insert(quote.asEntity())
-        }
-    }
+    override val watchlist: Flow<List<String>> = quotesDao.getAllQuoteDataFlow()
+        .map { quotes -> quotes.map { it.symbol } }
 
     override suspend fun addToWatchList(symbol: String) {
         withContext(ioDispatcher) {
-            val quote = api.getSimpleQuote(symbol).asEntity()
-            quotesDao.insert(quote)
+            quotesDao.insert(QuoteEntity(symbol))
         }
     }
 
