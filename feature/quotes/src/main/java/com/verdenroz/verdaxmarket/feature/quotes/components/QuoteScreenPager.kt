@@ -101,6 +101,7 @@ internal fun QuoteScreenPager(
 
                 2 -> {
                     QuoteAnalysis(
+                        isHintsEnabled = isHintsEnabled,
                         interval = interval,
                         signals = signals,
                         signalSummary = signalSummary,

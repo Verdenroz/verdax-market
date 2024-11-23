@@ -1,30 +1,50 @@
 package com.verdenroz.verdaxmarket.feature.quotes.components.analysis
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +52,9 @@ import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
+import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
+import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
@@ -52,9 +75,11 @@ import com.verdenroz.verdaxmarket.core.model.indicators.Stoch
 import com.verdenroz.verdaxmarket.core.model.indicators.SuperTrend
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import com.verdenroz.verdaxmarket.feature.quotes.R
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun QuoteAnalysis(
+    isHintsEnabled: Boolean,
     interval: Interval,
     signals: Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>,
     signalSummary: Map<Interval, Result<Map<IndicatorType, AnalysisSignalSummary>, DataError.Network>>,
@@ -131,13 +156,16 @@ internal fun QuoteAnalysis(
                     }
                 } else {
                     AnalysisSection(
-                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.MOVING_AVERAGES }
+                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.MOVING_AVERAGES },
+                        isHintsEnabled = isHintsEnabled
                     )
                     AnalysisSection(
-                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.OSCILLATORS }
+                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.OSCILLATORS },
+                        isHintsEnabled = isHintsEnabled
                     )
                     AnalysisSection(
-                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.TRENDS }
+                        signals = analysisSignals.data.filterKeys { it in TechnicalIndicator.TRENDS },
+                        isHintsEnabled = isHintsEnabled
                     )
                 }
             }
@@ -195,47 +223,120 @@ private fun IntervalButton(
         )
         Text(
             text = interval.value.uppercase(),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
 @Composable
 private fun AnalysisSection(
-    signals: Map<TechnicalIndicator, AnalysisSignal>
+    signals: Map<TechnicalIndicator, AnalysisSignal>,
+    isHintsEnabled: Boolean
 ) {
     Column {
         signals.forEach { (indicator, analysis) ->
             AnalysisDetail(
                 analysis = analysis,
-                indicator = indicator
+                indicator = indicator,
+                isHintsEnabled = isHintsEnabled
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun AnalysisDetail(
     analysis: AnalysisSignal,
-    indicator: TechnicalIndicator
+    indicator: TechnicalIndicator,
+    isHintsEnabled: Boolean
 ) {
     val signal = analysis.signal
     val displayValue = analysis.indicator
 
     VxmListItem(
         headlineContent = {
-            Text(
-                text = indicator.asString(),
-                style = MaterialTheme.typography.titleSmall,
-                letterSpacing = 1.25.sp,
-            )
+            var tooltipVisible by remember { mutableStateOf(false) }
+            val tooltipState = rememberTooltipState(initialIsVisible = tooltipVisible)
+            val scope = rememberCoroutineScope()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip(
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.secondary,
+                                CircleShape
+                            )
+                            .widthIn(max = 280.dp)
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = indicator.hint(),
+                            style = MaterialTheme.typography.bodySmall,
+                            softWrap = true,
+                            lineHeight = 16.sp
+                        )
+                    }
+                },
+                state = tooltipState
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = indicator.asString(),
+                        style = MaterialTheme.typography.titleSmall,
+                        letterSpacing = 1.25.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        if (isHintsEnabled) scope.launch { tooltipState.show() }
+                                    },
+                                    onTap = {
+                                        if (isHintsEnabled) scope.launch { tooltipState.show() }
+                                    }
+                                )
+                            }
+                    )
+                    if (isHintsEnabled && indicator.hint().isNotEmpty()) {
+                        IconButton(
+                            onClick = { scope.launch { tooltipState.show() } },
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .size(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = VxmIcons.Help,
+                                contentDescription = stringResource(
+                                    R.string.feature_quotes_hint_icon_description,
+                                    indicator.hint()
+                                ),
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
         },
         trailingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth(.35f)
+                modifier = Modifier.fillMaxWidth(.3f)
             ) {
                 Text(
                     text = displayValue.asString(),
@@ -312,6 +413,38 @@ private fun TechnicalIndicator.asString(): String {
 }
 
 @Composable
+private fun TechnicalIndicator.hint(): String {
+    return when (this) {
+        TechnicalIndicator.SMA10 -> stringResource(id = R.string.feature_quotes_sma10_hint)
+        TechnicalIndicator.SMA20 -> stringResource(id = R.string.feature_quotes_sma20_hint)
+        TechnicalIndicator.SMA50 -> stringResource(id = R.string.feature_quotes_sma50_hint)
+        TechnicalIndicator.SMA100 -> stringResource(id = R.string.feature_quotes_sma100_hint)
+        TechnicalIndicator.SMA200 -> stringResource(id = R.string.feature_quotes_sma200_hint)
+        TechnicalIndicator.EMA10 -> stringResource(id = R.string.feature_quotes_ema10_hint)
+        TechnicalIndicator.EMA20 -> stringResource(id = R.string.feature_quotes_ema20_hint)
+        TechnicalIndicator.EMA50 -> stringResource(id = R.string.feature_quotes_ema50_hint)
+        TechnicalIndicator.EMA100 -> stringResource(id = R.string.feature_quotes_ema100_hint)
+        TechnicalIndicator.EMA200 -> stringResource(id = R.string.feature_quotes_ema200_hint)
+        TechnicalIndicator.WMA10 -> stringResource(id = R.string.feature_quotes_wma10_hint)
+        TechnicalIndicator.WMA20 -> stringResource(id = R.string.feature_quotes_wma20_hint)
+        TechnicalIndicator.WMA50 -> stringResource(id = R.string.feature_quotes_wma50_hint)
+        TechnicalIndicator.WMA100 -> stringResource(id = R.string.feature_quotes_wma100_hint)
+        TechnicalIndicator.WMA200 -> stringResource(id = R.string.feature_quotes_wma200_hint)
+        TechnicalIndicator.VWMA20 -> stringResource(id = R.string.feature_quotes_vwma20_hint)
+        TechnicalIndicator.RSI -> stringResource(id = R.string.feature_quotes_rsi14_hint)
+        TechnicalIndicator.SRSI -> stringResource(id = R.string.feature_quotes_srsi14_hint)
+        TechnicalIndicator.CCI -> stringResource(id = R.string.feature_quotes_cci20_hint)
+        TechnicalIndicator.ADX -> stringResource(id = R.string.feature_quotes_adx14_hint)
+        TechnicalIndicator.MACD -> stringResource(id = R.string.feature_quotes_macd_hint)
+        TechnicalIndicator.STOCH -> stringResource(id = R.string.feature_quotes_stoch_hint)
+        TechnicalIndicator.AROON -> stringResource(id = R.string.feature_quotes_aroon_hint)
+        TechnicalIndicator.BBANDS -> stringResource(id = R.string.feature_quotes_bbands_hint)
+        TechnicalIndicator.SUPERTREND -> stringResource(id = R.string.feature_quotes_super_trend_hint)
+        TechnicalIndicator.ICHIMOKUCLOUD -> stringResource(id = R.string.feature_quotes_ichimoku_hint)
+    }
+}
+
+@Composable
 private fun QuoteSignal.asString(): String {
     return when (this) {
         QuoteSignal.BUY -> stringResource(id = R.string.feature_quotes_buy)
@@ -334,6 +467,73 @@ private fun StockAnalysisSkeleton(
     ) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewQuoteAnalysis() {
+    VxmTheme {
+        QuoteAnalysis(
+            isHintsEnabled = true,
+            interval = Interval.DAILY,
+            signals = mapOf(
+                Interval.DAILY to Result.Success(
+                    mapOf(
+                        TechnicalIndicator.SMA50 to AnalysisSignal.MovingAverageSignal(
+                            signal = QuoteSignal.NEUTRAL,
+                            indicator = MovingAverage(50.0)
+                        ),
+                        TechnicalIndicator.EMA50 to AnalysisSignal.MovingAverageSignal(
+                            signal = QuoteSignal.NEUTRAL,
+                            indicator = MovingAverage(50.0)
+                        ),
+                        TechnicalIndicator.WMA50 to AnalysisSignal.MovingAverageSignal(
+                            signal = QuoteSignal.NEUTRAL,
+                            indicator = MovingAverage(50.0)
+                        ),
+                        TechnicalIndicator.VWMA20 to AnalysisSignal.MovingAverageSignal(
+                            signal = QuoteSignal.BUY,
+                            indicator = MovingAverage(20.0)
+                        ),
+                        TechnicalIndicator.RSI to AnalysisSignal.OscillatorSignal(
+                            signal = QuoteSignal.BUY,
+                            indicator = Rsi(14.0)
+                        ),
+                        TechnicalIndicator.SRSI to AnalysisSignal.OscillatorSignal(
+                            signal = QuoteSignal.SELL,
+                            indicator = Srsi(14.0)
+                        ),
+                        TechnicalIndicator.CCI to AnalysisSignal.OscillatorSignal(
+                            signal = QuoteSignal.NEUTRAL,
+                            indicator = Cci(20.0)
+                        ),
+                    )
+                )
+            ),
+            signalSummary = mapOf(
+                Interval.DAILY to Result.Success(
+                    mapOf(
+                        IndicatorType.MOVING_AVERAGE to AnalysisSignalSummary.MovingAverageSummary(
+                            buy = 3,
+                            sell = 2,
+                            neutral = 1
+                        ),
+                        IndicatorType.OSCILLATOR to AnalysisSignalSummary.OscillatorSummary(
+                            buy = 1,
+                            sell = 1,
+                            neutral = 1
+                        ),
+                        IndicatorType.TREND to AnalysisSignalSummary.TrendSummary(
+                            buy = 1,
+                            sell = 1,
+                            neutral = 1
+                        )
+                    )
+                )
+            ),
+            updateInterval = {}
         )
     }
 }
