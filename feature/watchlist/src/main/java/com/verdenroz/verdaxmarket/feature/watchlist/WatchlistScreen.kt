@@ -321,7 +321,7 @@ private fun WatchlistQuote(
                         .weight(.6f)
                 )
                 Text(
-                    text = String.format(Locale.US, "%.2f", quote.price),
+                    text = String.format(Locale.US, "%.2f", quote.price.replace(",", "").toDouble()),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
                     color = if (quote.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),

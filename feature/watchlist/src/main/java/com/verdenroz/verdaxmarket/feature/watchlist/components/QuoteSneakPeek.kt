@@ -109,7 +109,7 @@ internal fun QuoteSneakPeek(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = String.format(Locale.US, "%.2f", quote.price),
+                    text = String.format(Locale.US, "%.2f", quote.price.replace(",", "").toDouble()),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Black,
                 )
