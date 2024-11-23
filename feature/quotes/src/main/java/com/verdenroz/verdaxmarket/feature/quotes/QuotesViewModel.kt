@@ -9,6 +9,10 @@ import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
+import com.verdenroz.verdaxmarket.core.domain.GetAnalysisSignalSummaryUseCase
+import com.verdenroz.verdaxmarket.core.domain.GetAnalysisSignalsUseCase
+import com.verdenroz.verdaxmarket.core.domain.GetSubscribedProfileUseCase
+import com.verdenroz.verdaxmarket.core.domain.GetTimeSeriesMapUseCase
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
@@ -16,10 +20,6 @@ import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
-import com.verdenroz.verdaxmarket.domain.GetAnalysisSignalSummaryUseCase
-import com.verdenroz.verdaxmarket.domain.GetAnalysisSignalsUseCase
-import com.verdenroz.verdaxmarket.domain.GetSubscribedProfileUseCase
-import com.verdenroz.verdaxmarket.domain.GetTimeSeriesMapUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
