@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.verdaxmarket.android.feature)
     alias(libs.plugins.verdaxmarket.android.library.compose)
-    alias(libs.plugins.gms)
 }
 
 android {

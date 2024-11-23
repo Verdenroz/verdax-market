@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.verdaxmarket.android.application.compose)
     alias(libs.plugins.verdaxmarket.android.application.firebase)
     alias(libs.plugins.verdaxmarket.hilt)
+    alias(libs.plugins.gms)
 }
 
 android {
