@@ -9,8 +9,8 @@ data class BBands(
 
     override fun toSignal(currentPrice: Double): QuoteSignal {
         return when {
-            upperBand < currentPrice -> QuoteSignal.BUY
-            lowerBand > currentPrice -> QuoteSignal.SELL
+            currentPrice > upperBand -> QuoteSignal.SELL
+            currentPrice < lowerBand -> QuoteSignal.BUY
             else -> QuoteSignal.NEUTRAL
         }
     }
