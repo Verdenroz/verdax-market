@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
+import com.verdenroz.verdaxmarket.core.domain.GetSubscribedWatchlistUseCase
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.domain.GetSubscribedWatchlistUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
