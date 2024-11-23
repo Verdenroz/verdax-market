@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -388,12 +389,17 @@ private fun QuoteDetailCell(
                 tooltip = {
                     PlainTooltip(
                         contentColor = MaterialTheme.colorScheme.onSurface,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        modifier = Modifier.border(
-                            1.dp,
-                            MaterialTheme.colorScheme.secondary,
-                            CircleShape
-                        )
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.secondary,
+                                CircleShape
+                            )
+                            .widthIn(max = 280.dp)
+                            .padding(8.dp)
                     ) {
                         Text(
                             text = hint,
