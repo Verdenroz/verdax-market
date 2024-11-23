@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.domain
+package com.verdenroz.verdaxmarket.core.domain
 
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
