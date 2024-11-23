@@ -26,7 +26,7 @@ secrets {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
-        freeCompilerArgs.add("-Xopt-in=kotlinx.serialization.InternalSerializationApi")
+        freeCompilerArgs.add("-opt-in=kotlinx.serialization.InternalSerializationApi")
     }
 }
 
