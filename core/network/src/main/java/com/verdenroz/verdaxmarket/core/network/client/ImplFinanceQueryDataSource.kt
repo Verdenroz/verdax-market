@@ -251,7 +251,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
     override suspend fun getSimilarSymbols(symbol: String): List<SimpleQuoteResponse> {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("similar-stocks")
+                addPathSegments("similar")
                 addQueryParameter("symbol", symbol)
             }.build()
         )
