@@ -1,31 +1,19 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.verdaxmarket.android.feature)
     alias(libs.plugins.verdaxmarket.android.library.compose)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
-
-val properties = Properties()
-properties.load(File(projectDir, "secrets.properties").reader())
 
 android {
     namespace = "com.verdenroz.verdaxmarket.feature.search"
-    defaultConfig {
-        buildConfigField(
-            "String",
-            "algoliaAppID",
-            properties.getProperty("ALGOLIA_APP_ID")
-        )
-
-        buildConfigField(
-            "String",
-            "algoliaAPIKey",
-            properties.getProperty("ALGOLIA_API_KEY")
-        )
-    }
     buildFeatures {
         buildConfig = true
     }
+}
+
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
 }
 
 dependencies {

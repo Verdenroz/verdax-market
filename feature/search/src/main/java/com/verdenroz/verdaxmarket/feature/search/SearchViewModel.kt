@@ -46,8 +46,8 @@ class SearchViewModel @Inject constructor(
         ))))
 
     private val searcher = HitsSearcher(
-        applicationID = ApplicationID(BuildConfig.algoliaAppID),
-        apiKey = APIKey(BuildConfig.algoliaAPIKey),
+        applicationID = ApplicationID(BuildConfig.ALGOLIA_APP_ID),
+        apiKey = APIKey(BuildConfig.ALGOLIA_API_KEY),
         indexName = IndexName("stocks"),
         query = searchQuery.value
     )
