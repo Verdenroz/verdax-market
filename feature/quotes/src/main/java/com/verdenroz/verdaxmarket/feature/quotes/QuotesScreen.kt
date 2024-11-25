@@ -78,7 +78,8 @@ internal fun QuotesRoute(
         isWatchlisted = isWatchlisted,
         onNavigateBack = onNavigateBack,
         onNavigateToQuote = onNavigateToQuote,
-        addToWatchlist = quotesViewModel::addToWatchlist,
+        addToWatchlistLocal = quotesViewModel::addToWatchListLocal,
+        addToWatchListNetwork = quotesViewModel::addToWatchlistNetwork,
         deleteFromWatchlist = quotesViewModel::deleteFromWatchlist,
         addToRecentQuotesLocal = quotesViewModel::addToRecentQuotesLocal,
         addToRecentQuotesNetwork = quotesViewModel::addToRecentQuotesNetwork
@@ -97,18 +98,35 @@ internal fun QuotesScreen(
     isWatchlisted: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    addToWatchlist: () -> Unit,
+    addToWatchlistLocal: (SimpleQuoteData) -> Unit,
+    addToWatchListNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
     addToRecentQuotesLocal: (SimpleQuoteData) -> Unit,
     addToRecentQuotesNetwork: () -> Unit,
 ) {
     Scaffold(
         topBar = {
+            val quote: Result<SimpleQuoteData, DataError.Network> = when (profile) {
+                is Result.Success -> Result.Success(
+                    SimpleQuoteData(
+                        symbol = profile.data.quote.symbol,
+                        name = profile.data.quote.name,
+                        price = profile.data.quote.price,
+                        change = profile.data.quote.change,
+                        percentChange = profile.data.quote.percentChange,
+                        logo = profile.data.quote.logo
+                    )
+                )
+                is Result.Error -> Result.Error(profile.error)
+                else -> Result.Loading()
+            }
             QuoteTopBar(
                 onNavigateBack = onNavigateBack,
                 symbol = symbol,
+                quote = quote,
                 isWatchlisted = isWatchlisted,
-                addToWatchlist = addToWatchlist,
+                addToWatchlistLocal = addToWatchlistLocal,
+                addToWatchlistNetwork = addToWatchListNetwork,
                 deleteFromWatchlist = deleteFromWatchlist,
             )
         },
@@ -309,7 +327,8 @@ private fun PreviewQuoteScreen() {
             isWatchlisted = false,
             onNavigateBack = {},
             onNavigateToQuote = {},
-            addToWatchlist = { },
+            addToWatchlistLocal = { },
+            addToWatchListNetwork = { },
             deleteFromWatchlist = {},
             addToRecentQuotesLocal = { },
             addToRecentQuotesNetwork = { }

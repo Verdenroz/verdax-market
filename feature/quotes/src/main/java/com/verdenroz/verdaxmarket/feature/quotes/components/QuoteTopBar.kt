@@ -18,21 +18,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QuoteTopBar(
     symbol: String,
+    quote: Result<SimpleQuoteData, DataError.Network>,
     isWatchlisted: Boolean,
     onNavigateBack: () -> Unit,
-    addToWatchlist: () -> Unit,
+    addToWatchlistLocal: (SimpleQuoteData) -> Unit,
+    addToWatchlistNetwork: () -> Unit,
     deleteFromWatchlist: () -> Unit,
 ) {
     VxmTopBar(
@@ -59,14 +63,36 @@ internal fun QuoteTopBar(
             }
         },
         actions = {
-            if (isWatchlisted) {
-                VxmDeleteIconButton(
-                    onClick = deleteFromWatchlist,
-                )
-            } else {
-                VxmAddIconButton(
-                    onClick = addToWatchlist,
-                )
+            when (quote) {
+                is Result.Success -> {
+                    // Can add to watchlist locally on success
+                    if (isWatchlisted) {
+                        VxmDeleteIconButton(
+                            onClick = deleteFromWatchlist,
+                        )
+                    } else {
+                        VxmAddIconButton(
+                            onClick = { addToWatchlistLocal(quote.data) },
+                        )
+                    }
+                }
+
+                is Result.Error -> {
+                    // Add to watchlist network call on error
+                    if (isWatchlisted) {
+                        VxmDeleteIconButton(
+                            onClick = deleteFromWatchlist,
+                        )
+                    } else {
+                        VxmAddIconButton(
+                            onClick = { addToWatchlistNetwork() },
+                        )
+                    }
+                }
+
+                else -> {
+                    // Show no icon button on loading
+                }
             }
         }
     )
@@ -79,9 +105,20 @@ private fun PreviewStockTopBar() {
         Surface {
             QuoteTopBar(
                 symbol = "AAPL",
+                quote = Result.Success(
+                    SimpleQuoteData(
+                        symbol = "AAPL",
+                        name = "Apple Inc.",
+                        price = "145.12",
+                        change = "+0.12",
+                        percentChange = "+0.12%",
+                        logo = "https://logo.clearbit.com/apple.com",
+                    )
+                ),
                 isWatchlisted = true,
                 onNavigateBack = {},
-                addToWatchlist = { Result.Success(Unit) },
+                addToWatchlistLocal = { Result.Success(Unit) },
+                addToWatchlistNetwork = { Result.Success(Unit) },
                 deleteFromWatchlist = { Result.Success(Unit) },
             )
         }
