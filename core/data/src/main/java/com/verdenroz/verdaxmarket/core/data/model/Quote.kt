@@ -1,9 +1,28 @@
 package com.verdenroz.verdaxmarket.core.data.model
 
+import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.model.FullQuoteResponse
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
+
+fun SimpleQuoteResponse.asEntity() = QuoteEntity(
+    symbol = symbol,
+    name = name,
+    price = price,
+    change = change,
+    percentChange = percentChange,
+    logo = logo,
+)
+
+fun SimpleQuoteData.asEntity() = QuoteEntity(
+    symbol = symbol,
+    name = name,
+    price = price,
+    change = change,
+    percentChange = percentChange,
+    logo = logo,
+)
 
 fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
     symbol = symbol,
@@ -62,3 +81,4 @@ fun FullQuoteResponse.asExternalModel() = FullQuoteData(
 
 fun List<SimpleQuoteResponse>.asExternalModel() = map { it.asExternalModel() }
 
+fun List<SimpleQuoteResponse>.asEntity() = map { it.asEntity() }
