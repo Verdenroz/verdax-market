@@ -54,6 +54,12 @@ class ImplWatchlistRepository @Inject constructor(
         }
     }
 
+    override suspend fun addPlaceholderToWatchList(symbol: String) {
+        withContext(ioDispatcher) {
+            quotesDao.insert(SimpleQuoteData(symbol, "", "", "", "", null).asEntity())
+        }
+    }
+
     override suspend fun deleteFromWatchList(symbol: String) {
         withContext(ioDispatcher) {
             quotesDao.delete(symbol)

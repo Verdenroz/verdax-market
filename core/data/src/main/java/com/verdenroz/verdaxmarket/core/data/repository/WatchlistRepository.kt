@@ -38,6 +38,11 @@ interface WatchlistRepository {
     suspend fun addToWatchList(symbol: String)
 
     /**
+     * Add a placeholder to the user's watch list for an optimistic UI update
+     */
+    suspend fun addPlaceholderToWatchList(symbol: String)
+
+    /**
      * Delete a symbol from the user's watch list
      */
     suspend fun deleteFromWatchList(symbol: String)
