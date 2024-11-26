@@ -75,8 +75,10 @@ internal fun WatchlistRoute(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
-    val watchlist by watchlistViewModel.displayedWatchlist.collectAsStateWithLifecycle()
+    val watchlist by watchlistViewModel.liveWatchlist.collectAsStateWithLifecycle()
+    val symbols by watchlistViewModel.symbols.collectAsStateWithLifecycle()
     WatchlistScreen(
+        symbols = symbols,
         watchList = watchlist,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
@@ -88,6 +90,7 @@ internal fun WatchlistRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WatchlistScreen(
+    symbols: List<String>,
     watchList: Result<List<SimpleQuoteData>, DataError.Network>,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
@@ -181,25 +184,44 @@ internal fun WatchlistScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(
-                            items = watchList.data,
-                            key = { quote -> quote.symbol }
-                        ) { item ->
-                            WatchlistQuote(
-                                quote = item,
-                                onNavigateToQuote = onNavigateToQuote,
-                                deleteFromWatchList = deleteFromWatchlist,
-                                onClick = {
-                                    quote = item
-                                    scope.launch {
-                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                            items = symbols,
+                            key = { it }
+                        ) { symbol ->
+                            val watchlistQuote = watchList.data.find { it.symbol == symbol }
+                            if (watchlistQuote != null) {
+                                WatchlistQuote(
+                                    quote = watchlistQuote,
+                                    onNavigateToQuote = onNavigateToQuote,
+                                    deleteFromWatchList = deleteFromWatchlist,
+                                    onClick = {
+                                        quote = watchlistQuote
+                                        scope.launch {
+                                            bottomSheetScaffoldState.bottomSheetState.expand()
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            } else {
+                                WatchlistQuoteSkeleton()
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun WatchlistQuoteSkeleton() {
+    Row(
+        modifier = Modifier
+            .height(60.dp)
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(15))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        // skeleton
     }
 }
 
@@ -362,6 +384,7 @@ private fun WatchlistSkeleton() {
 private fun PreviewWatchlistScreen() {
     VxmTheme {
         WatchlistScreen(
+            symbols = listOf("AAPL", "TSLA", "NVDIA"),
             watchList = Result.Success(
                 listOf(
                     SimpleQuoteData(

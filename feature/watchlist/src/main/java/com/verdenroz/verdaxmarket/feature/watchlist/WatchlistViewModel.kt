@@ -33,7 +33,7 @@ class WatchlistViewModel @Inject constructor(
             )
 
     // Displayed watchlist that combines local changes with live socket updates
-    val displayedWatchlist: StateFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
+    val liveWatchlist: StateFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
         localWatchlist
             .flatMapLatest { result ->
                 when (result) {
@@ -54,6 +54,14 @@ class WatchlistViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000L),
                 initialValue = Result.Loading()
             )
+
+    val symbols: StateFlow<List<String>> = watchlistRepository.watchlist.map { quotes ->
+        quotes.map { it.symbol }
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
 
     fun deleteFromWatchlist(symbol: String) {
         viewModelScope.launch {
