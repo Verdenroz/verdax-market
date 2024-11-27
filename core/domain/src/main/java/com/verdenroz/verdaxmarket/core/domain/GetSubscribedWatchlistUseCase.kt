@@ -6,7 +6,6 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.repository.SocketRepository
-import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
@@ -24,7 +23,6 @@ import javax.inject.Inject
 class GetSubscribedWatchlistUseCase @Inject constructor(
     private val socket: SocketRepository,
     private val api: FinanceQueryDataSource,
-    private val watchlistRepository: WatchlistRepository,
     private val marketMonitor: MarketMonitor,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {

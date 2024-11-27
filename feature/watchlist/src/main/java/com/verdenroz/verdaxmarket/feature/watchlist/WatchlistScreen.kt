@@ -51,8 +51,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.verdenroz.verdaxmarket.core.common.error.DataError
-import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -75,8 +73,8 @@ internal fun WatchlistRoute(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
-    val watchlist by watchlistViewModel.liveWatchlist.collectAsStateWithLifecycle()
     val symbols by watchlistViewModel.symbols.collectAsStateWithLifecycle()
+    val watchlist by watchlistViewModel.watchlistState.collectAsStateWithLifecycle()
     WatchlistScreen(
         symbols = symbols,
         watchList = watchlist,
@@ -91,7 +89,7 @@ internal fun WatchlistRoute(
 @Composable
 internal fun WatchlistScreen(
     symbols: List<String>,
-    watchList: Result<List<SimpleQuoteData>, DataError.Network>,
+    watchList: WatchlistState,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     deleteFromWatchlist: (String) -> Unit,
@@ -101,12 +99,12 @@ internal fun WatchlistScreen(
     val scope = rememberCoroutineScope()
 
     when (watchList) {
-        is Result.Loading -> {
-            WatchlistSkeleton()
+        is WatchlistState.Loading -> {
+            WatchlistSkeleton(symbols)
         }
 
-        is Result.Error -> {
-            WatchlistSkeleton()
+        is WatchlistState.Error -> {
+            WatchlistSkeleton(symbols)
 
             LaunchedEffect(watchList.error) {
                 onShowSnackbar(
@@ -117,7 +115,7 @@ internal fun WatchlistScreen(
             }
         }
 
-        is Result.Success -> {
+        is WatchlistState.Success -> {
 
             if (watchList.data.isEmpty()) {
                 Box(
@@ -138,7 +136,7 @@ internal fun WatchlistScreen(
             }
 
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-            var quote by remember { mutableStateOf(watchList.data.first()) }
+            var quote by remember { mutableStateOf(watchList.data.values.first()) }
             var isBottomSheetExpanded by remember { mutableStateOf(false) }
 
             LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
@@ -187,7 +185,7 @@ internal fun WatchlistScreen(
                             items = symbols,
                             key = { it }
                         ) { symbol ->
-                            val watchlistQuote = watchList.data.find { it.symbol == symbol }
+                            val watchlistQuote = watchList.data[symbol]
                             if (watchlistQuote != null) {
                                 WatchlistQuote(
                                     quote = watchlistQuote,
@@ -359,22 +357,13 @@ private fun WatchlistQuote(
 }
 
 @Composable
-private fun WatchlistSkeleton() {
+private fun WatchlistSkeleton(symbols: List<String>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(12) {
-            Row(
-                modifier = Modifier
-                    .height(60.dp)
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                // skeleton
-            }
+        items(symbols, key = { it }) {
+            WatchlistQuoteSkeleton()
         }
     }
 }
@@ -385,31 +374,23 @@ private fun PreviewWatchlistScreen() {
     VxmTheme {
         WatchlistScreen(
             symbols = listOf("AAPL", "TSLA", "NVDIA"),
-            watchList = Result.Success(
-                listOf(
-                    SimpleQuoteData(
+            watchList = WatchlistState.Success(
+                data = mapOf(
+                    "AAPL" to SimpleQuoteData(
                         symbol = "AAPL",
                         name = "Apple Inc.",
                         price = "145.86",
-                        change = "+0.12",
-                        percentChange = "+0.08%",
-                        logo = "https://logo.clearbit.com/apple.com"
+                        change = "-0.23",
+                        percentChange = "-0.16",
+                        logo = null
                     ),
-                    SimpleQuoteData(
+                    "TSLA" to SimpleQuoteData(
                         symbol = "TSLA",
                         name = "Tesla Inc.",
-                        price = "1145.86",
-                        change = "-0.12",
-                        percentChange = "-0.08%",
-                        logo = "https://logo.clearbit.com/tesla.com"
-                    ),
-                    SimpleQuoteData(
-                        symbol = "NVDIA",
-                        name = "NVIDIA Inc.",
-                        price = "145.86",
-                        change = "+0.12",
-                        percentChange = "+0.08%",
-                        logo = "https://logo.clearbit.com/nvidia.com"
+                        price = "678.90",
+                        change = "+0.23",
+                        percentChange = "+0.03",
+                        logo = null
                     ),
                 )
             ),
@@ -426,7 +407,7 @@ private fun PreviewWatchlistScreen() {
 private fun PreviewLoading() {
     VxmTheme {
         Surface {
-            WatchlistSkeleton()
+            WatchlistSkeleton(listOf("AAPL", "TSLA", "NVDIA"))
         }
     }
 }

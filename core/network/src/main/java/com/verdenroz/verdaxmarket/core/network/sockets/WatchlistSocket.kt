@@ -27,6 +27,10 @@ class WatchlistSocket @Inject constructor(
     private val mutex = Mutex()
 
     override suspend fun connect(params: Map<String, String>): Channel<List<SimpleQuoteResponse>?> = mutex.withLock {
+        if (webSocket != null) {
+            return@withLock channel!!
+        }
+
         val symbols = params["symbols"]?.split(",") ?: throw IllegalArgumentException("Symbols parameter is required")
         val newChannel = Channel<List<SimpleQuoteResponse>?>(Channel.BUFFERED)
         val url = "$SOCKET_URL/quotes"

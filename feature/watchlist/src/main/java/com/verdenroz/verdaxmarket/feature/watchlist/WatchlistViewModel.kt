@@ -17,42 +17,38 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface WatchlistState {
+    object Loading : WatchlistState
+    data class Success(val data: Map<String, SimpleQuoteData>) : WatchlistState
+    data class Error(val error: DataError) : WatchlistState
+}
+
 @HiltViewModel
 class WatchlistViewModel @Inject constructor(
     private val watchlistRepository: WatchlistRepository,
     getSubscribedWatchlistUseCase: GetSubscribedWatchlistUseCase
 ) : ViewModel() {
 
-    private val localWatchlist: StateFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
+    val watchlistState: StateFlow<WatchlistState> =
         watchlistRepository.watchlist
-            .map { quotes -> Result.Success(quotes) }
-            .stateIn(
-                viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = Result.Loading()
-            )
-
-    // Displayed watchlist that combines local changes with live socket updates
-    val liveWatchlist: StateFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        localWatchlist
-            .flatMapLatest { result ->
-                when (result) {
-                    is Result.Success -> {
-                        val symbols = result.data.map { it.symbol }
-                        when {
-                            // User cleared the list - show empty success state
-                            symbols.isEmpty() -> flowOf(Result.Success(emptyList()))
-                            // Normal case - get live updates
-                            else -> getSubscribedWatchlistUseCase(symbols)
+            .flatMapLatest { quotes ->
+                val symbols = quotes.map { it.symbol }
+                if (symbols.isEmpty()) {
+                    flowOf(WatchlistState.Success(emptyMap()))
+                } else {
+                    getSubscribedWatchlistUseCase(symbols).map { liveResult ->
+                        when (liveResult) {
+                            is Result.Success -> WatchlistState.Success(liveResult.data.associateBy { it.symbol })
+                            is Result.Error -> WatchlistState.Error(liveResult.error)
+                            is Result.Loading -> WatchlistState.Loading
                         }
                     }
-                    else -> flowOf(result)
                 }
             }
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = Result.Loading()
+                initialValue = WatchlistState.Loading
             )
 
     val symbols: StateFlow<List<String>> = watchlistRepository.watchlist.map { quotes ->
