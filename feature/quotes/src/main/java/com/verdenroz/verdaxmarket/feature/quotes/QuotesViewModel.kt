@@ -95,13 +95,7 @@ class QuotesViewModel @AssistedInject constructor(
             true
         )
 
-    fun addToWatchListLocal(quote: SimpleQuoteData) {
-        viewModelScope.launch {
-           watchlistRepository.addToWatchList(quote)
-        }
-    }
-
-    fun addToWatchlistNetwork() {
+    fun addToWatchlist() {
         viewModelScope.launch {
             watchlistRepository.addToWatchList(symbol)
         }
