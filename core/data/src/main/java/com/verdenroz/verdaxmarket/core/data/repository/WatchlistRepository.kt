@@ -1,59 +1,42 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import kotlinx.coroutines.flow.Flow
 
 interface WatchlistRepository {
 
     /**
-     * The user's watch list as a list of [SimpleQuoteData] periodically updated
+     * The user's watchlist as a flow list of symbols
      */
-    val watchlist: Flow<List<SimpleQuoteData>>
+    val watchlist: Flow<List<QuoteEntity>>
 
     /**
-     * Returns the user's watch list as a list of [SimpleQuoteData] from local data
+     * Returns the user's watchlist as a list of symbols
      */
-    suspend fun getWatchlist(): Flow<List<SimpleQuoteData>>
+    suspend fun getWatchlist(): List<QuoteEntity>
 
     /**
-     * Update the user's watch list with new stock data by local data
-     * @param quotes the list of [SimpleQuoteData] to upsert
-     */
-    suspend fun updateWatchList(quotes: List<SimpleQuoteData>)
-
-    /**
-     * Update the user's watch list with new stock data by network connection
-     * @param symbols the list of symbols to update
-     */
-    suspend fun updateWatchlist(symbols: List<String>)
-
-    /**
-     * Add a symbol to the user's watch list by local data
-     */
-    suspend fun addToWatchList(quote: SimpleQuoteData)
-
-    /**
-     * Add a symbol from the user's watch list by network
+     * Add a symbol from the user's watchlist
      */
     suspend fun addToWatchList(symbol: String)
 
     /**
-     * Add a placeholder to the user's watch list for an optimistic UI update
-     */
-    suspend fun addPlaceholderToWatchList(symbol: String)
-
-    /**
-     * Delete a symbol from the user's watch list
+     * Delete a symbol from the user's watchlist
      */
     suspend fun deleteFromWatchList(symbol: String)
 
     /**
-     * Deletes all data from the user's watch list
+     * Deletes all data from the user's watchlist
      */
     suspend fun clearWatchList()
 
     /**
-     * Check if a symbol is in the user's watch list
+     * Change the order of a symbol in the user's watchlist
+     */
+    suspend fun changeOrder(symbol: String, order: Int)
+
+    /**
+     * Check if a symbol is in the user's watchlist
      */
     fun isSymbolInWatchlist(symbol: String): Flow<Boolean>
 }

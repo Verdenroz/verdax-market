@@ -2,29 +2,15 @@ package com.verdenroz.verdaxmarket.core.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 
 /**
- * Data class for [SimpleQuoteData]
  * Represents individual stock data in a WatchList
+ * @param symbol the quote symbol
+ * @param order the order in the watchlist
  */
 @Entity(tableName = "quotes")
 data class QuoteEntity(
     @PrimaryKey val symbol: String,
-    val name: String,
-    val price: String,
-    val change: String,
-    val percentChange: String,
-    val logo: String?
+    val order: Int,
 )
 
-fun QuoteEntity.asExternalModel() = SimpleQuoteData(
-    symbol = symbol,
-    name = name,
-    price = price,
-    change = change,
-    percentChange = percentChange,
-    logo = logo
-)
-
-fun List<QuoteEntity>.asExternalModel() = map { it.asExternalModel()}
