@@ -4,18 +4,18 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.repository.SocketRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -23,6 +23,7 @@ import javax.inject.Inject
 
 class GetSubscribedWatchlistUseCase @Inject constructor(
     private val socket: SocketRepository,
+    private val api: FinanceQueryDataSource,
     private val watchlistRepository: WatchlistRepository,
     private val marketMonitor: MarketMonitor,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
@@ -38,20 +39,17 @@ class GetSubscribedWatchlistUseCase @Inject constructor(
      * If there is an error in the socket, it will manually poll the API
      */
     operator fun invoke(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        socket.getWatchlist(symbols).flatMapMerge { socketResult ->
+        socket.getWatchlist(symbols).flatMapLatest { socketResult ->
             when (socketResult) {
                 is Result.Success -> {
-                    watchlistRepository.updateWatchList(socketResult.data)
                     flowOf(Result.Success(socketResult.data))
                 }
                 is Result.Loading -> flowOf(Result.Loading())
                 else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
                     flow {
                         while (true) {
-                            watchlistRepository.updateWatchlist(symbols)
-                            val currentWatchlist = watchlistRepository.getWatchlist().first()
-                                .filter { it.symbol in symbols } // Only include requested symbols
-                            emit(Result.Success(currentWatchlist))
+                            val updatedQuotes = api.getBulkQuote(symbols).asExternalModel()
+                            emit(Result.Success(updatedQuotes))
 
                             when (isOpen) {
                                 true -> delay(MARKET_DATA_REFRESH_OPEN)
