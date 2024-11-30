@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
@@ -35,12 +33,13 @@ import kotlinx.datetime.Clock
 internal fun SearchBarContent(
     searchResults: List<SearchResult>,
     resultsInWatchlist: List<Boolean>,
+    recentQuotesInWatchlist: List<Boolean>,
     recentQueries: List<RecentSearchQuery>,
     recentQuotes: List<RecentQuoteResult>,
     onClick: (String) -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    addToWatchList: (SearchResult) -> Unit,
-    deleteFromWatchList: (SearchResult) -> Unit,
+    addToWatchlist: (String) -> Unit,
+    deleteFromWatchlist: (String) -> Unit,
     onRecentQueryClick: (String) -> Unit,
     removeRecentQuery: (RecentSearchQuery) -> Unit,
     removeRecentQuote: (RecentQuoteResult) -> Unit,
@@ -99,16 +98,16 @@ internal fun SearchBarContent(
                 },
                 trailingContent = {
                     if (resultsInWatchlist.getOrNull(index) == true) {
-                        IconButton(onClick = { deleteFromWatchList(match) }) {
+                        IconButton(onClick = { deleteFromWatchlist(match.symbol) }) {
                             Icon(
-                                Icons.Default.Clear,
+                                VxmIcons.Remove,
                                 contentDescription = stringResource(id = R.string.feature_search_remove)
                             )
                         }
                     } else {
-                        IconButton(onClick = { addToWatchList(match) }) {
+                        IconButton(onClick = { addToWatchlist(match.symbol) }) {
                             Icon(
-                                Icons.Default.AddCircle,
+                                VxmIcons.Add,
                                 contentDescription = stringResource(id = R.string.feature_search_add)
                             )
                         }
@@ -127,9 +126,12 @@ internal fun SearchBarContent(
 
         RecentQuotes(
             recentQuotes = recentQuotes,
+            recentQuotesInWatchlist = recentQuotesInWatchlist,
             removeQuote = removeRecentQuote,
             onNavigateToQuote = onNavigateToQuote,
             clearAll = clearRecentQuotes,
+            addToWatchlist = addToWatchlist,
+            deleteFromWatchlist = deleteFromWatchlist
         )
     }
 }
@@ -202,12 +204,13 @@ private fun PreviewSearchBarContent() {
             SearchBarContent(
                 searchResults = matches,
                 resultsInWatchlist = List(3) { false },
+                recentQuotesInWatchlist = List(3) { false },
                 recentQueries = recentQueries,
                 recentQuotes = recentQuotes,
                 onClick = {},
                 onNavigateToQuote = {},
-                addToWatchList = {},
-                deleteFromWatchList = {},
+                addToWatchlist = {},
+                deleteFromWatchlist = {},
                 onRecentQueryClick = {},
                 removeRecentQuery = {},
                 removeRecentQuote = {},

@@ -83,6 +83,17 @@ class SearchViewModel @Inject constructor(
         emptyList()
     )
 
+    val recentQuotesInWatchlist: StateFlow<List<Boolean>> = combine(
+        recentQuotes,
+        watchlistRepository.watchlist
+    ) { quotes, watchlist ->
+        quotes.map { quote -> watchlist.any { it.symbol == quote.symbol } }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
     init {
         searcher.response.subscribe { response ->
             searchResults.value = response?.hits?.take(5)?.mapNotNull { hit ->

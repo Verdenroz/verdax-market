@@ -45,6 +45,7 @@ internal fun SearchRoute(
     val regionFilter by searchViewModel.regionFilter.collectAsStateWithLifecycle()
     val searchResults by searchViewModel.searchResults.collectAsStateWithLifecycle()
     val resultsInWatchlist by searchViewModel.resultsInWatchlist.collectAsStateWithLifecycle()
+    val recentQuotesInWatchlist by searchViewModel.recentQuotesInWatchlist.collectAsStateWithLifecycle()
     val recentQueries by searchViewModel.recentQueries.collectAsStateWithLifecycle()
     val recentQuotes by searchViewModel.recentQuotes.collectAsStateWithLifecycle()
 
@@ -52,6 +53,7 @@ internal fun SearchRoute(
         onNavigateToQuote = onNavigateToQuote,
         searchResults = searchResults,
         resultsInWatchlist = resultsInWatchlist,
+        recentQuotesInWatchlist = recentQuotesInWatchlist,
         recentQueries = recentQueries,
         recentQuotes = recentQuotes,
         regionFilter = regionFilter,
@@ -77,6 +79,7 @@ internal fun SearchRoute(
 internal fun SearchScreen(
     searchResults: List<SearchResult>,
     resultsInWatchlist: List<Boolean>,
+    recentQuotesInWatchlist: List<Boolean>,
     recentQueries: List<RecentSearchQuery>,
     recentQuotes: List<RecentQuoteResult>,
     regionFilter: RegionFilter,
@@ -89,8 +92,8 @@ internal fun SearchScreen(
     onSearch: (String) -> Unit,
     clearSearchResults: () -> Unit,
     restoreSearchResults: () -> Unit,
-    addToWatchList: (SearchResult) -> Unit,
-    deleteFromWatchList: (SearchResult) -> Unit,
+    addToWatchList: (String) -> Unit,
+    deleteFromWatchList: (String) -> Unit,
     removeRecentQuery: (RecentSearchQuery) -> Unit,
     removeRecentQuote: (RecentQuoteResult) -> Unit,
     clearRecentQueries: () -> Unit,
@@ -164,12 +167,13 @@ internal fun SearchScreen(
         SearchBarContent(
             searchResults = searchResults,
             resultsInWatchlist = resultsInWatchlist,
+            recentQuotesInWatchlist = recentQuotesInWatchlist,
             recentQueries = recentQueries,
             recentQuotes = recentQuotes,
             onClick = { onSearch(query) },
             onNavigateToQuote = onNavigateToQuote,
-            addToWatchList = addToWatchList,
-            deleteFromWatchList = deleteFromWatchList,
+            addToWatchlist = addToWatchList,
+            deleteFromWatchlist = deleteFromWatchList,
             onRecentQueryClick = { recentQuery ->
                 query = recentQuery
                 updateQuery(recentQuery)
@@ -247,6 +251,7 @@ private fun PreviewSearchScreen() {
         SearchScreen(
             searchResults = emptyList(),
             resultsInWatchlist = emptyList(),
+            recentQuotesInWatchlist = emptyList(),
             recentQueries = emptyList(),
             recentQuotes = emptyList(),
             regionFilter = RegionFilter.US,
