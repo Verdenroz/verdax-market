@@ -24,10 +24,10 @@ interface QuoteDao {
     @Query("DELETE FROM quotes")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM quotes")
+    @Query("SELECT * FROM quotes ORDER BY `order`")
     suspend fun getAllQuoteData(): List<QuoteEntity>
 
-    @Query("SELECT * FROM quotes")
+    @Query("SELECT * FROM quotes ORDER BY `order`")
     fun getAllQuoteDataFlow(): Flow<List<QuoteEntity>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM quotes WHERE symbol = :symbol)")
