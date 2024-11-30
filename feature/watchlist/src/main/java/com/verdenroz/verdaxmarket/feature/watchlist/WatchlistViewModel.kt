@@ -5,13 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
-import com.verdenroz.verdaxmarket.core.domain.GetSubscribedWatchlistUseCase
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,30 +23,20 @@ sealed interface WatchlistState {
 @HiltViewModel
 class WatchlistViewModel @Inject constructor(
     private val watchlistRepository: WatchlistRepository,
-    getSubscribedWatchlistUseCase: GetSubscribedWatchlistUseCase
 ) : ViewModel() {
 
     val watchlistState: StateFlow<WatchlistState> =
-        watchlistRepository.watchlist
-            .flatMapLatest { quotes ->
-                val symbols = quotes.map { it.symbol }
-                if (symbols.isEmpty()) {
-                    flowOf(WatchlistState.Success(emptyMap()))
-                } else {
-                    getSubscribedWatchlistUseCase(symbols).map { liveResult ->
-                        when (liveResult) {
-                            is Result.Success -> WatchlistState.Success(liveResult.data.associateBy { it.symbol })
-                            is Result.Error -> WatchlistState.Error(liveResult.error)
-                            is Result.Loading -> WatchlistState.Loading
-                        }
-                    }
-                }
+        watchlistRepository.quotes.map { liveResult ->
+            when (liveResult) {
+                is Result.Success -> WatchlistState.Success(liveResult.data.associateBy { it.symbol })
+                is Result.Error -> WatchlistState.Error(liveResult.error)
+                is Result.Loading -> WatchlistState.Loading
             }
-            .stateIn(
-                viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = WatchlistState.Loading
-            )
+        }.stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = WatchlistState.Loading
+        )
 
     val symbols: StateFlow<List<String>> = watchlistRepository.watchlist.map { quotes ->
         quotes.map { it.symbol }
