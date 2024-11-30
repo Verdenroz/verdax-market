@@ -162,14 +162,16 @@ class SearchViewModel @Inject constructor(
         searchResults.value = savedSearchResults.value
     }
 
-    fun addToWatchlist(searchResult: SearchResult) {
+    fun addToWatchlist(symbol: String) {
         viewModelScope.launch {
-            watchlistRepository.addToWatchList(searchResult.symbol)
+            watchlistRepository.addToWatchList(symbol)
         }
     }
 
-    fun deleteFromWatchlist(searchResult: SearchResult) {
-        viewModelScope.launch { watchlistRepository.deleteFromWatchList(searchResult.symbol) }
+    fun deleteFromWatchlist(symbol: String) {
+        viewModelScope.launch {
+            watchlistRepository.deleteFromWatchList(symbol)
+        }
     }
 
     fun removeRecentQuery(query: RecentSearchQuery) {
