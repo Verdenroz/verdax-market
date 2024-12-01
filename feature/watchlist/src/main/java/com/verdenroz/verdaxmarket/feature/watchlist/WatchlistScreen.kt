@@ -74,10 +74,10 @@ internal fun WatchlistRoute(
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
     val symbols by watchlistViewModel.symbols.collectAsStateWithLifecycle()
-    val watchlist by watchlistViewModel.watchlistState.collectAsStateWithLifecycle()
+    val watchlistState by watchlistViewModel.watchlistState.collectAsStateWithLifecycle()
     WatchlistScreen(
         symbols = symbols,
-        watchList = watchlist,
+        watchlistState = watchlistState,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
         deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
@@ -89,7 +89,7 @@ internal fun WatchlistRoute(
 @Composable
 internal fun WatchlistScreen(
     symbols: List<String>,
-    watchList: WatchlistState,
+    watchlistState: WatchlistState,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     deleteFromWatchlist: (String) -> Unit,
@@ -98,7 +98,7 @@ internal fun WatchlistScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    when (watchList) {
+    when (watchlistState) {
         is WatchlistState.Loading -> {
             WatchlistSkeleton(symbols)
         }
@@ -106,9 +106,9 @@ internal fun WatchlistScreen(
         is WatchlistState.Error -> {
             WatchlistSkeleton(symbols)
 
-            LaunchedEffect(watchList.error) {
+            LaunchedEffect(watchlistState.error) {
                 onShowSnackbar(
-                    watchList.error.asUiText().asString(context),
+                    watchlistState.error.asUiText().asString(context),
                     UiText.StringResource(R.string.feature_watchlist_dismiss).asString(context),
                     SnackbarDuration.Short
                 )
@@ -117,7 +117,7 @@ internal fun WatchlistScreen(
 
         is WatchlistState.Success -> {
 
-            if (watchList.data.isEmpty()) {
+            if (watchlistState.data.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -136,7 +136,7 @@ internal fun WatchlistScreen(
             }
 
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-            var quote by remember { mutableStateOf(watchList.data.values.first()) }
+            var quote by remember { mutableStateOf(watchlistState.data.values.first()) }
             var isBottomSheetExpanded by remember { mutableStateOf(false) }
 
             LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
@@ -185,7 +185,7 @@ internal fun WatchlistScreen(
                             items = symbols,
                             key = { it }
                         ) { symbol ->
-                            val watchlistQuote = watchList.data[symbol]
+                            val watchlistQuote = watchlistState.data[symbol]
                             if (watchlistQuote != null) {
                                 WatchlistQuote(
                                     quote = watchlistQuote,
@@ -374,7 +374,7 @@ private fun PreviewWatchlistScreen() {
     VxmTheme {
         WatchlistScreen(
             symbols = listOf("AAPL", "TSLA", "NVDIA"),
-            watchList = WatchlistState.Success(
+            watchlistState = WatchlistState.Success(
                 data = mapOf(
                     "AAPL" to SimpleQuoteData(
                         symbol = "AAPL",
