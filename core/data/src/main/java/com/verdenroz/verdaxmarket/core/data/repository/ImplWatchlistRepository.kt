@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -42,6 +43,9 @@ class ImplWatchlistRepository @Inject constructor(
 
     override val quotes: Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
         watchlist.map { it.map { quote -> quote.symbol } }
+            .distinctUntilChanged {
+                    oldSymbols, newSymbols -> oldSymbols.size == newSymbols.size && oldSymbols.containsAll(newSymbols)
+            }
             .flatMapLatest { symbols ->
                 if (symbols.isEmpty()) {
                     flowOf(Result.Success(emptyList()))
