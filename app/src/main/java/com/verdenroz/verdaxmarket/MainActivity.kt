@@ -16,6 +16,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -35,6 +36,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var marketMonitor: MarketMonitor
 
+    @Inject
+    lateinit var watchlistRepository: WatchlistRepository
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +52,9 @@ class MainActivity : ComponentActivity() {
                 viewModel.uiState
                     .onEach { uiState = it }
                     .collect { }
+
+                // Start collecting the watchlist quotes
+                watchlistRepository.quotes.collect { }
             }
         }
 
