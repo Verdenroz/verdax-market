@@ -12,15 +12,22 @@ import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,28 +48,45 @@ class ImplWatchlistRepository @Inject constructor(
 
     override val watchlist: Flow<List<QuoteEntity>> = quotesDao.getAllQuoteDataFlow()
 
-    override val quotes: Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
-        watchlist.map { it.map { quote -> quote.symbol } }
-            .distinctUntilChanged {
-                    oldSymbols, newSymbols -> oldSymbols.size == newSymbols.size && oldSymbols.containsAll(newSymbols)
-            }
-            .flatMapLatest { symbols ->
-                if (symbols.isEmpty()) {
-                    flowOf(Result.Success(emptyList()))
-                } else {
-                    socketRepository.getWatchlist(symbols).flatMapLatest { socketResult ->
-                        when (socketResult) {
-                            is Result.Success -> flowOf(Result.Success(socketResult.data))
-                            is Result.Loading -> flowOf(Result.Loading())
-                            else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
-                                flow {
-                                    while (true) {
-                                        val updatedQuotes = api.getBulkQuote(symbols).asExternalModel()
-                                        emit(Result.Success(updatedQuotes))
+    private val _quotes = MutableSharedFlow<Result<List<SimpleQuoteData>, DataError.Network>>()
+    override val quotes: SharedFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
+        _quotes
+            .onStart { startQuotesStream() }
+            .shareIn(
+                CoroutineScope(ioDispatcher + SupervisorJob()),
+                SharingStarted.Eagerly,
+                replay = 1
+            )
 
-                                        when (isOpen) {
-                                            true -> delay(MARKET_DATA_REFRESH_OPEN) // 15 seconds
-                                            false -> delay(MARKET_DATA_REFRESH_CLOSED) // 5 minutes
+    private fun startQuotesStream() {
+        val scope = CoroutineScope(ioDispatcher + SupervisorJob())
+        scope.launch {
+            watchlist
+                .map { it.map { quote -> quote.symbol } }
+                .distinctUntilChanged { oldSymbols, newSymbols ->
+                    oldSymbols.size == newSymbols.size && oldSymbols.containsAll(newSymbols)
+                }
+                .flatMapLatest { symbols ->
+                    if (symbols.isEmpty()) {
+                        flowOf(Result.Success(emptyList()))
+                    } else {
+                        // Get the watchlist quotes from the socket if available
+                        socketRepository.getWatchlist(symbols).flatMapLatest { socketResult ->
+                            when (socketResult) {
+                                is Result.Success -> flowOf(Result.Success(socketResult.data))
+                                is Result.Loading -> flowOf(Result.Loading())
+                                // If the socket is not available, poll the quotes from the API
+                                else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
+                                    flow {
+                                        while (true) {
+                                            val updatedQuotes =
+                                                api.getBulkQuote(symbols).asExternalModel()
+                                            emit(Result.Success(updatedQuotes))
+
+                                            when (isOpen) {
+                                                true -> delay(MARKET_DATA_REFRESH_OPEN) // 15 seconds
+                                                false -> delay(MARKET_DATA_REFRESH_CLOSED) // 5 minutes
+                                            }
                                         }
                                     }
                                 }
@@ -70,9 +94,12 @@ class ImplWatchlistRepository @Inject constructor(
                         }
                     }
                 }
-            }
-            .flowOn(ioDispatcher)
-            .catch { e -> emit(Result.Error(handleNetworkException(e))) }
+                .catch { e -> emit(Result.Error(handleNetworkException(e))) }
+                .collect { result ->
+                    _quotes.emit(result)
+                }
+        }
+    }
 
     override suspend fun getWatchlist(): List<QuoteEntity> = quotesDao.getAllQuoteData()
 
