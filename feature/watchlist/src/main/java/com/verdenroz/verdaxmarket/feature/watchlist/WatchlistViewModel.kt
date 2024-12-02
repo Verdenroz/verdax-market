@@ -34,7 +34,7 @@ class WatchlistViewModel @Inject constructor(
             }
         }.stateIn(
             viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
+            started = SharingStarted.Eagerly,
             initialValue = WatchlistState.Loading
         )
 
@@ -42,7 +42,7 @@ class WatchlistViewModel @Inject constructor(
         quotes.map { it.symbol }
     }.stateIn(
         viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
+        started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
 
