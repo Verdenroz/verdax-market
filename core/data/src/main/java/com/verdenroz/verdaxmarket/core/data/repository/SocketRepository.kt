@@ -13,5 +13,5 @@ interface SocketRepository {
 
     fun getProfile(symbol: String): Flow<Result<Profile, DataError.Network>>
 
-    fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>>
+    fun getQuotes(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>>
 }

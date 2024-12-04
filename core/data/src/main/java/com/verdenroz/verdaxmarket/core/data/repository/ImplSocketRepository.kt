@@ -57,7 +57,7 @@ class ImplSocketRepository @Inject constructor(
         }
     }.catch { e -> emit(Result.Error(handleNetworkException(e))) }
 
-    override fun getWatchlist(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> = channelFlow {
+    override fun getQuotes(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> = channelFlow {
         val params = mapOf("symbols" to symbols.joinToString(","))
         val channel = watchlistSocket.connect(params)
         try {

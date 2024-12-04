@@ -71,7 +71,7 @@ class ImplWatchlistRepository @Inject constructor(
                         flowOf(Result.Success(emptyList()))
                     } else {
                         // Get the watchlist quotes from the socket if available
-                        socketRepository.getWatchlist(symbols).flatMapLatest { socketResult ->
+                        socketRepository.getQuotes(symbols).flatMapLatest { socketResult ->
                             when (socketResult) {
                                 is Result.Success -> flowOf(Result.Success(socketResult.data))
                                 is Result.Loading -> flowOf(Result.Loading())
