@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.feature.search.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,8 +39,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun RecentQueries(
-    recentQueries: List<RecentSearchQuery>,
-    removeRecentQuery: (RecentSearchQuery) -> Unit,
+    recentQueries: List<String>,
+    removeRecentQuery: (String) -> Unit,
     onClick: (String) -> Unit,
     clearAll: () -> Unit
 ) {
@@ -120,15 +119,14 @@ internal fun RecentQueries(
             textContentColor = MaterialTheme.colorScheme.onSurface,
         )
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecentQueryText(
-    query: RecentSearchQuery,
+    query: String,
     onClick: (String) -> Unit,
-    removeRecentQuery: (RecentSearchQuery) -> Unit
+    removeRecentQuery: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
@@ -138,7 +136,7 @@ private fun RecentQueryText(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .combinedClickable(
-                onClick = { onClick(query.query) },
+                onClick = { onClick(query) },
                 onLongClick = {
                     scope.launch {
                         isHovering = true
@@ -151,7 +149,7 @@ private fun RecentQueryText(
             )
     ) {
         Text(
-            text = query.query,
+            text = query,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -188,7 +186,7 @@ private fun RecentQueryText(
                 }
             },
             title = {
-                Text(text = query.query)
+                Text(text = query)
             },
             text = {
                 Text(text = stringResource(id = R.string.feature_search_remove_query_prompt))
@@ -197,7 +195,6 @@ private fun RecentQueryText(
             textContentColor = MaterialTheme.colorScheme.onSurface,
         )
     }
-
 }
 
 @ThemePreviews
@@ -207,16 +204,16 @@ private fun PreviewRecentQueries() {
         Surface(Modifier.fillMaxSize()) {
             RecentQueries(
                 recentQueries = listOf(
-                    RecentSearchQuery("AAPL"),
-                    RecentSearchQuery("TSLA"),
-                    RecentSearchQuery("AMZN"),
-                    RecentSearchQuery("GOOGL"),
-                    RecentSearchQuery("MSFT"),
-                    RecentSearchQuery("FB"),
-                    RecentSearchQuery("NVDA"),
-                    RecentSearchQuery("INTC"),
-                    RecentSearchQuery("AMD"),
-                    RecentSearchQuery("QCOM"),
+                    "AAPL",
+                    "TSLA",
+                    "AMZN",
+                    "GOOGL",
+                    "MSFT",
+                    "FB",
+                    "NVDA",
+                    "INTC",
+                    "AMD",
+                    "QCOM",
                 ),
                 onClick = { },
                 removeRecentQuery = { },

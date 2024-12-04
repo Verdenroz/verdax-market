@@ -28,8 +28,6 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSearchBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
-import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
@@ -46,18 +44,20 @@ internal fun SearchRoute(
     val searchResults by searchViewModel.searchResults.collectAsStateWithLifecycle()
     val resultsInWatchlist by searchViewModel.resultsInWatchlist.collectAsStateWithLifecycle()
     val recentQuotesInWatchlist by searchViewModel.recentQuotesInWatchlist.collectAsStateWithLifecycle()
+    val searchState by searchViewModel.searchState.collectAsStateWithLifecycle()
     val recentQueries by searchViewModel.recentQueries.collectAsStateWithLifecycle()
-    val recentQuotes by searchViewModel.recentQuotes.collectAsStateWithLifecycle()
+    val recentSymbolNames by searchViewModel.recentSymbolsNames.collectAsStateWithLifecycle()
 
     SearchScreen(
-        onNavigateToQuote = onNavigateToQuote,
+        searchState = searchState,
         searchResults = searchResults,
+        recentQueries = recentQueries,
+        recentSymbolNames = recentSymbolNames,
         resultsInWatchlist = resultsInWatchlist,
         recentQuotesInWatchlist = recentQuotesInWatchlist,
-        recentQueries = recentQueries,
-        recentQuotes = recentQuotes,
         regionFilter = regionFilter,
         typeFilters = typeFilter,
+        onNavigateToQuote = onNavigateToQuote,
         updateRegionFilter = searchViewModel::updateRegionFilter,
         updateTypeFilter = searchViewModel::updateTypeFilter,
         updateQuery = searchViewModel::updateQuery,
@@ -71,17 +71,17 @@ internal fun SearchRoute(
         removeRecentQuote = searchViewModel::removeRecentQuote,
         clearRecentQueries = searchViewModel::clearRecentQueries,
         clearRecentQuotes = searchViewModel::clearRecentQuotes
-
     )
 }
 
 @Composable
 internal fun SearchScreen(
+    searchState: SearchState,
     searchResults: List<SearchResult>,
+    recentQueries: List<String>,
+    recentSymbolNames: List<Triple<String, String, String?>>,
     resultsInWatchlist: List<Boolean>,
-    recentQuotesInWatchlist: List<Boolean>,
-    recentQueries: List<RecentSearchQuery>,
-    recentQuotes: List<RecentQuoteResult>,
+    recentQuotesInWatchlist: Map<String, Boolean>,
     regionFilter: RegionFilter,
     typeFilters: List<TypeFilter>,
     onNavigateToQuote: (String) -> Unit,
@@ -94,8 +94,8 @@ internal fun SearchScreen(
     restoreSearchResults: () -> Unit,
     addToWatchList: (String) -> Unit,
     deleteFromWatchList: (String) -> Unit,
-    removeRecentQuery: (RecentSearchQuery) -> Unit,
-    removeRecentQuote: (RecentQuoteResult) -> Unit,
+    removeRecentQuery: (String) -> Unit,
+    removeRecentQuote: (String) -> Unit,
     clearRecentQueries: () -> Unit,
     clearRecentQuotes: () -> Unit
 ) {
@@ -165,11 +165,12 @@ internal fun SearchScreen(
         }
     ) {
         SearchBarContent(
+            searchState = searchState,
             searchResults = searchResults,
+            recentQueries = recentQueries,
+            recentSymbolNames = recentSymbolNames,
             resultsInWatchlist = resultsInWatchlist,
             recentQuotesInWatchlist = recentQuotesInWatchlist,
-            recentQueries = recentQueries,
-            recentQuotes = recentQuotes,
             onClick = { onSearch(query) },
             onNavigateToQuote = onNavigateToQuote,
             addToWatchlist = addToWatchList,
@@ -249,11 +250,12 @@ private fun RegionFilterContainer(
 private fun PreviewSearchScreen() {
     VxmTheme {
         SearchScreen(
+            searchState = SearchState.Loading,
             searchResults = emptyList(),
-            resultsInWatchlist = emptyList(),
-            recentQuotesInWatchlist = emptyList(),
             recentQueries = emptyList(),
-            recentQuotes = emptyList(),
+            recentSymbolNames = emptyList(),
+            resultsInWatchlist = emptyList(),
+            recentQuotesInWatchlist = emptyMap(),
             regionFilter = RegionFilter.US,
             typeFilters = emptyList(),
             onNavigateToQuote = {},

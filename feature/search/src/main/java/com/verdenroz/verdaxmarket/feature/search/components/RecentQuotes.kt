@@ -49,17 +49,16 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundC
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
-import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.feature.search.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 @Composable
 internal fun RecentQuotes(
-    recentQuotes: List<RecentQuoteResult>,
-    recentQuotesInWatchlist: List<Boolean>,
-    removeQuote: (RecentQuoteResult) -> Unit,
+    recentQuotes: List<SimpleQuoteData>,
+    recentQuotesInWatchlist: Map<String, Boolean>,
+    removeQuote: (String) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     clearAll: () -> Unit,
     addToWatchlist: (String) -> Unit,
@@ -102,7 +101,7 @@ internal fun RecentQuotes(
             ) { query ->
                 RecentQuoteBody(
                     quote = query,
-                    isInWatchlist = recentQuotesInWatchlist[recentQuotes.indexOf(query)],
+                    isInWatchlist = recentQuotesInWatchlist[query.symbol] == true,
                     onClick = { onNavigateToQuote(query.symbol) },
                     removeQuote = removeQuote,
                     addToWatchlist = addToWatchlist,
@@ -150,10 +149,10 @@ internal fun RecentQuotes(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecentQuoteBody(
-    quote: RecentQuoteResult,
+    quote: SimpleQuoteData,
     isInWatchlist: Boolean,
     onClick: () -> Unit,
-    removeQuote: (RecentQuoteResult) -> Unit,
+    removeQuote: (String) -> Unit,
     addToWatchlist: (String) -> Unit,
     deleteFromWatchlist: (String) -> Unit
 ) {
@@ -214,7 +213,7 @@ private fun RecentQuoteBody(
 
             // Main content
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp).weight(.4f)
+                modifier = Modifier.padding(horizontal = 16.dp).weight(.5f)
             ) {
                 Text(
                     text = quote.symbol,
@@ -275,7 +274,7 @@ private fun RecentQuoteBody(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    removeQuote(quote)
+                    removeQuote(quote.symbol)
                     showDialog = false
                 }) {
                     Text(
@@ -305,7 +304,7 @@ private fun RecentQuoteBody(
 }
 
 @Composable
-private fun RowScope.RotatingText(quote: RecentQuoteResult) {
+private fun RowScope.RotatingText(quote: SimpleQuoteData) {
     var currentIndex by remember { mutableIntStateOf(0) }
     val items = listOf(quote.price.toString(), quote.change, quote.percentChange)
 
@@ -333,35 +332,155 @@ private fun RowScope.RotatingText(quote: RecentQuoteResult) {
 
 @ThemePreviews
 @Composable
-private fun PreviewRecentQueries() {
+private fun PreviewRecentQuotes() {
     VxmTheme {
-        val positveRecentQuote = RecentQuoteResult(
+        val positveRecentQuote = SimpleQuoteData(
             symbol = "AAPL",
             name = "Apple Inc.",
             price = "123.45",
             change = "+0.12",
             percentChange = "+0.12%",
             logo = null,
-            timestamp = Clock.System.now()
         )
-        val negativeRecentQuote = RecentQuoteResult(
+        val negativeRecentQuote = SimpleQuoteData(
             symbol = "TSLA",
             name = "Apple Inc.",
             price = "123.45",
             change = "-0.12",
             percentChange = "-0.12%",
             logo = null,
-            timestamp = Clock.System.now()
         )
         Surface(Modifier.fillMaxSize()) {
             RecentQuotes(
                 recentQuotes = listOf(positveRecentQuote, negativeRecentQuote).shuffled(),
-                recentQuotesInWatchlist = listOf(true, false),
+                recentQuotesInWatchlist = mapOf(
+                    positveRecentQuote.symbol to true,
+                    negativeRecentQuote.symbol to false
+                ),
                 onNavigateToQuote = { },
                 removeQuote = { },
                 clearAll = {  },
                 addToWatchlist = { },
                 deleteFromWatchlist = { }
+            )
+        }
+    }
+}
+
+@Composable
+internal fun RecentQuotesSkeleton(symbolNames: List<Triple<String, String, String?>>) {
+    Column(
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.feature_search_recent_quotes),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            items(symbolNames) { (symbol, name, logo) ->
+                RecentQuoteSkeleton(symbol, name, logo)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentQuoteSkeleton(
+    symbol: String,
+    name: String,
+    logo: String?
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (logo != null) {
+                VxmAsyncImage(
+                    model = logo,
+                    description = stringResource(id = R.string.feature_search_logo_description),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = symbol,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.25.sp,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp).weight(.5f)
+            ) {
+                Text(
+                    text = symbol,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.25.sp,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewRecentQueriesSkeleton() {
+    VxmTheme {
+        Surface(Modifier.fillMaxSize()) {
+            RecentQuotesSkeleton(
+                listOf(
+                    Triple("AAPL", "Apple Inc.", null),
+                    Triple("TSLA", "Tesla Inc.", null),
+                    Triple("GOOGL", "Alphabet Inc.", null),
+                    Triple("AMZN", "Amazon.com Inc.", null),
+                    Triple("MSFT", "Microsoft Corporation", null),
+                    Triple("FB", "Meta Platforms Inc.", null),
+                    Triple("NVDA", "NVIDIA Corporation", null),
+                    Triple("PYPL", "PayPal Holdings Inc.", null),
+                    Triple("INTC", "Intel Corporation", null),
+                    Triple("CSCO", "Cisco Systems Inc.", null),
+                )
             )
         }
     }

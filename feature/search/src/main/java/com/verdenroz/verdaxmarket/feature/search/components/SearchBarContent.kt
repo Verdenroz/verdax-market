@@ -23,26 +23,26 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
-import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import com.verdenroz.verdaxmarket.feature.search.R
-import kotlinx.datetime.Clock
+import com.verdenroz.verdaxmarket.feature.search.SearchState
 
 @Composable
 internal fun SearchBarContent(
+    searchState: SearchState,
     searchResults: List<SearchResult>,
+    recentQueries: List<String>,
+    recentSymbolNames: List<Triple<String, String, String?>>,
     resultsInWatchlist: List<Boolean>,
-    recentQuotesInWatchlist: List<Boolean>,
-    recentQueries: List<RecentSearchQuery>,
-    recentQuotes: List<RecentQuoteResult>,
+    recentQuotesInWatchlist: Map<String, Boolean>,
     onClick: (String) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     addToWatchlist: (String) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     onRecentQueryClick: (String) -> Unit,
-    removeRecentQuery: (RecentSearchQuery) -> Unit,
-    removeRecentQuote: (RecentQuoteResult) -> Unit,
+    removeRecentQuery: (String) -> Unit,
+    removeRecentQuote: (String) -> Unit,
     clearRecentQueries: () -> Unit,
     clearRecentQuotes: () -> Unit
 ) {
@@ -124,15 +124,29 @@ internal fun SearchBarContent(
             clearAll = clearRecentQueries
         )
 
-        RecentQuotes(
-            recentQuotes = recentQuotes,
-            recentQuotesInWatchlist = recentQuotesInWatchlist,
-            removeQuote = removeRecentQuote,
-            onNavigateToQuote = onNavigateToQuote,
-            clearAll = clearRecentQuotes,
-            addToWatchlist = addToWatchlist,
-            deleteFromWatchlist = deleteFromWatchlist
-        )
+        when (searchState) {
+            is SearchState.Loading -> {
+                RecentQuotesSkeleton(recentSymbolNames)
+            }
+
+            is SearchState.Error -> {
+                // Show error message
+            }
+
+            is SearchState.Success -> {
+
+
+                RecentQuotes(
+                    recentQuotes = searchState.recentQuotes,
+                    recentQuotesInWatchlist = recentQuotesInWatchlist,
+                    removeQuote = removeRecentQuote,
+                    onNavigateToQuote = onNavigateToQuote,
+                    clearAll = clearRecentQuotes,
+                    addToWatchlist = addToWatchlist,
+                    deleteFromWatchlist = deleteFromWatchlist
+                )
+            }
+        }
     }
 }
 
@@ -164,49 +178,55 @@ private fun PreviewSearchBarContent() {
     )
 
     val recentQueries = listOf(
-        RecentSearchQuery("AAPL"),
-        RecentSearchQuery("GOOGL"),
-        RecentSearchQuery("MSFT")
+        "AAPL",
+        "GOOGL",
+        "MSFT"
     )
 
     val recentQuotes = listOf(
-        RecentQuoteResult(
+        SimpleQuoteData(
             symbol = "AAPL",
             name = "Apple Inc.",
             price = "145.86",
             change = "+0.01",
             percentChange = "+0.01%",
             logo = "https://logo.clearbit.com/apple.com",
-            timestamp = Clock.System.now()
         ),
-        RecentQuoteResult(
+        SimpleQuoteData(
             symbol = "GOOGL",
             name = "Alphabet Inc.",
             price = "2734.87",
             change = "+0.02",
             percentChange = "+0.02%",
             logo = "https://logo.clearbit.com/abc.xyz",
-            timestamp = Clock.System.now()
         ),
-        RecentQuoteResult(
+        SimpleQuoteData(
             symbol = "MSFT",
             name = "Microsoft Corp.",
             price = "299.35",
             change = "+0.03",
             percentChange = "+0.03%",
             logo = "https://logo.clearbit.com/microsoft.com",
-            timestamp = Clock.System.now()
         )
     )
 
     VxmTheme {
         Column {
             SearchBarContent(
+                searchState = SearchState.Success(recentQuotes),
                 searchResults = matches,
-                resultsInWatchlist = List(3) { false },
-                recentQuotesInWatchlist = List(3) { false },
                 recentQueries = recentQueries,
-                recentQuotes = recentQuotes,
+                recentSymbolNames = listOf(
+                    Triple("AAPL", "Apple Inc.", "https://logo.clearbit.com/apple.com"),
+                    Triple("GOOGL", "Alphabet Inc.", "https://logo.clearbit.com/abc.xyz"),
+                    Triple("MSFT", "Microsoft Corp.", "https://logo.clearbit.com/microsoft.com")
+                ),
+                resultsInWatchlist = List(3) { false },
+                recentQuotesInWatchlist = mapOf(
+                    "AAPL" to true,
+                    "GOOGL" to false,
+                    "MSFT" to false
+                ),
                 onClick = {},
                 onNavigateToQuote = {},
                 addToWatchlist = {},
