@@ -22,16 +22,16 @@ class WatchlistSocket @Inject constructor(
     private val client: OkHttpClient
 ) : FinanceQuerySocket<List<SimpleQuoteResponse>, Map<String, String>>, WebSocketListener() {
 
-    private var webSocket: WebSocket? = null
-    private var channel: Channel<List<SimpleQuoteResponse>?>? = null
+    private val connections = mutableMapOf<String, WebSocket>()
+    private val channels = mutableMapOf<String, Channel<List<SimpleQuoteResponse>?>>()
     private val mutex = Mutex()
 
     override suspend fun connect(params: Map<String, String>): Channel<List<SimpleQuoteResponse>?> = mutex.withLock {
-        if (webSocket != null) {
-            return@withLock channel!!
+        val symbols = params["symbols"] ?: throw IllegalArgumentException("Symbols parameter is required")
+        if (connections.containsKey(symbols)) {
+            return@withLock channels[symbols]!!
         }
 
-        val symbols = params["symbols"]?.split(",") ?: throw IllegalArgumentException("Symbols parameter is required")
         val newChannel = Channel<List<SimpleQuoteResponse>?>(Channel.BUFFERED)
         val url = "$SOCKET_URL/quotes"
         val request = Request.Builder()
@@ -39,29 +39,38 @@ class WatchlistSocket @Inject constructor(
             .addHeader("x-api-key", BuildConfig.FINANCE_QUERY_API_KEY)
             .build()
 
-        webSocket = client.newWebSocket(request, this)
-        channel = newChannel
+        val webSocket = client.newWebSocket(request, this)
+        connections[symbols] = webSocket
+        channels[symbols] = newChannel
 
-        val symString = symbols.joinToString(",")
-        webSocket!!.send(symString)
+        webSocket.send(symbols)
 
         return@withLock newChannel
     }
 
     override suspend fun disconnect(params: Map<String, String>) = mutex.withLock {
-        webSocket?.close(1000, null)
-        webSocket = null
-        channel?.close()
-        channel = null
+        val symbols = params["symbols"] ?: return@withLock
+        connections[symbols]?.close(1000, null)
+        connections.remove(symbols)
+        channels[symbols]?.close()
+        channels.remove(symbols)
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         val quoteResponse = parser.decodeFromString<List<SimpleQuoteResponse>>(text)
-        channel?.trySend(quoteResponse)
+        val responseSymbolSet = quoteResponse.map { it.symbol }.toSet()
+
+        channels.forEach { (channelSymbols, channel) ->
+            val channelSymbolsSet = channelSymbols.split(",").toSet()
+            if (channelSymbolsSet == responseSymbolSet) {
+                Log.d("QuoteSocket", "Received exact match quotes for $responseSymbolSet on channel $channelSymbolsSet")
+                channel.trySend(quoteResponse)
+            }
+        }
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        channel?.trySend(null)
+        channels.values.forEach { it.trySend(null) }
         webSocket.close(1000, t.message)
     }
 }
