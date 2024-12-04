@@ -1,7 +1,6 @@
 package com.verdenroz.verdaxmarket.core.database.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.verdenroz.verdaxmarket.core.database.model.RecentSearchEntity
@@ -25,8 +24,8 @@ interface RecentSearchDao {
     @Upsert
     suspend fun upsertRecentSearch(recentSearch: RecentSearchEntity)
 
-    @Delete
-    suspend fun deleteRecentSearch(query: RecentSearchEntity)
+    @Query("DELETE FROM recentSearches WHERE searchQuery = :query")
+    suspend fun deleteRecentSearch(query: String)
 
     @Query("DELETE FROM recentSearches")
     suspend fun deleteAllRecentSearches()

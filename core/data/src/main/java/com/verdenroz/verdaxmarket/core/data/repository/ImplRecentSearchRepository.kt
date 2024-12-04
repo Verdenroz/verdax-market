@@ -2,21 +2,20 @@ package com.verdenroz.verdaxmarket.core.data.repository
 
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
-import com.verdenroz.verdaxmarket.core.data.model.asEntity
+import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
+import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.database.dao.RecentQuoteDao
 import com.verdenroz.verdaxmarket.core.database.dao.RecentSearchDao
 import com.verdenroz.verdaxmarket.core.database.model.RecentQuoteEntity
 import com.verdenroz.verdaxmarket.core.database.model.RecentSearchEntity
-import com.verdenroz.verdaxmarket.core.database.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
-import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +31,7 @@ class ImplRecentSearchRepository @Inject constructor(
         //D Deletes the oldest recent query if the count exceeds the limit
         CoroutineScope(ioDispatcher).launch {
             recentSearchDao.getRecentSearchesCountFlow().collect { count ->
-                if (count > 15) {
+                if (count > RECENT_SEARCHES_LIMIT) {
                     recentSearchDao.deleteOldestRecentSearch()
                 }
             }
@@ -41,7 +40,7 @@ class ImplRecentSearchRepository @Inject constructor(
         // Deletes the oldest recent quote if the count exceeds the limit
         CoroutineScope(ioDispatcher).launch {
             recentQuoteDao.getRecentQuotesCountFlow().collect { count ->
-                if (count > 10) {
+                if (count > RECENT_QUOTES_LIMIT) {
                     recentQuoteDao.deleteOldestRecentQuote()
                 }
             }
@@ -53,62 +52,38 @@ class ImplRecentSearchRepository @Inject constructor(
             recentSearchEntities.map { it.asExternalModel() }
         }
 
-    override fun getRecentQuotes(limit: Int) =
-        recentQuoteDao.getRecentQuotes(limit).map { recentQuoteEntities ->
-            recentQuoteEntities.map { it.asExternalModel() }
+    override fun getRecentSearchQueries(limit: Int): Flow<List<String>> =
+        recentSearchDao.getRecentSearches(limit).map {
+            it.map { search -> search.searchQuery }
         }
 
-    override suspend fun upsertRecentQuery(searchQuery: String) {
+    override suspend fun upsertRecentQuery(query: String) {
         recentSearchDao.upsertRecentSearch(
             RecentSearchEntity(
-                query = searchQuery,
-                timestamp = Clock.System.now()
+                searchQuery = query
             )
         )
     }
 
-    override suspend fun deleteRecentQuery(searchQuery: RecentSearchQuery) {
-        recentSearchDao.deleteRecentSearch(searchQuery.asEntity())
+    override suspend fun deleteRecentQuery(query: String) {
+        recentSearchDao.deleteRecentSearch(query)
     }
 
-    override suspend fun upsertRecentQuote(symbol: String) {
-        val quote = financeQueryDataSource.getSimpleQuote(symbol)
+    override suspend fun upsertRecentQuote(symbol: String, name: String, logo: String?) {
         recentQuoteDao.upsertRecentQuote(
             RecentQuoteEntity(
-                symbol = quote.symbol,
-                name = quote.name,
-                price = quote.price,
-                change = quote.change,
-                percentChange = quote.percentChange,
-                logo = quote.logo,
-                timestamp = Clock.System.now()
+                symbol = symbol,
+                name = name,
+                logo = logo
             )
         )
     }
 
-    override suspend fun upsertRecentQuote(quote: SimpleQuoteData) {
-        recentQuoteDao.upsertRecentQuote(
-            RecentQuoteEntity(
-                symbol = quote.symbol,
-                name = quote.name,
-                price = quote.price,
-                change = quote.change,
-                percentChange = quote.percentChange,
-                logo = quote.logo,
-                timestamp = Clock.System.now()
-            )
-        )
-    }
+    override suspend fun deleteRecentQuote(symbol: String) =
+        recentQuoteDao.deleteRecentQuote(symbol)
 
-    override suspend fun deleteRecentQuote(quote: RecentQuoteResult) {
-        recentQuoteDao.deleteRecentQuote(quote.asEntity())
-    }
 
-    override suspend fun clearRecentQueries() {
-        recentSearchDao.deleteAllRecentSearches()
-    }
+    override suspend fun clearRecentQueries() = recentSearchDao.deleteAllRecentSearches()
 
-    override suspend fun clearRecentQuotes() {
-        recentQuoteDao.deleteAllRecentQuotes()
-    }
+    override suspend fun clearRecentQuotes() = recentQuoteDao.deleteAllRecentQuotes()
 }

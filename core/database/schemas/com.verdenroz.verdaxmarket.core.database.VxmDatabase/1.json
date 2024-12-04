@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0dbdb71181562732932f1cecf565a018",
+    "identityHash": "ea1e310ffd182a7611ed43fb3517a539",
     "entities": [
       {
         "tableName": "quotes",
@@ -32,7 +32,7 @@
       },
       {
         "tableName": "recentQuotes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`symbol` TEXT NOT NULL, `name` TEXT NOT NULL, `price` TEXT NOT NULL, `change` TEXT NOT NULL, `percentChange` TEXT NOT NULL, `logo` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`symbol`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`symbol` TEXT NOT NULL, `name` TEXT NOT NULL, `logo` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`symbol`))",
         "fields": [
           {
             "fieldPath": "symbol",
@@ -43,24 +43,6 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "price",
-            "columnName": "price",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "change",
-            "columnName": "change",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "percentChange",
-            "columnName": "percentChange",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -88,11 +70,11 @@
       },
       {
         "tableName": "recentSearches",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`query`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`searchQuery` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`searchQuery`))",
         "fields": [
           {
-            "fieldPath": "query",
-            "columnName": "query",
+            "fieldPath": "searchQuery",
+            "columnName": "searchQuery",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -106,7 +88,7 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "query"
+            "searchQuery"
           ]
         },
         "indices": [],
@@ -116,7 +98,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0dbdb71181562732932f1cecf565a018')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ea1e310ffd182a7611ed43fb3517a539')"
     ]
   }
 }
