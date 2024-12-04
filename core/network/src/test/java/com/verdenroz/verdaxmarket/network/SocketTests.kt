@@ -3,10 +3,10 @@ package com.verdenroz.verdaxmarket.network
 import com.verdenroz.verdaxmarket.core.network.demo.DemoMarketSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoProfileSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoWatchlistSocket
-import com.verdenroz.verdaxmarket.core.network.model.ProfileResponse
+import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
-import com.verdenroz.verdaxmarket.core.network.sockets.WatchlistSocket
+import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -22,27 +22,27 @@ import kotlin.test.assertTrue
 class SocketTests {
     private lateinit var marketSocket: MarketSocket
     private lateinit var profileSocket: ProfileSocket
-    private lateinit var watchlistSocket: WatchlistSocket
+    private lateinit var quoteSocket: QuoteSocket
 
     @Before
     fun setup() {
         marketSocket = DemoMarketSocket().invoke()
         profileSocket = DemoProfileSocket().invoke()
-        watchlistSocket = DemoWatchlistSocket().invoke()
+        quoteSocket = DemoWatchlistSocket().invoke()
     }
 
     @After
     fun teardown() = runBlocking {
         marketSocket.disconnect(Unit)
         profileSocket.disconnect("AAPL")
-        watchlistSocket.disconnect(mapOf("symbols" to "AAPL,MSFT,GOOGL"))
+        quoteSocket.disconnect(mapOf("symbols" to "AAPL,MSFT,GOOGL"))
     }
 
     @Test
     fun testMarketSocket() = runBlocking {
         val receivedData = AtomicBoolean(false)
 
-        withTimeout(21000) { // 21 seconds to account for setup time
+        withTimeout(12000) { // 12 seconds to account for setup time
             val channel = marketSocket.connect(Unit)
 
             val job = launch {
@@ -56,7 +56,7 @@ class SocketTests {
             }
 
             // Wait for 20 seconds
-            kotlinx.coroutines.delay(20000)
+            kotlinx.coroutines.delay(11000)
             marketSocket.disconnect(Unit)
             job.cancel()
         }
@@ -69,7 +69,7 @@ class SocketTests {
         val receivedData = AtomicBoolean(false)
         val testSymbol = "NVDA"
 
-        withTimeout(21000) {
+        withTimeout(12000) {
             val channel = profileSocket.connect(testSymbol)
 
             val job = launch {
@@ -83,8 +83,8 @@ class SocketTests {
                 }
             }
 
-            // Wait for 20 seconds
-            kotlinx.coroutines.delay(20000)
+            // Wait for 11 seconds
+            kotlinx.coroutines.delay(11000)
             profileSocket.disconnect(testSymbol)
             job.cancel()
         }
@@ -98,8 +98,8 @@ class SocketTests {
         val symbols = listOf("NVDA", "MSFT", "GOOGL")
         val params = mapOf("symbols" to symbols.joinToString(","))
 
-        withTimeout(21000) {
-            val channel = watchlistSocket.connect(params)
+        withTimeout(12000) {
+            val channel = quoteSocket.connect(params)
 
             val job = launch {
                 var messageCount = 0
@@ -116,9 +116,9 @@ class SocketTests {
                 }
             }
 
-            // Wait for 20 seconds
-            kotlinx.coroutines.delay(20000)
-            watchlistSocket.disconnect(params)
+            // Wait for 11 seconds
+            kotlinx.coroutines.delay(11000)
+            quoteSocket.disconnect(params)
             job.cancel()
         }
 
@@ -126,39 +126,45 @@ class SocketTests {
     }
 
     @Test
-    fun testMultipleSockets() = runBlocking {
+    fun testMultipleQuoteSockets() = runBlocking {
         val symbols = listOf("AAPL", "MSFT", "GOOGL")
-        val channels = mutableListOf<Channel<ProfileResponse?>>()
+        val channels = mutableListOf<Channel<List<SimpleQuoteResponse>?>>()
         val receivedData = mutableMapOf<String, AtomicBoolean>()
 
         symbols.forEach { symbol ->
             receivedData[symbol] = AtomicBoolean(false)
         }
 
-        withTimeout(21000) {
-            // Start connections for all symbols
+        withTimeout(30000) {
+            // Start connections for all symbols with a delay
             symbols.forEach { symbol ->
-                val channel = profileSocket.connect(symbol)
+                val params = mapOf("symbols" to symbol)
+                val channel = quoteSocket.connect(params)
+                println("Connected to quote socket for $symbol")
                 channels.add(channel)
 
                 launch {
                     var messageCount = 0
                     for (message in channel) {
-                        assertNotNull(message) { "Received null profile data for $symbol" }
-                        assertEquals(symbol, message.quote.symbol, "Received data for wrong symbol")
+                        assertNotNull(message) { "Received null quote data for $symbol" }
+                        assertTrue(message.any { it.symbol == symbol }, "Received data for wrong symbol")
                         messageCount++
                         receivedData[symbol]?.set(true)
-                        println("Received profile data #$messageCount for $symbol: $message")
+                        println("Received quote data #$messageCount for $symbol: $message")
                     }
                 }
+
+                // Add a delay between each connection
+                kotlinx.coroutines.delay(1000)
             }
 
-            // Wait for 20 seconds
-            kotlinx.coroutines.delay(20000)
+            // Wait for 11 seconds
+            kotlinx.coroutines.delay(11000)
 
             // Disconnect all
             symbols.forEach { symbol ->
-                profileSocket.disconnect(symbol)
+                val params = mapOf("symbols" to symbol)
+                quoteSocket.disconnect(params)
             }
         }
 
