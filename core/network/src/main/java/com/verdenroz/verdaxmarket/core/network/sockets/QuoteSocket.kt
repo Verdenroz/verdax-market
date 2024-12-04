@@ -17,7 +17,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WatchlistSocket @Inject constructor(
+class QuoteSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
 ) : FinanceQuerySocket<List<SimpleQuoteResponse>, Map<String, String>>, WebSocketListener() {
@@ -63,7 +63,6 @@ class WatchlistSocket @Inject constructor(
         channels.forEach { (channelSymbols, channel) ->
             val channelSymbolsSet = channelSymbols.split(",").toSet()
             if (channelSymbolsSet == responseSymbolSet) {
-                Log.d("QuoteSocket", "Received exact match quotes for $responseSymbolSet on channel $channelSymbolsSet")
                 channel.trySend(quoteResponse)
             }
         }

@@ -9,7 +9,7 @@ import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
-import com.verdenroz.verdaxmarket.core.network.sockets.WatchlistSocket
+import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
@@ -20,7 +20,7 @@ import javax.inject.Singleton
 class ImplSocketRepository @Inject constructor(
     private val profileSocket: ProfileSocket,
     private val marketSocket: MarketSocket,
-    private val watchlistSocket: WatchlistSocket
+    private val quoteSocket: QuoteSocket,
 ) : SocketRepository {
 
     override val market: Flow<Result<MarketInfo, DataError.Network>> = channelFlow {
@@ -59,7 +59,7 @@ class ImplSocketRepository @Inject constructor(
 
     override fun getQuotes(symbols: List<String>): Flow<Result<List<SimpleQuoteData>, DataError.Network>> = channelFlow {
         val params = mapOf("symbols" to symbols.joinToString(","))
-        val channel = watchlistSocket.connect(params)
+        val channel = quoteSocket.connect(params)
         try {
             for (simpleQuoteResponse in channel) {
                 val quotes = simpleQuoteResponse?.asExternalModel()
@@ -72,7 +72,7 @@ class ImplSocketRepository @Inject constructor(
                 )
             }
         } finally {
-            watchlistSocket.disconnect(params)
+            quoteSocket.disconnect(params)
         }
     }.catch { e -> emit(Result.Error(handleNetworkException(e))) }
 }

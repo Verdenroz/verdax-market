@@ -6,7 +6,7 @@ import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
-import com.verdenroz.verdaxmarket.core.network.sockets.WatchlistSocket
+import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -92,8 +92,8 @@ object NetworkModule {
     fun provideWatchlistSocket(
         client: OkHttpClient,
         json: Json,
-    ): WatchlistSocket {
-        return WatchlistSocket(json, client)
+    ): QuoteSocket {
+        return QuoteSocket(json, client)
     }
 
     /**
