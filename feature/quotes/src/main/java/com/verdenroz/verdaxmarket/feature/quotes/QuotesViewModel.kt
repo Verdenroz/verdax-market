@@ -17,7 +17,6 @@ import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.Profile
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import dagger.assisted.Assisted
@@ -107,15 +106,9 @@ class QuotesViewModel @AssistedInject constructor(
         }
     }
 
-    fun addToRecentQuotesLocal(quote: SimpleQuoteData) {
+    fun addToRecentQuotes(symbol: String, name: String, logo: String?) {
         viewModelScope.launch {
-            recentSearchRepository.upsertRecentQuote(quote)
-        }
-    }
-
-    fun addToRecentQuotesNetwork() {
-        viewModelScope.launch {
-            recentSearchRepository.upsertRecentQuote(symbol)
+            recentSearchRepository.upsertRecentQuote(symbol, name, logo)
         }
     }
 }

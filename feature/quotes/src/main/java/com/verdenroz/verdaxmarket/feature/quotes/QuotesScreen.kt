@@ -40,7 +40,6 @@ import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.Profile
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import com.verdenroz.verdaxmarket.feature.quotes.components.QuoteChart
@@ -80,8 +79,7 @@ internal fun QuotesRoute(
         onNavigateToQuote = onNavigateToQuote,
         addToWatchlist = quotesViewModel::addToWatchlist,
         deleteFromWatchlist = quotesViewModel::deleteFromWatchlist,
-        addToRecentQuotesLocal = quotesViewModel::addToRecentQuotesLocal,
-        addToRecentQuotesNetwork = quotesViewModel::addToRecentQuotesNetwork
+        addToRecentQuotes = quotesViewModel::addToRecentQuotes,
     )
 }
 
@@ -99,8 +97,7 @@ internal fun QuotesScreen(
     onNavigateToQuote: (String) -> Unit,
     addToWatchlist: () -> Unit,
     deleteFromWatchlist: () -> Unit,
-    addToRecentQuotesLocal: (SimpleQuoteData) -> Unit,
-    addToRecentQuotesNetwork: () -> Unit,
+    addToRecentQuotes: (String, String, String?) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -133,7 +130,6 @@ internal fun QuotesScreen(
             }
 
             is Result.Error -> {
-                addToRecentQuotesNetwork()
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -154,15 +150,10 @@ internal fun QuotesScreen(
             }
 
             is Result.Success -> {
-                addToRecentQuotesLocal(
-                    SimpleQuoteData(
-                        symbol = profile.data.quote.symbol,
-                        name = profile.data.quote.name,
-                        price = profile.data.quote.price,
-                        change = profile.data.quote.change,
-                        percentChange = profile.data.quote.percentChange,
-                        logo = profile.data.quote.logo
-                    )
+                addToRecentQuotes(
+                    profile.data.quote.symbol,
+                    profile.data.quote.name,
+                    profile.data.quote.logo
                 )
 
                 val listState = rememberLazyListState()
@@ -311,8 +302,7 @@ private fun PreviewQuoteScreen() {
             onNavigateToQuote = {},
             addToWatchlist = { },
             deleteFromWatchlist = {},
-            addToRecentQuotesLocal = { },
-            addToRecentQuotesNetwork = { }
+            addToRecentQuotes = { _, _, _ -> }
         )
     }
 }
