@@ -59,7 +59,7 @@ class SearchViewModel @Inject constructor(
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
 
     val recentQueries: StateFlow<List<RecentSearchQuery>> =
-        recentSearchRepository.getRecentSearchQueries(10).stateIn(
+        recentSearchRepository.getRecentSearchQueries(15).stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyList()
