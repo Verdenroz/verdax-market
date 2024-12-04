@@ -16,6 +16,12 @@ interface RecentQuoteDao {
     @Query("SELECT * FROM recentQuotes ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentQuotes(limit: Int = 10): Flow<List<RecentQuoteEntity>>
 
+    @Query("SELECT COUNT(*) FROM recentQuotes")
+    fun getRecentQuotesCountFlow(): Flow<Int>
+
+    @Query("DELETE FROM recentQuotes WHERE timestamp = (SELECT MIN(timestamp) FROM recentQuotes)")
+    fun deleteOldestRecentQuote()
+
     @Upsert
     suspend fun upsertRecentQuote(recentQuote: RecentQuoteEntity)
 
