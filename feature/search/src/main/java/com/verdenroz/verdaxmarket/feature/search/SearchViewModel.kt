@@ -8,11 +8,12 @@ import com.algolia.search.model.APIKey
 import com.algolia.search.model.ApplicationID
 import com.algolia.search.model.IndexName
 import com.algolia.search.model.search.Query
+import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
-import com.verdenroz.verdaxmarket.core.model.RecentQuoteResult
-import com.verdenroz.verdaxmarket.core.model.RecentSearchQuery
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,11 +21,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val SEARCH_QUERY = "search_query"
+
+sealed interface SearchState {
+    object Loading : SearchState
+    data class Success(val recentQuotes: List<SimpleQuoteData>) : SearchState
+    data class Error(val error: DataError) : SearchState
+}
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -58,19 +66,30 @@ class SearchViewModel @Inject constructor(
     private val savedSearchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
 
-    val recentQueries: StateFlow<List<RecentSearchQuery>> =
+    val recentQueries: StateFlow<List<String>> =
         recentSearchRepository.getRecentSearchQueries(15).stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
 
-    val recentQuotes: StateFlow<List<RecentQuoteResult>> =
-        recentSearchRepository.getRecentQuotes(10).stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
+    val searchState = recentSearchRepository.recentQuotes.map { quotes ->
+        when (quotes) {
+            is Result.Success -> SearchState.Success(quotes.data)
+            is Result.Error -> SearchState.Error(quotes.error)
+            is Result.Loading -> SearchState.Loading
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        SearchState.Loading
+    )
+
+    val recentSymbolsNames: StateFlow<List<Triple<String, String, String?>>> = recentSearchRepository.recentSymbolsNames.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        emptyList()
+    )
 
     val resultsInWatchlist: StateFlow<List<Boolean>> = combine(
         searchResults,
@@ -79,19 +98,19 @@ class SearchViewModel @Inject constructor(
         results.map { result -> watchlist.any { it.symbol == result.symbol } }
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(),
+        SharingStarted.WhileSubscribed(5000L),
         emptyList()
     )
 
-    val recentQuotesInWatchlist: StateFlow<List<Boolean>> = combine(
-        recentQuotes,
+    val recentQuotesInWatchlist: StateFlow<Map<String, Boolean>> = combine(
+        recentSymbolsNames,
         watchlistRepository.watchlist
-    ) { quotes, watchlist ->
-        quotes.map { quote -> watchlist.any { it.symbol == quote.symbol } }
+    ) { symbols, watchlist ->
+        symbols.associate { (symbol, _) -> symbol to watchlist.any { it.symbol == symbol } }
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        emptyList()
+        SharingStarted.WhileSubscribed(5000L),
+        emptyMap()
     )
 
     init {
@@ -185,12 +204,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun removeRecentQuery(query: RecentSearchQuery) {
+    fun removeRecentQuery(query: String) {
         viewModelScope.launch { recentSearchRepository.deleteRecentQuery(query) }
     }
 
-    fun removeRecentQuote(quote: RecentQuoteResult) {
-        viewModelScope.launch { recentSearchRepository.deleteRecentQuote(quote) }
+    fun removeRecentQuote(symbol: String) {
+        viewModelScope.launch { recentSearchRepository.deleteRecentQuote(symbol) }
     }
 
     fun clearRecentQueries() {
