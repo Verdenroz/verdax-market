@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 sealed interface WatchlistState {
     object Loading : WatchlistState
-    data class Success(val data: Map<String, SimpleQuoteData>) : WatchlistState
+    data class Success(val data: Map<String, WatchlistQuote>) : WatchlistState
     data class Error(val error: DataError) : WatchlistState
 }
 
@@ -28,7 +28,9 @@ class WatchlistViewModel @Inject constructor(
     val watchlistState: StateFlow<WatchlistState> =
         watchlistRepository.quotes.map { liveResult ->
             when (liveResult) {
-                is Result.Success -> WatchlistState.Success(liveResult.data.associateBy { it.symbol })
+                is Result.Success -> WatchlistState.Success(
+                    liveResult.data.sortedBy { it.order }.associateBy { it.symbol }
+                )
                 is Result.Error -> WatchlistState.Error(liveResult.error)
                 is Result.Loading -> WatchlistState.Loading
             }
@@ -38,9 +40,7 @@ class WatchlistViewModel @Inject constructor(
             initialValue = WatchlistState.Loading
         )
 
-    val symbols: StateFlow<List<String>> = watchlistRepository.watchlist.map { quotes ->
-        quotes.map { it.symbol }
-    }.stateIn(
+    val watchlist: StateFlow<List<WatchlistQuote>> = watchlistRepository.watchlist.stateIn(
         viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = emptyList()
