@@ -36,13 +36,13 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.R
 import java.util.Locale
 
 @Composable
 internal fun QuoteSneakPeek(
-    quote: SimpleQuoteData,
+    quote: WatchlistQuote,
     deleteFromWatchlist: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -94,31 +94,39 @@ internal fun QuoteSneakPeek(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = quote.change,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (quote.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
-                )
+                if (quote.change != null) {
+                    Text(
+                        text = quote.change!!,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (quote.change!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
+                    )
+                }
             }
         },
         supportingContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = String.format(Locale.US, "%.2f", quote.price.replace(",", "").toDouble()),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Black,
-                )
-                Text(
-                    text = quote.percentChange,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (quote.percentChange.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
-                )
+            if (quote.price != null && quote.percentChange != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = String.format(
+                            Locale.US,
+                            "%.2f",
+                            quote.price!!.replace(",", "").toDouble()
+                        ),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Black,
+                    )
+                    Text(
+                        text = quote.percentChange!!,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (quote.percentChange!!.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
+                    )
+                }
             }
         },
         leadingContent = {
@@ -179,13 +187,14 @@ internal fun QuoteSneakPeek(
 private fun PreviewBottomSheetContent() {
     VxmTheme {
         QuoteSneakPeek(
-            quote = SimpleQuoteData(
+            quote = WatchlistQuote(
                 symbol = "AAPL",
                 name = "Apple Inc.",
                 price = "145.12",
                 change = "+0.12",
                 percentChange = "+0.12%",
-                logo = "https://logo.clearbit.com/https://www.apple.com"
+                logo = "https://logo.clearbit.com/https://www.apple.com",
+                order = 0
             ),
             deleteFromWatchlist = {},
         )

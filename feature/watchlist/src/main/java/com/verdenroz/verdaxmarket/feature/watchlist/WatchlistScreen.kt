@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +49,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -58,12 +60,11 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -73,10 +74,10 @@ internal fun WatchlistRoute(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
-    val symbols by watchlistViewModel.symbols.collectAsStateWithLifecycle()
+    val symbols by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
     val watchlistState by watchlistViewModel.watchlistState.collectAsStateWithLifecycle()
     WatchlistScreen(
-        symbols = symbols,
+        watchlist = symbols,
         watchlistState = watchlistState,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
@@ -88,7 +89,7 @@ internal fun WatchlistRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WatchlistScreen(
-    symbols: List<String>,
+    watchlist: List<WatchlistQuote>,
     watchlistState: WatchlistState,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
@@ -100,11 +101,11 @@ internal fun WatchlistScreen(
 
     when (watchlistState) {
         is WatchlistState.Loading -> {
-            WatchlistSkeleton(symbols)
+            WatchlistSkeleton(watchlist)
         }
 
         is WatchlistState.Error -> {
-            WatchlistSkeleton(symbols)
+            WatchlistSkeleton(watchlist)
 
             LaunchedEffect(watchlistState.error) {
                 onShowSnackbar(
@@ -182,24 +183,26 @@ internal fun WatchlistScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(
-                            items = symbols,
-                            key = { it }
-                        ) { symbol ->
-                            val watchlistQuote = watchlistState.data[symbol]
-                            if (watchlistQuote != null) {
+                            items = watchlist,
+                            key = { it.symbol }
+                        ) { watchlistQuote ->
+                            // The watchlist quote is has been loaded from the socket
+                            val loadedQuote = watchlistState.data[watchlistQuote.symbol]
+                            if (loadedQuote != null) {
                                 WatchlistQuote(
-                                    quote = watchlistQuote,
+                                    quote = loadedQuote,
                                     onNavigateToQuote = onNavigateToQuote,
                                     deleteFromWatchList = deleteFromWatchlist,
                                     onClick = {
-                                        quote = watchlistQuote
+                                        quote = loadedQuote
                                         scope.launch {
                                             bottomSheetScaffoldState.bottomSheetState.expand()
                                         }
                                     }
                                 )
                             } else {
-                                WatchlistQuoteSkeleton()
+                                // The watchlist quote is still loading
+                                WatchlistQuoteSkeleton(watchlistQuote)
                             }
                         }
                     }
@@ -210,23 +213,68 @@ internal fun WatchlistScreen(
 }
 
 @Composable
-private fun WatchlistQuoteSkeleton() {
-    Row(
+private fun WatchlistQuoteSkeleton(quote: WatchlistQuote) {
+    Box(
         modifier = Modifier
-            .height(60.dp)
-            .padding(horizontal = 8.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(15))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .fillMaxHeight()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(25))
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
     ) {
-        // skeleton
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (quote.logo != null) {
+                VxmAsyncImage(
+                    model = quote.logo!!,
+                    description = stringResource(id = R.string.feature_watchlist_logo_description),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.inverseSurface),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = quote.symbol,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.25.sp,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                }
+            }
+            Text(
+                text = quote.name,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(.6f)
+            )
+        }
     }
 }
 
 
 @Composable
 private fun WatchlistQuote(
-    quote: SimpleQuoteData,
+    quote: WatchlistQuote,
     onNavigateToQuote: (String) -> Unit,
     deleteFromWatchList: (String) -> Unit,
     onClick: () -> Unit
@@ -315,19 +363,32 @@ private fun WatchlistQuote(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = quote.symbol,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(25))
-                        .background(MaterialTheme.colorScheme.inverseSurface)
-                        .padding(4.dp)
-                        .weight(.2f)
-                )
+                if (quote.logo != null) {
+                    VxmAsyncImage(
+                        model = quote.logo!!,
+                        description = stringResource(id = R.string.feature_watchlist_logo_description),
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.inverseSurface),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = quote.symbol,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.25.sp,
+                            maxLines = 1,
+                            color = MaterialTheme.colorScheme.inverseOnSurface,
+                        )
+                    }
+                }
                 Text(
                     text = quote.name,
                     style = MaterialTheme.typography.labelLarge,
@@ -340,30 +401,33 @@ private fun WatchlistQuote(
                         .padding(horizontal = 16.dp)
                         .weight(.6f)
                 )
-                Text(
-                    text = String.format(Locale.US, "%.2f", quote.price.replace(",", "").toDouble()),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    color = if (quote.change.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
-                    maxLines = 1,
-                    modifier = Modifier
-                        .weight(.2f)
-                        .wrapContentSize()
-                        .padding(4.dp)
-                )
+                if (quote.change != null) {
+                    Text(
+                        text = quote.change!!,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (quote.change!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(.2f)
+                            .wrapContentSize()
+                            .padding(4.dp)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun WatchlistSkeleton(symbols: List<String>) {
+private fun WatchlistSkeleton(watchlist: List<WatchlistQuote>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(symbols, key = { it }) {
-            WatchlistQuoteSkeleton()
+        items(watchlist, key = { it.symbol }) {
+            WatchlistQuoteSkeleton(it)
         }
     }
 }
@@ -373,24 +437,45 @@ private fun WatchlistSkeleton(symbols: List<String>) {
 private fun PreviewWatchlistScreen() {
     VxmTheme {
         WatchlistScreen(
-            symbols = listOf("AAPL", "TSLA", "NVDIA"),
+            watchlist = listOf(
+                WatchlistQuote(
+                    symbol = "AAPL",
+                    name = "Apple Inc.",
+                    price = "145.86",
+                    change = "-0.23",
+                    percentChange = "-0.16",
+                    logo = null,
+                    order = 0
+                ),
+                WatchlistQuote(
+                    symbol = "TSLA",
+                    name = "Tesla Inc.",
+                    price = "678.90",
+                    change = "+0.23",
+                    percentChange = "+0.03",
+                    logo = null,
+                    order = 1
+                ),
+            ),
             watchlistState = WatchlistState.Success(
                 data = mapOf(
-                    "AAPL" to SimpleQuoteData(
+                    "AAPL" to WatchlistQuote(
                         symbol = "AAPL",
                         name = "Apple Inc.",
                         price = "145.86",
                         change = "-0.23",
                         percentChange = "-0.16",
-                        logo = null
+                        logo = null,
+                        order = 0
                     ),
-                    "TSLA" to SimpleQuoteData(
+                    "TSLA" to WatchlistQuote(
                         symbol = "TSLA",
                         name = "Tesla Inc.",
                         price = "678.90",
                         change = "+0.23",
                         percentChange = "+0.03",
-                        logo = null
+                        logo = null,
+                        order = 1
                     ),
                 )
             ),
@@ -407,7 +492,28 @@ private fun PreviewWatchlistScreen() {
 private fun PreviewLoading() {
     VxmTheme {
         Surface {
-            WatchlistSkeleton(listOf("AAPL", "TSLA", "NVDIA"))
+            WatchlistSkeleton(
+                listOf(
+                    WatchlistQuote(
+                        symbol = "AAPL",
+                        name = "Apple Inc.",
+                        price = "145.86",
+                        change = "-0.23",
+                        percentChange = "-0.16",
+                        logo = null,
+                        order = 0
+                    ),
+                    WatchlistQuote(
+                        symbol = "TSLA",
+                        name = "Tesla Inc.",
+                        price = "678.90",
+                        change = "+0.23",
+                        percentChange = "+0.03",
+                        logo = null,
+                        order = 1
+                    ),
+                )
+            )
         }
     }
 }
