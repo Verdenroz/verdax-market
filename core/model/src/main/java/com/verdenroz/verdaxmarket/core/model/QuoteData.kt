@@ -1,7 +1,7 @@
 package com.verdenroz.verdaxmarket.core.model
 
 /**
- * Local data class for basic stock data used in the watchlist
+ * Local data class for basic stock data used in search
  * @param symbol the stock symbol
  * @param name the stock name
  * @param price the stock price
@@ -16,6 +16,26 @@ data class SimpleQuoteData(
     val change: String,
     val percentChange: String,
     val logo: String?
+)
+
+/**
+ * Local data class for stock data used in watchlist
+ * @param symbol the stock symbol
+ * @param name the stock name
+ * @param price the stock price when data fetched
+ * @param change the price change when data fetched
+ * @param percentChange the percentage change when data fetched
+ * @param logo the URL of the company logo if available
+ * @param order the order in the watchlist
+ */
+data class WatchlistQuote(
+    val symbol: String,
+    val name: String,
+    val price: String?,
+    val change: String?,
+    val percentChange: String?,
+    val logo: String?,
+    val order: Int
 )
 
 /**

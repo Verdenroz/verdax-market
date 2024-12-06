@@ -1,7 +1,9 @@
 package com.verdenroz.verdaxmarket.core.data.model
 
+import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.core.network.model.FullQuoteResponse
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
 
@@ -15,7 +17,6 @@ fun SimpleQuoteResponse.asExternalModel() = SimpleQuoteData(
 )
 
 fun List<SimpleQuoteResponse>.asExternalModel() = map { it.asExternalModel() }
-
 
 fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     symbol = symbol,
@@ -61,3 +62,12 @@ fun FullQuoteResponse.asExternalModel() = FullQuoteData(
     employees = employees,
 )
 
+fun QuoteEntity.asExternalModel() = WatchlistQuote(
+    symbol = symbol,
+    name = name,
+    price = price,
+    change = change,
+    percentChange = percentChange,
+    logo = logo,
+    order = order,
+)
