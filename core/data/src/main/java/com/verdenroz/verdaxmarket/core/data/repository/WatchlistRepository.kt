@@ -4,21 +4,22 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
 interface WatchlistRepository {
 
     /**
-     * The user's watchlist as a flow list of symbols
+     * The user's watchlist as a flow list of [QuoteEntity]
      */
-    val watchlist: Flow<List<QuoteEntity>>
+    val watchlist: Flow<List<WatchlistQuote>>
 
     /**
      * The user's watchlist as a flow of [SimpleQuoteData],
      * fetched from the socket and falling back to polling the API if there is an error
      */
-    val quotes: SharedFlow<Result<List<SimpleQuoteData>, DataError.Network>>
+    val quotes: SharedFlow<Result<List<WatchlistQuote>, DataError.Network>>
 
     /**
      * Returns the user's watchlist as a list of symbols

@@ -9,7 +9,7 @@ import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
 import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
-import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -46,10 +46,12 @@ class ImplWatchlistRepository @Inject constructor(
         private const val MARKET_DATA_REFRESH_CLOSED = 300000L // 5 minutes
     }
 
-    override val watchlist: Flow<List<QuoteEntity>> = quotesDao.getAllQuoteDataFlow()
+    override val watchlist: Flow<List<WatchlistQuote>> = quotesDao.getAllQuoteDataFlow().map { quotes ->
+        quotes.map { it.asExternalModel() }
+    }
 
-    private val _quotes = MutableSharedFlow<Result<List<SimpleQuoteData>, DataError.Network>>()
-    override val quotes: SharedFlow<Result<List<SimpleQuoteData>, DataError.Network>> =
+    private val _quotes = MutableSharedFlow<Result<List<WatchlistQuote>, DataError.Network>>()
+    override val quotes: SharedFlow<Result<List<WatchlistQuote>, DataError.Network>> =
         _quotes
             .onStart { startQuotesStream() }
             .shareIn(
@@ -61,26 +63,51 @@ class ImplWatchlistRepository @Inject constructor(
     private fun startQuotesStream() {
         val scope = CoroutineScope(ioDispatcher + SupervisorJob())
         scope.launch {
-            watchlist
-                .map { it.map { quote -> quote.symbol } }
+            quotesDao.getAllQuoteDataFlow()
+                .map { quotes -> quotes.map { it.symbol to it.order }.toMap() }
                 .distinctUntilChanged { oldSymbols, newSymbols ->
-                    oldSymbols.size == newSymbols.size && oldSymbols.containsAll(newSymbols)
+                    oldSymbols.size == newSymbols.size && oldSymbols.keys.containsAll(newSymbols.keys)
                 }
-                .flatMapLatest { symbols ->
+                .flatMapLatest { symbolsWithOrderMap ->
+                    val symbols = symbolsWithOrderMap.keys.toList()
                     if (symbols.isEmpty()) {
                         flowOf(Result.Success(emptyList()))
                     } else {
                         // Get the watchlist quotes from the socket if available
                         socketRepository.getQuotes(symbols).flatMapLatest { socketResult ->
                             when (socketResult) {
-                                is Result.Success -> flowOf(Result.Success(socketResult.data))
+                                is Result.Success -> {
+                                    val quotesWithOrder = socketResult.data.map { quote ->
+                                        val order = symbolsWithOrderMap[quote.symbol] ?: 0
+                                        WatchlistQuote(
+                                            symbol = quote.symbol,
+                                            name = quote.name,
+                                            price = quote.price,
+                                            change = quote.change,
+                                            percentChange = quote.percentChange,
+                                            logo = quote.logo,
+                                            order = order
+                                        )
+                                    }
+                                    flowOf(Result.Success(quotesWithOrder))
+                                }
                                 is Result.Loading -> flowOf(Result.Loading())
                                 // If the socket is not available, poll the quotes from the API
                                 else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
                                     flow {
                                         while (true) {
-                                            val updatedQuotes =
-                                                api.getBulkQuote(symbols).asExternalModel()
+                                            val updatedQuotes = api.getBulkQuote(symbols).asExternalModel().map { quote ->
+                                                val order = symbolsWithOrderMap[quote.symbol] ?: 0
+                                                WatchlistQuote(
+                                                    symbol = quote.symbol,
+                                                    name = quote.name,
+                                                    price = quote.price,
+                                                    change = quote.change,
+                                                    percentChange = quote.percentChange,
+                                                    logo = quote.logo,
+                                                    order = order
+                                                )
+                                            }
                                             emit(Result.Success(updatedQuotes))
 
                                             when (isOpen) {
