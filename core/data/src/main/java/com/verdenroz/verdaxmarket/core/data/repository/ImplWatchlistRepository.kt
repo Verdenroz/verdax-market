@@ -104,11 +104,19 @@ class ImplWatchlistRepository @Inject constructor(
     override suspend fun getWatchlist(): List<QuoteEntity> = quotesDao.getAllQuoteData()
 
 
-    override suspend fun addToWatchList(symbol: String) {
+    override suspend fun addToWatchList(symbol: String, name: String, logo: String?) {
         withContext(ioDispatcher) {
             val currentMaxOrder = quotesDao.getAllQuoteData().maxOfOrNull { it.order } ?: -1
             val nextOrder = currentMaxOrder + 1
-            val quote = QuoteEntity(symbol = symbol, order = nextOrder)
+            val quote = QuoteEntity(
+                symbol = symbol,
+                name = name,
+                price = null,
+                change = null,
+                percentChange = null,
+                logo = logo,
+                order = nextOrder,
+            )
             quotesDao.insert(quote)
         }
     }

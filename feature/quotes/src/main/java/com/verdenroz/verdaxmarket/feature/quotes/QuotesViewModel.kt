@@ -94,9 +94,9 @@ class QuotesViewModel @AssistedInject constructor(
             true
         )
 
-    fun addToWatchlist() {
+    fun addToWatchlist(name: String, logo: String?) {
         viewModelScope.launch {
-            watchlistRepository.addToWatchList(symbol)
+            watchlistRepository.addToWatchList(symbol, name, logo)
         }
     }
 

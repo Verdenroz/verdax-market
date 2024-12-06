@@ -18,20 +18,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.Profile
 import com.verdenroz.verdaxmarket.feature.quotes.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun QuoteTopBar(
     symbol: String,
+    profile: Result<Profile, DataError.Network>,
     isWatchlisted: Boolean,
     onNavigateBack: () -> Unit,
-    addToWatchlist: () -> Unit,
+    addToWatchlist: (String, String?) -> Unit,
     deleteFromWatchlist: () -> Unit,
 ) {
     VxmTopBar(
@@ -58,15 +62,21 @@ internal fun QuoteTopBar(
             }
         },
         actions = {
-            if (isWatchlisted) {
-                VxmDeleteIconButton(
-                    onClick = deleteFromWatchlist,
-                )
-            } else {
-                VxmAddIconButton(
-                    onClick = addToWatchlist,
-                )
+            if (profile is Result.Success) {
+                val quote = profile.data.quote
+                if (isWatchlisted) {
+                    VxmDeleteIconButton(
+                        onClick = deleteFromWatchlist,
+                    )
+                } else {
+                    VxmAddIconButton(
+                        onClick = {
+                            addToWatchlist(quote.name, quote.logo)
+                        },
+                    )
+                }
             }
+
         }
     )
 }
@@ -78,9 +88,10 @@ private fun PreviewStockTopBar() {
         Surface {
             QuoteTopBar(
                 symbol = "AAPL",
+                profile = Result.Loading(),
                 isWatchlisted = true,
                 onNavigateBack = {},
-                addToWatchlist = {},
+                addToWatchlist = {_, _ -> },
                 deleteFromWatchlist = {},
             )
         }

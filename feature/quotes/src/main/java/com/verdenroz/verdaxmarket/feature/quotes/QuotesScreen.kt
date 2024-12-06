@@ -95,7 +95,7 @@ internal fun QuotesScreen(
     isWatchlisted: Boolean,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    addToWatchlist: () -> Unit,
+    addToWatchlist: (String, String?) -> Unit,
     deleteFromWatchlist: () -> Unit,
     addToRecentQuotes: (String, String, String?) -> Unit,
 ) {
@@ -104,6 +104,7 @@ internal fun QuotesScreen(
             QuoteTopBar(
                 onNavigateBack = onNavigateBack,
                 symbol = symbol,
+                profile = profile,
                 isWatchlisted = isWatchlisted,
                 addToWatchlist = addToWatchlist,
                 deleteFromWatchlist = deleteFromWatchlist,
@@ -300,7 +301,7 @@ private fun PreviewQuoteScreen() {
             isWatchlisted = false,
             onNavigateBack = {},
             onNavigateToQuote = {},
-            addToWatchlist = { },
+            addToWatchlist = { _, _ -> },
             deleteFromWatchlist = {},
             addToRecentQuotes = { _, _, _ -> }
         )

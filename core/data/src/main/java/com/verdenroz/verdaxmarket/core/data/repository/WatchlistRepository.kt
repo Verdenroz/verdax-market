@@ -28,7 +28,7 @@ interface WatchlistRepository {
     /**
      * Add a symbol from the user's watchlist
      */
-    suspend fun addToWatchList(symbol: String)
+    suspend fun addToWatchList(symbol: String, name: String, logo: String?)
 
     /**
      * Delete a symbol from the user's watchlist

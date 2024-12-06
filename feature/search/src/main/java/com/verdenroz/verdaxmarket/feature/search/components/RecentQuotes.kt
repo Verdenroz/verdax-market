@@ -61,9 +61,9 @@ internal fun RecentQuotes(
     removeQuote: (String) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     clearAll: () -> Unit,
-    addToWatchlist: (String) -> Unit,
+    addToWatchlist: (String, String, String?) -> Unit,
     deleteFromWatchlist: (String) -> Unit
-    ) {
+) {
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -153,7 +153,7 @@ private fun RecentQuoteBody(
     isInWatchlist: Boolean,
     onClick: () -> Unit,
     removeQuote: (String) -> Unit,
-    addToWatchlist: (String) -> Unit,
+    addToWatchlist: (String, String, String?) -> Unit,
     deleteFromWatchlist: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -213,7 +213,9 @@ private fun RecentQuoteBody(
 
             // Main content
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp).weight(.5f)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(.5f)
             ) {
                 Text(
                     text = quote.symbol,
@@ -253,7 +255,7 @@ private fun RecentQuoteBody(
                     }
                 } else {
                     IconButton(
-                        onClick = { addToWatchlist(quote.symbol) },
+                        onClick = { addToWatchlist(quote.symbol, quote.name, quote.logo) },
                     ) {
                         Icon(
                             VxmIcons.Add,
@@ -359,8 +361,8 @@ private fun PreviewRecentQuotes() {
                 ),
                 onNavigateToQuote = { },
                 removeQuote = { },
-                clearAll = {  },
-                addToWatchlist = { },
+                clearAll = { },
+                addToWatchlist = { _, _, _ -> },
                 deleteFromWatchlist = { }
             )
         }
@@ -402,63 +404,61 @@ private fun RecentQuoteSkeleton(
     name: String,
     logo: String?
 ) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (logo != null) {
-                VxmAsyncImage(
-                    model = logo,
-                    description = stringResource(id = R.string.feature_search_logo_description),
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = symbol,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.25.sp,
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
 
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp).weight(.5f)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (logo != null) {
+            VxmAsyncImage(
+                model = logo,
+                description = stringResource(id = R.string.feature_search_logo_description),
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = symbol,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.25.sp,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
             }
+        }
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .weight(.5f)
+        ) {
+            Text(
+                text = symbol,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.25.sp,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = MaterialTheme.typography.headlineSmall.fontWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

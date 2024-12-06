@@ -192,9 +192,9 @@ class SearchViewModel @Inject constructor(
         searchResults.value = savedSearchResults.value
     }
 
-    fun addToWatchlist(symbol: String) {
+    fun addToWatchlist(symbol: String, name: String, logo: String?) {
         viewModelScope.launch {
-            watchlistRepository.addToWatchList(symbol)
+            watchlistRepository.addToWatchList(symbol, name, logo)
         }
     }
 

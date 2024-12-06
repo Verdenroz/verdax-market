@@ -38,7 +38,7 @@ internal fun SearchBarContent(
     recentQuotesInWatchlist: Map<String, Boolean>,
     onClick: (String) -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    addToWatchlist: (String) -> Unit,
+    addToWatchlist: (String, String, String?) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     onRecentQueryClick: (String) -> Unit,
     removeRecentQuery: (String) -> Unit,
@@ -105,7 +105,7 @@ internal fun SearchBarContent(
                             )
                         }
                     } else {
-                        IconButton(onClick = { addToWatchlist(match.symbol) }) {
+                        IconButton(onClick = { addToWatchlist(match.symbol, match.name, null) }) {
                             Icon(
                                 VxmIcons.Add,
                                 contentDescription = stringResource(id = R.string.feature_search_add)
@@ -229,7 +229,7 @@ private fun PreviewSearchBarContent() {
                 ),
                 onClick = {},
                 onNavigateToQuote = {},
-                addToWatchlist = {},
+                addToWatchlist = {_, _, _ -> },
                 deleteFromWatchlist = {},
                 onRecentQueryClick = {},
                 removeRecentQuery = {},
