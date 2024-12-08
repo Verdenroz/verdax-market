@@ -10,12 +10,13 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -53,10 +54,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
+import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
@@ -101,11 +105,21 @@ internal fun WatchlistScreen(
 
     when (watchlistState) {
         is WatchlistState.Loading -> {
-            WatchlistSkeleton(watchlist)
+            WatchlistSkeleton(
+                watchlist = watchlist,
+                onNavigateToQuote = onNavigateToQuote,
+                deleteFromWatchlist = deleteFromWatchlist,
+                clearWatchlist = clearWatchlist
+            )
         }
 
         is WatchlistState.Error -> {
-            WatchlistSkeleton(watchlist)
+            WatchlistSkeleton(
+                watchlist = watchlist,
+                onNavigateToQuote = onNavigateToQuote,
+                deleteFromWatchlist = deleteFromWatchlist,
+                clearWatchlist = clearWatchlist
+            )
 
             LaunchedEffect(watchlistState.error) {
                 onShowSnackbar(
@@ -160,7 +174,17 @@ internal fun WatchlistScreen(
                 sheetContent = {
                     QuoteSneakPeek(
                         quote = quote,
-                        deleteFromWatchlist = deleteFromWatchlist,
+                        deleteFromWatchlist = { symbol ->
+                            deleteFromWatchlist(symbol)
+                            // Go to the next quote if the deleted quote is the current quote
+                            if (quote.symbol == symbol) {
+                                val nextQuote =
+                                    watchlistState.data.values.firstOrNull { it.symbol != symbol }
+                                if (nextQuote != null) {
+                                    quote = nextQuote
+                                }
+                            }
+                        },
                         modifier = Modifier.clickable { onNavigateToQuote(quote.symbol) }
                     )
                 },
@@ -186,24 +210,29 @@ internal fun WatchlistScreen(
                             items = watchlist,
                             key = { it.symbol }
                         ) { watchlistQuote ->
-                            // The watchlist quote is has been loaded from the socket
                             val loadedQuote = watchlistState.data[watchlistQuote.symbol]
-                            if (loadedQuote != null) {
-                                WatchlistQuote(
-                                    quote = loadedQuote,
-                                    onNavigateToQuote = onNavigateToQuote,
-                                    deleteFromWatchList = deleteFromWatchlist,
-                                    onClick = {
-                                        quote = loadedQuote
-                                        scope.launch {
-                                            bottomSheetScaffoldState.bottomSheetState.expand()
+                            // Use the loaded quote if available, otherwise use the watchlist quote (with null values)
+                            WatchlistedQuote(
+                                quote = loadedQuote ?: watchlistQuote,
+                                onNavigateToQuote = onNavigateToQuote,
+                                deleteFromWatchList = {
+                                    deleteFromWatchlist(it)
+                                    // Go to the next quote if the deleted quote is the current quote
+                                    if (quote.symbol == it) {
+                                        val nextQuote =
+                                            watchlistState.data.values.firstOrNull { quote -> quote.symbol != it }
+                                        if (nextQuote != null) {
+                                            quote = nextQuote
                                         }
                                     }
-                                )
-                            } else {
-                                // The watchlist quote is still loading
-                                WatchlistQuoteSkeleton(watchlistQuote)
-                            }
+                                },
+                                onClick = {
+                                    quote = loadedQuote ?: watchlistQuote
+                                    scope.launch {
+                                        bottomSheetScaffoldState.bottomSheetState.expand()
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -212,68 +241,9 @@ internal fun WatchlistScreen(
     }
 }
 
-@Composable
-private fun WatchlistQuoteSkeleton(quote: WatchlistQuote) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(8.dp)
-            .clip(RoundedCornerShape(25))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            if (quote.logo != null) {
-                VxmAsyncImage(
-                    model = quote.logo!!,
-                    description = stringResource(id = R.string.feature_watchlist_logo_description),
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.inverseSurface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = quote.symbol,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.25.sp,
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
-                    )
-                }
-            }
-            Text(
-                text = quote.name,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Light,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .weight(.6f)
-            )
-        }
-    }
-}
-
 
 @Composable
-private fun WatchlistQuote(
+private fun WatchlistedQuote(
     quote: WatchlistQuote,
     onNavigateToQuote: (String) -> Unit,
     deleteFromWatchList: (String) -> Unit,
@@ -356,78 +326,130 @@ private fun WatchlistQuote(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                if (quote.logo != null) {
-                    VxmAsyncImage(
-                        model = quote.logo!!,
-                        description = stringResource(id = R.string.feature_watchlist_logo_description),
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.inverseSurface),
-                        contentAlignment = Alignment.Center
+            VxmListItem(
+                leadingContent = {
+                    if (quote.logo != null) {
+                        VxmAsyncImage(
+                            model = quote.logo!!,
+                            description = stringResource(id = R.string.feature_watchlist_logo_description),
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.inverseSurface),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = quote.symbol,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.25.sp,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.inverseOnSurface,
+                            )
+                        }
+                    }
+                },
+                headlineContent = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Text(
-                            text = quote.symbol,
+                            text = quote.name,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.25.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Start,
+                            overflow = TextOverflow.Ellipsis,
                             maxLines = 1,
-                            color = MaterialTheme.colorScheme.inverseOnSurface,
+                            modifier = Modifier
+                                .weight(.5f)
+                                .padding(end = 8.dp)
                         )
+                        if (quote.price != null && quote.change != null && quote.percentChange != null) {
+                            Column(
+                                modifier = Modifier.weight(.3f),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = quote.price!!,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.End
+                                )
+                                Text(
+                                    text = quote.change!!,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = if (quote.change?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                            Text(
+                                text = quote.percentChange!!,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = if (quote.percentChange?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(if (quote.percentChange?.startsWith("-") == true) getNegativeBackgroundColor() else getPositiveBackgroundColor())
+                                    .padding(4.dp)
+                                    .weight(.25f)
+                            )
+                        }
                     }
-                }
-                Text(
-                    text = quote.name,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Light,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .weight(.6f)
-                )
-                if (quote.change != null) {
-                    Text(
-                        text = quote.change!!,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (quote.change!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(.2f)
-                            .wrapContentSize()
-                            .padding(4.dp)
-                    )
-                }
-            }
+                },
+            )
         }
     }
 }
 
 @Composable
-private fun WatchlistSkeleton(watchlist: List<WatchlistQuote>) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(watchlist, key = { it.symbol }) {
-            WatchlistQuoteSkeleton(it)
+private fun WatchlistSkeleton(
+    watchlist: List<WatchlistQuote>,
+    onNavigateToQuote: (String) -> Unit,
+    deleteFromWatchlist: (String) -> Unit,
+    clearWatchlist: () -> Unit
+) {
+    Scaffold(
+        floatingActionButton = {
+            ClearWatchlistFab(
+                fabPadding = 64.dp,
+                clearWatchlist = clearWatchlist,
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(
+                items = watchlist,
+                key = { it.symbol }
+            ) { watchlistQuote ->
+                WatchlistedQuote(
+                    quote = watchlistQuote,
+                    onNavigateToQuote = onNavigateToQuote,
+                    deleteFromWatchList = deleteFromWatchlist,
+                    onClick = { }
+                )
+            }
         }
     }
 }
@@ -449,7 +471,7 @@ private fun PreviewWatchlistScreen() {
                 ),
                 WatchlistQuote(
                     symbol = "TSLA",
-                    name = "Tesla Inc.",
+                    name = "Tesla Inc. dddddddddddddddddddddddddddddddddd",
                     price = "678.90",
                     change = "+0.23",
                     percentChange = "+0.03",
@@ -464,16 +486,16 @@ private fun PreviewWatchlistScreen() {
                         name = "Apple Inc.",
                         price = "145.86",
                         change = "-0.23",
-                        percentChange = "-0.16",
+                        percentChange = "-0.16%",
                         logo = null,
                         order = 0
                     ),
                     "TSLA" to WatchlistQuote(
                         symbol = "TSLA",
                         name = "Tesla Inc.",
-                        price = "678.90",
+                        price = "1678.90",
                         change = "+0.23",
-                        percentChange = "+0.03",
+                        percentChange = "+0.03%",
                         logo = null,
                         order = 1
                     ),
@@ -493,13 +515,13 @@ private fun PreviewLoading() {
     VxmTheme {
         Surface {
             WatchlistSkeleton(
-                listOf(
+                watchlist = listOf(
                     WatchlistQuote(
                         symbol = "AAPL",
                         name = "Apple Inc.",
                         price = "145.86",
                         change = "-0.23",
-                        percentChange = "-0.16",
+                        percentChange = "-0.16%",
                         logo = null,
                         order = 0
                     ),
@@ -508,11 +530,14 @@ private fun PreviewLoading() {
                         name = "Tesla Inc.",
                         price = "678.90",
                         change = "+0.23",
-                        percentChange = "+0.03",
+                        percentChange = "+0.03%",
                         logo = null,
                         order = 1
                     ),
-                )
+                ),
+                onNavigateToQuote = {},
+                deleteFromWatchlist = {},
+                clearWatchlist = {}
             )
         }
     }
