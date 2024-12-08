@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,14 @@ internal fun QuoteSneakPeek(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(text = stringResource(id = R.string.feature_watchlist_confirm_delete_title)) },
-            text = { Text(text = stringResource(id = R.string.feature_watchlist_confirm_delete_message, quote.symbol)) },
+            text = {
+                Text(
+                    text = stringResource(
+                        id = R.string.feature_watchlist_confirm_delete_message,
+                        quote.symbol
+                    )
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -81,59 +89,14 @@ internal fun QuoteSneakPeek(
 
     VxmListItem(
         modifier = modifier,
-        headlineContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = quote.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (quote.change != null) {
-                    Text(
-                        text = quote.change!!,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (quote.change!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
-                    )
-                }
-            }
-        },
-        supportingContent = {
-            if (quote.price != null && quote.percentChange != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = String.format(
-                            Locale.US,
-                            "%.2f",
-                            quote.price!!.replace(",", "").toDouble()
-                        ),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Black,
-                    )
-                    Text(
-                        text = quote.percentChange!!,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (quote.percentChange!!.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
-                    )
-                }
-            }
-        },
         leadingContent = {
             if (quote.logo != null) {
                 VxmAsyncImage(
                     model = quote.logo!!,
-                    description = stringResource(id = R.string.feature_watchlist_logo_description, quote.symbol),
+                    description = stringResource(
+                        id = R.string.feature_watchlist_logo_description,
+                        quote.symbol
+                    ),
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
@@ -155,6 +118,53 @@ internal fun QuoteSneakPeek(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+            }
+        },
+        headlineContent = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = quote.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(.7f)
+                )
+                Text(
+                    text = quote.change ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.End,
+                    color = if (quote.change!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
+                    modifier = Modifier.weight(.3f)
+                )
+            }
+        },
+        supportingContent = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = quote.price?.replace(",", "")?.toDoubleOrNull()?.let { String.format(Locale.US, "%.2f", it) } ?: "",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Black,
+                )
+                Text(
+                    text = quote.percentChange ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (quote.percentChange!!.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
+                )
             }
         },
         trailingContent = {
@@ -189,11 +199,11 @@ private fun PreviewBottomSheetContent() {
         QuoteSneakPeek(
             quote = WatchlistQuote(
                 symbol = "AAPL",
-                name = "Apple Inc.",
+                name = "Apple Inc",
                 price = "145.12",
                 change = "+0.12",
                 percentChange = "+0.12%",
-                logo = "https://logo.clearbit.com/https://www.apple.com",
+                logo = null,
                 order = 0
             ),
             deleteFromWatchlist = {},
