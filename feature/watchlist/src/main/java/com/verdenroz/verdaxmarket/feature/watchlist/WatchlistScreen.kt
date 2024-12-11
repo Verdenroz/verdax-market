@@ -1,26 +1,14 @@
 package com.verdenroz.verdaxmarket.feature.watchlist
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,11 +17,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,36 +29,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundColor
-import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
-import kotlinx.coroutines.delay
+import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistDialog
+import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
 import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.math.pow
 
 @Composable
 internal fun WatchlistRoute(
@@ -102,108 +77,120 @@ internal fun WatchlistScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    var quote by remember { mutableStateOf(watchlist.firstOrNull()) }
+    var isBottomSheetExpanded by remember { mutableStateOf(false) }
+    var isManagingWatchlist by remember { mutableStateOf(false) }
 
-    when (watchlistState) {
-        is WatchlistState.Loading -> {
-            WatchlistSkeleton(
-                watchlist = watchlist,
-                onNavigateToQuote = onNavigateToQuote,
-                deleteFromWatchlist = deleteFromWatchlist,
-                clearWatchlist = clearWatchlist
-            )
-        }
+    LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
+        snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
+            .collect { state ->
+                isBottomSheetExpanded = (state != 2)
+            }
+    }
 
-        is WatchlistState.Error -> {
-            WatchlistSkeleton(
-                watchlist = watchlist,
-                onNavigateToQuote = onNavigateToQuote,
-                deleteFromWatchlist = deleteFromWatchlist,
-                clearWatchlist = clearWatchlist
-            )
-
-            LaunchedEffect(watchlistState.error) {
-                onShowSnackbar(
-                    watchlistState.error.asUiText().asString(context),
-                    UiText.StringResource(R.string.feature_watchlist_dismiss).asString(context),
-                    SnackbarDuration.Short
+    BottomSheetScaffold(
+        sheetContent = {
+            if (watchlistState is WatchlistState.Success && quote != null) {
+                QuoteSneakPeek(
+                    quote = quote!!.copy(
+                        change = quote!!.change ?: "",
+                        percentChange = quote!!.percentChange ?: ""
+                    ),
+                    deleteFromWatchlist = { symbol ->
+                        deleteFromWatchlist(symbol)
+                        if (quote!!.symbol == symbol) {
+                            val nextQuote = watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
+                            if (nextQuote != null) {
+                                quote = nextQuote
+                            }
+                        }
+                    },
+                    modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
                 )
             }
-        }
-
-        is WatchlistState.Success -> {
-
-            if (watchlistState.data.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.feature_watchlist_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
+        },
+        scaffoldState = bottomSheetScaffoldState
+    ) { bottomSheetPadding ->
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(id = R.string.feature_watchlist_title)) },
+                    actions = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .clickable(onClick = { isManagingWatchlist = !isManagingWatchlist })
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
+                            )
+                            Icon(
+                                imageVector = VxmIcons.Settings,
+                                contentDescription = stringResource(id = R.string.feature_watchlist_manage_watchlist),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottomSheetPadding)
+        ) { padding ->
+            when (watchlistState) {
+                is WatchlistState.Loading -> {
+                    WatchlistSkeleton(
+                        watchlist = watchlist,
+                        onNavigateToQuote = onNavigateToQuote,
+                        deleteFromWatchlist = deleteFromWatchlist,
+                        clearWatchlist = clearWatchlist
                     )
                 }
-                return
-            }
 
-            val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-            var quote by remember { mutableStateOf(watchlistState.data.values.first()) }
-            var isBottomSheetExpanded by remember { mutableStateOf(false) }
-
-            LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
-                snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
-                    .collect { state ->
-                        isBottomSheetExpanded = (state != 2)
-                    }
-            }
-
-            val fabPadding by animateDpAsState(
-                targetValue = if (isBottomSheetExpanded) 128.dp else 64.dp,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                ),
-                label = "fabPadding"
-            )
-
-            BottomSheetScaffold(
-                sheetContent = {
-                    QuoteSneakPeek(
-                        quote = quote,
-                        deleteFromWatchlist = { symbol ->
-                            deleteFromWatchlist(symbol)
-                            // Go to the next quote if the deleted quote is the current quote
-                            if (quote.symbol == symbol) {
-                                val nextQuote =
-                                    watchlistState.data.values.firstOrNull { it.symbol != symbol }
-                                if (nextQuote != null) {
-                                    quote = nextQuote
-                                }
-                            }
-                        },
-                        modifier = Modifier.clickable { onNavigateToQuote(quote.symbol) }
+                is WatchlistState.Error -> {
+                    WatchlistSkeleton(
+                        watchlist = watchlist,
+                        onNavigateToQuote = onNavigateToQuote,
+                        deleteFromWatchlist = deleteFromWatchlist,
+                        clearWatchlist = clearWatchlist
                     )
-                },
-                scaffoldState = bottomSheetScaffoldState
-            ) {
-                Scaffold(
-                    floatingActionButton = {
-                        ClearWatchlistFab(
-                            fabPadding = fabPadding,
-                            clearWatchlist = clearWatchlist,
+
+                    LaunchedEffect(watchlistState.error) {
+                        onShowSnackbar(
+                            watchlistState.error.asUiText().asString(context),
+                            UiText.StringResource(R.string.feature_watchlist_dismiss)
+                                .asString(context),
+                            SnackbarDuration.Short
                         )
-                    },
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                ) { padding ->
+                    }
+                }
+
+                is WatchlistState.Success -> {
+                    if (watchlistState.data.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.feature_watchlist_empty),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        return@Scaffold
+                    }
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(padding),
+                            .padding(padding)
+                            .padding(bottom = if (isBottomSheetExpanded) 64.dp else 0.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(
@@ -211,14 +198,13 @@ internal fun WatchlistScreen(
                             key = { it.symbol }
                         ) { watchlistQuote ->
                             val loadedQuote = watchlistState.data[watchlistQuote.symbol]
-                            // Use the loaded quote if available, otherwise use the watchlist quote (with null values)
+                            // Prefer the loaded quote if available since it has the latest data
                             WatchlistedQuote(
                                 quote = loadedQuote ?: watchlistQuote,
                                 onNavigateToQuote = onNavigateToQuote,
                                 deleteFromWatchList = {
                                     deleteFromWatchlist(it)
-                                    // Go to the next quote if the deleted quote is the current quote
-                                    if (quote.symbol == it) {
+                                    if (quote?.symbol == it) {
                                         val nextQuote =
                                             watchlistState.data.values.firstOrNull { quote -> quote.symbol != it }
                                         if (nextQuote != null) {
@@ -241,180 +227,6 @@ internal fun WatchlistScreen(
     }
 }
 
-
-@Composable
-private fun WatchlistedQuote(
-    quote: WatchlistQuote,
-    onNavigateToQuote: (String) -> Unit,
-    deleteFromWatchList: (String) -> Unit,
-    onClick: () -> Unit
-) {
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    val maxDragDistance = 500f
-    val dragProportion = abs(offsetX) / maxDragDistance
-    val weight by animateFloatAsState(
-        targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
-        label = "weight"
-    )
-
-    // Keep track of tap gesture
-    var isTapped by remember { mutableStateOf(false) }
-    LaunchedEffect(isTapped) {
-        delay(300)
-        isTapped = false
-    }
-
-    Row(
-        modifier = Modifier
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        // Workaround for double tap gesture without the delay
-                        if (isTapped) {
-                            onNavigateToQuote(quote.symbol)
-                        } else {
-                            onClick()
-                            isTapped = true
-                        }
-                    },
-                    onLongPress = {
-                        onNavigateToQuote(quote.symbol)
-                    }
-                )
-            }
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, dragAmount ->
-                        // Update offsetX only if dragAmount is positive or already dragging
-                        if (dragAmount > 0 || offsetX != 0f) {
-                            offsetX += dragAmount
-                            offsetX = offsetX.coerceIn(-maxDragDistance, maxDragDistance)
-                        }
-                    },
-                    onDragEnd = {
-                        if (abs(offsetX) > maxDragDistance * 0.75) {
-                            deleteFromWatchList(quote.symbol)
-                        }
-                        offsetX = 0f
-                    }
-                )
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(weight)
-                .fillMaxHeight()
-                .padding(vertical = 4.dp)
-                .clip(RoundedCornerShape(25))
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = VxmIcons.DeleteSweep,
-                contentDescription = stringResource(id = R.string.feature_watchlist_delete),
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.alpha(1f - weight)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .weight((1f - weight).coerceAtLeast(0.01f))
-                .fillMaxHeight()
-                .padding(8.dp)
-                .clip(RoundedCornerShape(25))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            VxmListItem(
-                leadingContent = {
-                    if (quote.logo != null) {
-                        VxmAsyncImage(
-                            model = quote.logo!!,
-                            description = stringResource(id = R.string.feature_watchlist_logo_description),
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.inverseSurface),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = quote.symbol,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 1.25.sp,
-                                maxLines = 1,
-                                color = MaterialTheme.colorScheme.inverseOnSurface,
-                            )
-                        }
-                    }
-                },
-                headlineContent = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Text(
-                            text = quote.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Start,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            modifier = Modifier
-                                .weight(.5f)
-                                .padding(end = 8.dp)
-                        )
-                        if (quote.price != null && quote.change != null && quote.percentChange != null) {
-                            Column(
-                                modifier = Modifier.weight(.3f),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = quote.price!!,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End
-                                )
-                                Text(
-                                    text = quote.change!!,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = if (quote.change?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End
-                                )
-                            }
-                            Text(
-                                text = quote.percentChange!!,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = if (quote.percentChange?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
-                                    .background(if (quote.percentChange?.startsWith("-") == true) getNegativeBackgroundColor() else getPositiveBackgroundColor())
-                                    .padding(4.dp)
-                                    .weight(.25f)
-                            )
-                        }
-                    }
-                },
-            )
-        }
-    }
-}
 
 @Composable
 private fun WatchlistSkeleton(
