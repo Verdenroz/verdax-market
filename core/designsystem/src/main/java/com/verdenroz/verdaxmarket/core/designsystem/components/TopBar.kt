@@ -18,8 +18,11 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
 /**
  * VxmTopBar is a wrapper around [CenterAlignedTopAppBar] with a smaller height.
- * Currently, no custom theming applied, but it can be added in the future for
- * all the top bars in the app.
+ * @param modifier Modifier to be applied to the layout.
+ * @param title Title of the top bar.
+ * @param navigationIcon Icon to be displayed on the left side of the top bar.
+ * @param actions Actions to be displayed on the right side of the top bar.
+ * @param colors Colors to be applied to the top bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
