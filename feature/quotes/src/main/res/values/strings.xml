@@ -8,7 +8,6 @@
 
     <string name="feature_quotes_loading">Loading…</string>
     <string name="feature_quotes_error">Unable to load data</string>
-    <string name="feature_quotes_back">Back to previous screen</string>
     <string name="feature_quotes_add">Add to watchlist</string>
     <string name="feature_quotes_remove">Remove from watchlist</string>
     <string name="feature_quotes_dismiss">Dismiss</string>

@@ -4,7 +4,6 @@
     <string name="feature_settings_theme">Theme</string>
     <string name="feature_settings_theme_description">Choose your preferred theme</string>
     <string name="feature_settings_appearane">Appearance</string>
-    <string name="feature_settings_back">Return to previous screen</string>
     <string name="feature_settings_display">Display Preferences</string>
     <string name="feature_settings_hints">Show Hints</string>
     <string name="feature_settings_hints_description">Display tooltips for complex financial terms</string>

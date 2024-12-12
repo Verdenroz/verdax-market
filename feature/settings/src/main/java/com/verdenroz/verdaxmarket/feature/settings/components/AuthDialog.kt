@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.verdenroz.verdaxmarket.core.common.error.DataError
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmBackIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.LocalTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -133,7 +134,7 @@ internal fun AuthDialog(
                 ) {
                     // Back button - only show when signing in/up with email or forgot password
                     if (isSigningIn || isSigningUp || isForgotPassword) {
-                        IconButton(
+                        VxmBackIconButton(
                             onClick = {
                                 isSigningIn = false
                                 isSigningUp = false
@@ -141,12 +142,7 @@ internal fun AuthDialog(
                                 isPasswordResetEmailSent = false
                             },
                             modifier = Modifier.align(Alignment.CenterStart)
-                        ) {
-                            Icon(
-                                imageVector = VxmIcons.ArrowBack,
-                                contentDescription = stringResource(R.string.feature_settings_back)
-                            )
-                        }
+                        )
                     }
 
                     //  Close button

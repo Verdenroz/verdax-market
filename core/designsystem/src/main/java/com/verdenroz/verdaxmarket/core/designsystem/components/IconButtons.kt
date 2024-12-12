@@ -51,6 +51,22 @@ fun VxmDeleteIconButton(
     }
 }
 
+@Composable
+fun VxmBackIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            VxmIcons.ArrowBack,
+            contentDescription = stringResource(id = R.string.core_designsystem_back)
+        )
+    }
+}
+
 @ThemePreviews
 @Composable
 private fun VxmIconButtonPreview() {
@@ -58,6 +74,7 @@ private fun VxmIconButtonPreview() {
         Row {
             VxmAddIconButton(onClick = {})
             VxmDeleteIconButton(onClick = {})
+            VxmBackIconButton(onClick = {})
         }
     }
 }
