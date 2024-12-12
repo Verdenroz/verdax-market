@@ -40,11 +40,13 @@ class WatchlistViewModel @Inject constructor(
             initialValue = WatchlistState.Loading
         )
 
-    val watchlist: StateFlow<List<WatchlistQuote>> = watchlistRepository.watchlist.stateIn(
-        viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = emptyList()
-    )
+    val watchlist: StateFlow<List<WatchlistQuote>> =
+        watchlistRepository.watchlist.map { it.sortedBy { it.order } }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = emptyList()
+            )
 
     fun deleteFromWatchlist(symbol: String) {
         viewModelScope.launch {
