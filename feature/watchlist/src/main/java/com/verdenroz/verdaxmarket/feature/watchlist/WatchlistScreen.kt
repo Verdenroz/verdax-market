@@ -17,7 +17,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -43,7 +43,6 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
-import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistDialog
 import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
 import kotlinx.coroutines.launch
 
@@ -80,7 +79,6 @@ internal fun WatchlistScreen(
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
     var quote by remember { mutableStateOf(watchlist.firstOrNull()) }
     var isBottomSheetExpanded by remember { mutableStateOf(false) }
-    var isManagingWatchlist by remember { mutableStateOf(false) }
 
     LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
         snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
@@ -114,14 +112,14 @@ internal fun WatchlistScreen(
     ) { bottomSheetPadding ->
         Scaffold(
             topBar = {
-                TopAppBar(
+                VxmTopAppBar(
                     title = { Text(stringResource(id = R.string.feature_watchlist_title)) },
                     actions = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
-                                .clickable(onClick = { isManagingWatchlist = !isManagingWatchlist })
+                                .clickable(onClick = { })
                         ) {
                             Text(
                                 text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
