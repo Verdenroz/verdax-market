@@ -2,6 +2,7 @@ package com.verdenroz.verdaxmarket.feature.watchlist.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -52,26 +53,16 @@ import kotlin.math.pow
 @Composable
 internal fun WatchlistedQuote(
     quote: WatchlistQuote,
-    onNavigateToQuote: (String) -> Unit,
-    deleteFromWatchList: (String) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onNavigateToQuote: (String) -> Unit
 ) {
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    val maxDragDistance = 500f
-    val dragProportion = abs(offsetX) / maxDragDistance
-    val weight by animateFloatAsState(
-        targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
-        label = "weight"
-    )
-
     // Keep track of tap gesture
     var isTapped by remember { mutableStateOf(false) }
     LaunchedEffect(isTapped) {
         delay(300)
         isTapped = false
     }
-
-    Row(
+    VxmListItem(
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -80,15 +71,116 @@ internal fun WatchlistedQuote(
                         if (isTapped) {
                             onNavigateToQuote(quote.symbol)
                         } else {
-                            onClick()
                             isTapped = true
                         }
-                    },
-                    onLongPress = {
-                        onNavigateToQuote(quote.symbol)
                     }
                 )
             }
+            .clickable { onClick() },
+        leadingContent = {
+            if (quote.logo != null) {
+                VxmAsyncImage(
+                    model = quote.logo!!,
+                    description = stringResource(id = R.string.feature_watchlist_logo_description),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.inverseSurface),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = quote.symbol,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.25.sp,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
+                }
+            }
+        },
+        headlineContent = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = quote.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Start,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(.5f)
+                        .padding(end = 8.dp)
+                )
+                if (quote.price != null && quote.change != null && quote.percentChange != null) {
+                    Column(
+                        modifier = Modifier.weight(.3f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = quote.price!!,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End
+                        )
+                        Text(
+                            text = quote.change!!,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = if (quote.change?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                    Text(
+                        text = quote.percentChange!!,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (quote.percentChange?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (quote.percentChange?.startsWith("-") == true) getNegativeBackgroundColor() else getPositiveBackgroundColor())
+                            .padding(4.dp)
+                            .weight(.25f)
+                    )
+                }
+            }
+        },
+
+        )
+}
+
+@Composable
+internal fun DeletableWatchlistQuote(
+    quote: WatchlistQuote,
+    onClick: () -> Unit,
+    onDelete: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    val maxDragDistance = 500f
+    val dragProportion = abs(offsetX) / maxDragDistance
+    val weight by animateFloatAsState(
+        targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
+        label = "weight"
+    )
+    Row(
+        modifier = modifier
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, dragAmount ->
@@ -100,7 +192,7 @@ internal fun WatchlistedQuote(
                     },
                     onDragEnd = {
                         if (abs(offsetX) > maxDragDistance * 0.75) {
-                            deleteFromWatchList(quote.symbol)
+                            onDelete(quote.symbol)
                         }
                         offsetX = 0f
                     }
@@ -133,91 +225,10 @@ internal fun WatchlistedQuote(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            VxmListItem(
-                leadingContent = {
-                    if (quote.logo != null) {
-                        VxmAsyncImage(
-                            model = quote.logo!!,
-                            description = stringResource(id = R.string.feature_watchlist_logo_description),
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.inverseSurface),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = quote.symbol,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 1.25.sp,
-                                maxLines = 1,
-                                color = MaterialTheme.colorScheme.inverseOnSurface,
-                            )
-                        }
-                    }
-                },
-                headlineContent = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Text(
-                            text = quote.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Start,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            modifier = Modifier
-                                .weight(.5f)
-                                .padding(end = 8.dp)
-                        )
-                        if (quote.price != null && quote.change != null && quote.percentChange != null) {
-                            Column(
-                                modifier = Modifier.weight(.3f),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = quote.price!!,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End
-                                )
-                                Text(
-                                    text = quote.change!!,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = if (quote.change?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End
-                                )
-                            }
-                            Text(
-                                text = quote.percentChange!!,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = if (quote.percentChange?.startsWith("-") == true) getNegativeTextColor() else getPositiveTextColor(),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
-                                    .background(if (quote.percentChange?.startsWith("-") == true) getNegativeBackgroundColor() else getPositiveBackgroundColor())
-                                    .padding(4.dp)
-                                    .weight(.25f)
-                            )
-                        }
-                    }
-                },
+            WatchlistedQuote(
+                quote = quote,
+                onClick = onClick,
+                onNavigateToQuote = { }
             )
         }
     }
@@ -226,7 +237,7 @@ internal fun WatchlistedQuote(
 @ThemePreviews
 @Composable
 private fun PreviewWatchlistedQuote() {
-    WatchlistedQuote(
+    DeletableWatchlistQuote(
         quote = WatchlistQuote(
             symbol = "AAPL",
             name = "Apple Inc.",
@@ -236,8 +247,7 @@ private fun PreviewWatchlistedQuote() {
             logo = null,
             order = 0
         ),
-        onNavigateToQuote = {},
-        deleteFromWatchList = {},
+        onDelete = {},
         onClick = {}
     )
 }

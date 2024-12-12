@@ -99,9 +99,7 @@ internal fun WatchlistScreen(
                         deleteFromWatchlist(symbol)
                         if (quote!!.symbol == symbol) {
                             val nextQuote = watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
-                            if (nextQuote != null) {
-                                quote = nextQuote
-                            }
+                            quote = nextQuote
                         }
                     },
                     modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
@@ -142,7 +140,6 @@ internal fun WatchlistScreen(
                     WatchlistSkeleton(
                         watchlist = watchlist,
                         onNavigateToQuote = onNavigateToQuote,
-                        deleteFromWatchlist = deleteFromWatchlist,
                         clearWatchlist = clearWatchlist
                     )
                 }
@@ -151,7 +148,6 @@ internal fun WatchlistScreen(
                     WatchlistSkeleton(
                         watchlist = watchlist,
                         onNavigateToQuote = onNavigateToQuote,
-                        deleteFromWatchlist = deleteFromWatchlist,
                         clearWatchlist = clearWatchlist
                     )
 
@@ -200,16 +196,6 @@ internal fun WatchlistScreen(
                             WatchlistedQuote(
                                 quote = loadedQuote ?: watchlistQuote,
                                 onNavigateToQuote = onNavigateToQuote,
-                                deleteFromWatchList = {
-                                    deleteFromWatchlist(it)
-                                    if (quote?.symbol == it) {
-                                        val nextQuote =
-                                            watchlistState.data.values.firstOrNull { quote -> quote.symbol != it }
-                                        if (nextQuote != null) {
-                                            quote = nextQuote
-                                        }
-                                    }
-                                },
                                 onClick = {
                                     quote = loadedQuote ?: watchlistQuote
                                     scope.launch {
@@ -230,7 +216,6 @@ internal fun WatchlistScreen(
 private fun WatchlistSkeleton(
     watchlist: List<WatchlistQuote>,
     onNavigateToQuote: (String) -> Unit,
-    deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
 ) {
     Scaffold(
@@ -256,7 +241,6 @@ private fun WatchlistSkeleton(
                 WatchlistedQuote(
                     quote = watchlistQuote,
                     onNavigateToQuote = onNavigateToQuote,
-                    deleteFromWatchList = deleteFromWatchlist,
                     onClick = { }
                 )
             }
@@ -346,7 +330,6 @@ private fun PreviewLoading() {
                     ),
                 ),
                 onNavigateToQuote = {},
-                deleteFromWatchlist = {},
                 clearWatchlist = {}
             )
         }
