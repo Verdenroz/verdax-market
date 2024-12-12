@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -126,7 +126,7 @@ internal fun SettingsScreen(
             val settings = settingsUiState.settings
             Scaffold(
                 topBar = {
-                    VxmTopBar(
+                    VxmCenterTopBar(
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
                                 Icon(

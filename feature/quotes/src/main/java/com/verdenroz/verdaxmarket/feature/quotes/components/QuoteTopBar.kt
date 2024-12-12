@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.Profile
@@ -38,7 +38,7 @@ internal fun QuoteTopBar(
     addToWatchlist: (String, String?) -> Unit,
     deleteFromWatchlist: () -> Unit,
 ) {
-    VxmTopBar(
+    VxmCenterTopBar(
         title = {
             Text(
                 text = symbol,

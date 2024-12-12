@@ -26,7 +26,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VxmTopBar(
+fun VxmCenterTopBar(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit = {},
     navigationIcon: @Composable (() -> Unit) = {},
@@ -51,9 +51,9 @@ fun VxmTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemePreviews
 @Composable
-private fun PreviewVxmTopBar() {
+private fun PreviewVxmCenterTopBar() {
     VxmTheme {
-        VxmTopBar(
+        VxmCenterTopBar(
             title = {
                 Text(
                     text = "Title",

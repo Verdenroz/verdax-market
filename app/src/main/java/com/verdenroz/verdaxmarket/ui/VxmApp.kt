@@ -28,9 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.verdenroz.verdaxmarket.R
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmNavigationSuiteScaffold
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSnackbarHost
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 
@@ -106,7 +106,7 @@ internal fun VxmAppContent(
             },
             topBar = {
                 if (appState.isTopLevelDestination) {
-                    VxmTopBar(
+                    VxmCenterTopBar(
                         title = {
                             Text(text = stringResource(R.string.app_name))
                         },
