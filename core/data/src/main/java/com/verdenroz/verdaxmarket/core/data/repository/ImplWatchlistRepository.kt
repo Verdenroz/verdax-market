@@ -164,16 +164,10 @@ class ImplWatchlistRepository @Inject constructor(
         }
     }
 
-    override suspend fun changeOrder(symbol: String, newOrder: Int) {
+    override suspend fun updateWatchlistOrder(watchlist: List<WatchlistQuote>) {
         withContext(ioDispatcher) {
-            val quotes = quotesDao.getAllQuoteData().sortedBy { it.order }.toMutableList()
-            val quoteToMove = quotes.find { it.symbol == symbol } ?: return@withContext
-
-            quotes.remove(quoteToMove)
-            quotes.add(newOrder, quoteToMove.copy(order = newOrder))
-
-            quotes.forEachIndexed { index, quote ->
-                quotesDao.insert(quote.copy(order = index))
+            watchlist.forEachIndexed { index, quote ->
+                quotesDao.updateOrder(quote.symbol, index)
             }
         }
     }

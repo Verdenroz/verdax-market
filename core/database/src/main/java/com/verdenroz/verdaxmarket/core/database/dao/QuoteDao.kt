@@ -33,4 +33,7 @@ interface QuoteDao {
     @Query("SELECT EXISTS(SELECT 1 FROM quotes WHERE symbol = :symbol)")
     fun isInWatchlist(symbol: String): Flow<Boolean>
 
+    @Query("UPDATE quotes SET `order` = :order WHERE symbol = :symbol")
+    suspend fun updateOrder(symbol: String, order: Int)
+
 }

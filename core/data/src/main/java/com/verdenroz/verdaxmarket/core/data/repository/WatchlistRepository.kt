@@ -42,9 +42,9 @@ interface WatchlistRepository {
     suspend fun clearWatchList()
 
     /**
-     * Change the order of a symbol in the user's watchlist
+     * Update the order of the watchlist
      */
-    suspend fun changeOrder(symbol: String, order: Int)
+    suspend fun updateWatchlistOrder(watchlist: List<WatchlistQuote>)
 
     /**
      * Check if a symbol is in the user's watchlist
