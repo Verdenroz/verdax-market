@@ -9,6 +9,7 @@ import com.verdenroz.verdaxmarket.feature.quotes.navigation.navigateToQuote
 import com.verdenroz.verdaxmarket.feature.quotes.navigation.quotesScreen
 import com.verdenroz.verdaxmarket.feature.search.navigation.searchScreen
 import com.verdenroz.verdaxmarket.feature.settings.navigation.settingsScreen
+import com.verdenroz.verdaxmarket.feature.watchlist.navigation.navigateToEditWatchlist
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.watchlistScreen
 import com.verdenroz.verdaxmarket.ui.VxmAppState
 
@@ -31,6 +32,8 @@ fun VxmNavHost(
             onNavigateToQuote = navController::navigateToQuote,
         )
         watchlistScreen(
+            onNavigateToEdit = navController::navigateToEditWatchlist,
+            onNavigateBack = navController::popBackStack,
             onNavigateToQuote = navController::navigateToQuote,
             onShowSnackbar = onShowSnackbar,
         )

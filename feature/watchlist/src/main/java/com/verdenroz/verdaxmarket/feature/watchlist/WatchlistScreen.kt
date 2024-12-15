@@ -48,15 +48,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun WatchlistRoute(
+    onNavigateToEdit: (NavOptions?) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
 ) {
-    val symbols by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
+    val watchlist by watchlistViewModel.watchlist.collectAsStateWithLifecycle()
     val watchlistState by watchlistViewModel.watchlistState.collectAsStateWithLifecycle()
     WatchlistScreen(
-        watchlist = symbols,
+        watchlist = watchlist,
         watchlistState = watchlistState,
+        onNavigateToEdit = onNavigateToEdit,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
         deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
@@ -69,6 +71,7 @@ internal fun WatchlistRoute(
 internal fun WatchlistScreen(
     watchlist: List<WatchlistQuote>,
     watchlistState: WatchlistState,
+    onNavigateToEdit: (NavOptions?) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     deleteFromWatchlist: (String) -> Unit,
