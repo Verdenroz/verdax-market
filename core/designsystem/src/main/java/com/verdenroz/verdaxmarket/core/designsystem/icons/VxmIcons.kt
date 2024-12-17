@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Home
@@ -39,6 +40,7 @@ object VxmIcons {
     val Remove = Icons.Rounded.Clear
     val Delete = Icons.Outlined.DeleteOutline
     val DeleteSweep = Icons.Rounded.DeleteSweep
+    val DragHandle = Icons.Rounded.DragHandle
     val Filter = Icons.Rounded.FilterList
     val KeyboardUp = Icons.Default.KeyboardArrowUp
     val KeyboardDown = Icons.Default.KeyboardArrowDown
