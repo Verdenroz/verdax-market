@@ -10,4 +10,7 @@
     <string name="feature_watchlist_confirm">Confirm</string>
     <string name="feature_watchlist_cancel">Cancel</string>
     <string name="feature_watchlist_logo_description">%1$s logo</string>
+    <string name="feature_watchlist_manage_watchlist">Manage</string>
+    <string name="feature_watchlist_reorder">Reorder</string>
+    <string name="feature_watchlist_done">Done</string>
 </resources>

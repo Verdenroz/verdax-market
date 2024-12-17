@@ -24,6 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavOptions
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -91,6 +94,28 @@ internal fun WatchlistScreen(
     }
 
     BottomSheetScaffold(
+        scaffoldState = bottomSheetScaffoldState,
+        topBar = {
+            VxmTopAppBar(
+                title = { Text(stringResource(id = R.string.feature_watchlist_title)) },
+                actions = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.clickable(onClick = { onNavigateToEdit(null) })
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
+                        )
+                        Icon(
+                            imageVector = VxmIcons.Settings,
+                            contentDescription = stringResource(id = R.string.feature_watchlist_manage_watchlist),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            )
+        },
         sheetContent = {
             if (watchlistState is WatchlistState.Success && quote != null) {
                 QuoteSneakPeek(
@@ -101,7 +126,8 @@ internal fun WatchlistScreen(
                     deleteFromWatchlist = { symbol ->
                         deleteFromWatchlist(symbol)
                         if (quote!!.symbol == symbol) {
-                            val nextQuote = watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
+                            val nextQuote =
+                                watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
                             quote = nextQuote
                         }
                     },
@@ -109,104 +135,75 @@ internal fun WatchlistScreen(
                 )
             }
         },
-        scaffoldState = bottomSheetScaffoldState
     ) { bottomSheetPadding ->
-        Scaffold(
-            topBar = {
-                VxmTopAppBar(
-                    title = { Text(stringResource(id = R.string.feature_watchlist_title)) },
-                    actions = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .clickable(onClick = { })
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
-                            )
-                            Icon(
-                                imageVector = VxmIcons.Settings,
-                                contentDescription = stringResource(id = R.string.feature_watchlist_manage_watchlist),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                    }
+        when (watchlistState) {
+            is WatchlistState.Loading -> {
+                WatchlistSkeleton(
+                    watchlist = watchlist,
+                    onNavigateToQuote = onNavigateToQuote,
+                    clearWatchlist = clearWatchlist
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottomSheetPadding)
-        ) { padding ->
-            when (watchlistState) {
-                is WatchlistState.Loading -> {
-                    WatchlistSkeleton(
-                        watchlist = watchlist,
-                        onNavigateToQuote = onNavigateToQuote,
-                        clearWatchlist = clearWatchlist
+            }
+
+            is WatchlistState.Error -> {
+                WatchlistSkeleton(
+                    watchlist = watchlist,
+                    onNavigateToQuote = onNavigateToQuote,
+                    clearWatchlist = clearWatchlist
+                )
+
+                LaunchedEffect(watchlistState.error) {
+                    onShowSnackbar(
+                        watchlistState.error.asUiText().asString(context),
+                        UiText.StringResource(R.string.feature_watchlist_dismiss)
+                            .asString(context),
+                        SnackbarDuration.Short
                     )
                 }
+            }
 
-                is WatchlistState.Error -> {
-                    WatchlistSkeleton(
-                        watchlist = watchlist,
-                        onNavigateToQuote = onNavigateToQuote,
-                        clearWatchlist = clearWatchlist
-                    )
-
-                    LaunchedEffect(watchlistState.error) {
-                        onShowSnackbar(
-                            watchlistState.error.asUiText().asString(context),
-                            UiText.StringResource(R.string.feature_watchlist_dismiss)
-                                .asString(context),
-                            SnackbarDuration.Short
-                        )
-                    }
-                }
-
-                is WatchlistState.Success -> {
-                    if (watchlistState.data.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.feature_watchlist_empty),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        return@Scaffold
-                    }
-
-                    LazyColumn(
+            is WatchlistState.Success -> {
+                if (watchlistState.data.isEmpty()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(padding)
-                            .padding(bottom = if (isBottomSheetExpanded) 64.dp else 0.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        items(
-                            items = watchlist,
-                            key = { it.symbol }
-                        ) { watchlistQuote ->
-                            val loadedQuote = watchlistState.data[watchlistQuote.symbol]
-                            // Prefer the loaded quote if available since it has the latest data
-                            WatchlistedQuote(
-                                quote = loadedQuote ?: watchlistQuote,
-                                onNavigateToQuote = onNavigateToQuote,
-                                onClick = {
-                                    quote = loadedQuote ?: watchlistQuote
-                                    scope.launch {
-                                        bottomSheetScaffoldState.bottomSheetState.expand()
-                                    }
+                        Text(
+                            text = stringResource(id = R.string.feature_watchlist_empty),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    return@BottomSheetScaffold
+                }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottomSheetPadding)
+                        .padding(bottom = if (isBottomSheetExpanded) 64.dp else 0.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = watchlist,
+                        key = { it.symbol }
+                    ) { watchlistQuote ->
+                        val loadedQuote = watchlistState.data[watchlistQuote.symbol]
+                        // Prefer the loaded quote if available since it has the latest data
+                        WatchlistedQuote(
+                            quote = loadedQuote ?: watchlistQuote,
+                            onNavigateToQuote = onNavigateToQuote,
+                            onClick = {
+                                quote = loadedQuote ?: watchlistQuote
+                                scope.launch {
+                                    bottomSheetScaffoldState.bottomSheetState.expand()
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
@@ -298,10 +295,11 @@ private fun PreviewWatchlistScreen() {
                     ),
                 )
             ),
-            onNavigateToQuote = {},
+            onNavigateToEdit = { },
+            onNavigateToQuote = { },
             onShowSnackbar = { _, _, _ -> true },
-            deleteFromWatchlist = {},
-            clearWatchlist = {}
+            deleteFromWatchlist = { },
+            clearWatchlist = { }
         )
     }
 }
