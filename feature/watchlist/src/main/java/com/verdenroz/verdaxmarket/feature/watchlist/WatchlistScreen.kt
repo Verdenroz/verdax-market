@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -83,8 +82,10 @@ internal fun WatchlistScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-    var quote by remember { mutableStateOf(watchlist.firstOrNull()) }
-    var isBottomSheetExpanded by remember { mutableStateOf(false) }
+    var quote by rememberSaveable(stateSaver = WatchlistQuoteSaver) {
+        mutableStateOf(null)
+    }
+    var isBottomSheetExpanded by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
         snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
@@ -336,3 +337,31 @@ private fun PreviewLoading() {
         }
     }
 }
+
+val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
+    save = { quote ->
+        quote?.let {
+            listOf(
+                it.symbol,
+                it.name,
+                it.price ?: "",
+                it.change ?: "",
+                it.percentChange ?: "",
+                it.logo ?: "",
+                it.order
+            )
+        } ?: emptyList()
+    },
+    restore = { savedList ->
+        if (savedList.isEmpty()) null
+        else WatchlistQuote(
+            symbol = savedList[0] as String,
+            name = savedList[1] as String,
+            price = savedList[2] as String,
+            change = savedList[3] as String,
+            percentChange = savedList[4] as String,
+            logo = savedList[5] as String,
+            order = savedList[6] as Int
+        )
+    }
+)
