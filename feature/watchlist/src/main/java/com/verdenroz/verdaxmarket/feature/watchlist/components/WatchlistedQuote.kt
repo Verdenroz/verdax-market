@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.feature.watchlist.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,13 +11,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -166,25 +170,34 @@ internal fun WatchlistedQuote(
 }
 
 @Composable
-internal fun DeletableWatchlistQuote(
+internal fun EditableWatchlistQuote(
     quote: WatchlistQuote,
-    onClick: () -> Unit,
-    onDelete: (String) -> Unit,
+    dragModifier: Modifier,
+    onDelete: (WatchlistQuote) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
     val maxDragDistance = 500f
     val dragProportion = abs(offsetX) / maxDragDistance
     val weight by animateFloatAsState(
         targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
         label = "weight"
     )
+    val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "elevation")
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant,
+        label = "backgroundColor"
+    )
     Row(
         modifier = modifier
+            .offset(y = offsetY.dp)
+            .shadow(elevation, RoundedCornerShape(25))
+            .background(backgroundColor)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, dragAmount ->
-                        // Update offsetX only if dragAmount is positive or already dragging
                         if (dragAmount > 0 || offsetX != 0f) {
                             offsetX += dragAmount
                             offsetX = offsetX.coerceIn(-maxDragDistance, maxDragDistance)
@@ -192,7 +205,7 @@ internal fun DeletableWatchlistQuote(
                     },
                     onDragEnd = {
                         if (abs(offsetX) > maxDragDistance * 0.75) {
-                            onDelete(quote.symbol)
+                            onDelete(quote)
                         }
                         offsetX = 0f
                     }
@@ -203,7 +216,6 @@ internal fun DeletableWatchlistQuote(
         Box(
             modifier = Modifier
                 .weight(weight)
-                .fillMaxHeight()
                 .padding(vertical = 4.dp)
                 .clip(RoundedCornerShape(25))
                 .background(MaterialTheme.colorScheme.errorContainer),
@@ -219,7 +231,6 @@ internal fun DeletableWatchlistQuote(
         Box(
             modifier = Modifier
                 .weight((1f - weight).coerceAtLeast(0.01f))
-                .fillMaxHeight()
                 .padding(8.dp)
                 .clip(RoundedCornerShape(25))
                 .background(MaterialTheme.colorScheme.surfaceVariant),
@@ -227,9 +238,15 @@ internal fun DeletableWatchlistQuote(
         ) {
             WatchlistedQuote(
                 quote = quote,
-                onClick = onClick,
+                onClick = { },
                 onNavigateToQuote = { }
             )
+        }
+        IconButton(
+            modifier = dragModifier,
+            onClick = {},
+        ) {
+            Icon(VxmIcons.DragHandle, contentDescription = "Reorder")
         }
     }
 }
@@ -237,7 +254,7 @@ internal fun DeletableWatchlistQuote(
 @ThemePreviews
 @Composable
 private fun PreviewWatchlistedQuote() {
-    DeletableWatchlistQuote(
+    EditableWatchlistQuote(
         quote = WatchlistQuote(
             symbol = "AAPL",
             name = "Apple Inc.",
@@ -247,7 +264,7 @@ private fun PreviewWatchlistedQuote() {
             logo = null,
             order = 0
         ),
-        onDelete = {},
-        onClick = {}
+        dragModifier = Modifier,
+        onDelete = { },
     )
 }
