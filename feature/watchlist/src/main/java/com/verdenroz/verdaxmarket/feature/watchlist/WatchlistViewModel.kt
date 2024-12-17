@@ -9,7 +9,7 @@ import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,11 +26,26 @@ class WatchlistViewModel @Inject constructor(
 ) : ViewModel() {
 
     val watchlistState: StateFlow<WatchlistState> =
-        watchlistRepository.quotes.map { liveResult ->
+        // Sync watchlist with quotes from socket
+        combine(
+            watchlistRepository.watchlist,
+            watchlistRepository.quotes
+        ) { dbQuotes, liveResult ->
             when (liveResult) {
-                is Result.Success -> WatchlistState.Success(
-                    liveResult.data.sortedBy { it.order }.associateBy { it.symbol }
-                )
+                is Result.Success -> {
+                    // Create a map of all quotes, preferring live data when available
+                    val quotesMap = buildMap<String, WatchlistQuote> {
+                        liveResult.data.forEach { liveQuote ->
+                            put(liveQuote.symbol, liveQuote)
+                        }
+                        // Add db quotes that are not in live data
+                        watchlist.value.forEach { dbQuote ->
+                            putIfAbsent(dbQuote.symbol, dbQuote)
+                        }
+                    }
+                    WatchlistState.Success(quotesMap)
+                }
+
                 is Result.Error -> WatchlistState.Error(liveResult.error)
                 is Result.Loading -> WatchlistState.Loading
             }
@@ -40,13 +55,12 @@ class WatchlistViewModel @Inject constructor(
             initialValue = WatchlistState.Loading
         )
 
-    val watchlist: StateFlow<List<WatchlistQuote>> =
-        watchlistRepository.watchlist.map { it.sortedBy { it.order } }
-            .stateIn(
-                viewModelScope,
-                started = SharingStarted.Eagerly,
-                initialValue = emptyList()
-            )
+    val watchlist: StateFlow<List<WatchlistQuote>> = watchlistRepository.watchlist
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
 
     fun deleteFromWatchlist(symbol: String) {
         viewModelScope.launch {
