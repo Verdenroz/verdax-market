@@ -164,11 +164,28 @@ class ImplWatchlistRepository @Inject constructor(
         }
     }
 
-    override suspend fun updateWatchlistOrder(watchlist: List<WatchlistQuote>) {
+    override suspend fun updateWatchlist(watchlist: List<WatchlistQuote>) {
         withContext(ioDispatcher) {
-            watchlist.forEachIndexed { index, quote ->
-                quotesDao.updateOrder(quote.symbol, index)
+            val currentQuotes = quotesDao.getAllQuoteData()
+            val updatedSymbols = watchlist.map { it.symbol }.toSet()
+            val quotesToDelete = currentQuotes.filter { it.symbol !in updatedSymbols }
+
+            // Delete quotes that are not in the new watchlist
+            quotesDao.deleteAllBySymbols(quotesToDelete.map { it.symbol })
+
+            // Update order of the remaining quotes
+            val quotesToUpdate = watchlist.mapIndexed { index, quote ->
+                QuoteEntity(
+                    symbol = quote.symbol,
+                    name = quote.name,
+                    price = quote.price,
+                    change = quote.change,
+                    percentChange = quote.percentChange,
+                    logo = quote.logo,
+                    order = index
+                )
             }
+            quotesDao.updateAll(quotesToUpdate)
         }
     }
 

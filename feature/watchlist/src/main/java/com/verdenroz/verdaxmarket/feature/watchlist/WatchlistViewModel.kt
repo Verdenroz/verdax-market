@@ -54,6 +54,12 @@ class WatchlistViewModel @Inject constructor(
         }
     }
 
+    fun updateWatchlist(watchlist: List<WatchlistQuote>) {
+        viewModelScope.launch {
+            watchlistRepository.updateWatchlist(watchlist)
+        }
+    }
+
     fun clearWatchlist() {
         viewModelScope.launch {
             watchlistRepository.clearWatchList()

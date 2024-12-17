@@ -24,6 +24,9 @@ interface QuoteDao {
     @Query("DELETE FROM quotes")
     suspend fun deleteAll()
 
+    @Query("DELETE FROM quotes WHERE symbol IN (:symbols)")
+    suspend fun deleteAllBySymbols(symbols: List<String>)
+
     @Query("SELECT * FROM quotes ORDER BY `order`")
     suspend fun getAllQuoteData(): List<QuoteEntity>
 
@@ -32,8 +35,5 @@ interface QuoteDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM quotes WHERE symbol = :symbol)")
     fun isInWatchlist(symbol: String): Flow<Boolean>
-
-    @Query("UPDATE quotes SET `order` = :order WHERE symbol = :symbol")
-    suspend fun updateOrder(symbol: String, order: Int)
 
 }

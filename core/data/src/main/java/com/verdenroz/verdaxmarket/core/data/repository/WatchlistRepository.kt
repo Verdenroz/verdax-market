@@ -42,9 +42,10 @@ interface WatchlistRepository {
     suspend fun clearWatchList()
 
     /**
-     * Update the order of the watchlist
+     * Updates the user's watchlist with the provided list of [WatchlistQuote]
+     * @param watchlist The new watchlist
      */
-    suspend fun updateWatchlistOrder(watchlist: List<WatchlistQuote>)
+    suspend fun updateWatchlist(watchlist: List<WatchlistQuote>)
 
     /**
      * Check if a symbol is in the user's watchlist
