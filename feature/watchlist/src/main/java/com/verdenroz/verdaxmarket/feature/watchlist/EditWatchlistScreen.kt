@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmBackIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
+import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.EditableWatchlistQuote
 import sh.calvin.reorderable.ReorderableColumn
@@ -88,7 +90,7 @@ private fun EditWatchlistScreen(
         topBar = {
             VxmTopAppBar(
                 title = {
-                    Text(text = "Edit Watchlist")
+                    Text(text = stringResource(id = R.string.feature_watchlist_edit_watchlist_title))
                 },
                 navigationIcon = {
                     VxmBackIconButton(onClick = onNavigateBack)
@@ -97,7 +99,7 @@ private fun EditWatchlistScreen(
                     Button(
                         onClick = onSave
                     ) {
-                        Text(text = "Save")
+                        Text(text = stringResource(id = R.string.feature_watchlist_edit_watchlist_save))
                     }
                 }
             )
@@ -117,7 +119,6 @@ private fun EditWatchlistScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) { index, quote, isDragging ->
-                // Use both symbol and order as key to ensure unique identification
                 key("${quote.symbol}_${quote.order}") {
                     val interactionSource = remember { MutableInteractionSource() }
                     EditableWatchlistQuote(
@@ -142,32 +143,34 @@ private fun EditWatchlistScreen(
 @ThemePreviews
 @Composable
 private fun PreviewEditWatchlistScreen() {
-    EditWatchlistScreen(
-        watchlist = remember {
-            mutableStateListOf(
-                WatchlistQuote(
-                    symbol = "AAPL",
-                    name = "Apple Inc.",
-                    price = "123.45",
-                    change = "+1.23",
-                    percentChange = "+1.00%",
-                    logo = null,
-                    order = 0
-                ),
-                WatchlistQuote(
-                    symbol = "GOOGL",
-                    name = "Alphabet Inc.",
-                    price = "234.56",
-                    change = "-2.34",
-                    percentChange = "-2.00%",
-                    logo = null,
-                    order = 1
-                ),
-            )
-        },
-        onSave = { },
-        onNavigateBack = { },
-        onDelete = { }
-    )
+    VxmTheme {
+        EditWatchlistScreen(
+            watchlist = remember {
+                mutableStateListOf(
+                    WatchlistQuote(
+                        symbol = "AAPL",
+                        name = "Apple Inc.",
+                        price = "123.45",
+                        change = "+1.23",
+                        percentChange = "+1.00%",
+                        logo = null,
+                        order = 0
+                    ),
+                    WatchlistQuote(
+                        symbol = "GOOGL",
+                        name = "Alphabet Inc.",
+                        price = "234.56",
+                        change = "-2.34",
+                        percentChange = "-2.00%",
+                        logo = null,
+                        order = 1
+                    ),
+                )
+            },
+            onSave = { },
+            onNavigateBack = { },
+            onDelete = { }
+        )
+    }
 }
 

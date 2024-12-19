@@ -13,4 +13,9 @@
     <string name="feature_watchlist_manage_watchlist">Manage</string>
     <string name="feature_watchlist_reorder">Reorder</string>
     <string name="feature_watchlist_done">Done</string>
+    <string name="feature_watchlist_more">More options</string>
+    <string name="feature_watchlist_edit_watchlist_title">Edit Watchlist</string>
+    <string name="feature_watchlist_edit_watchlist_save">Save</string>
+    <string name="feature_watchlist_move_up">Move up</string>
+    <string name="feature_watchlist_move_down">Move down</string>
 </resources>
