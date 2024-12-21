@@ -18,11 +18,13 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -44,8 +46,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
+import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteOptionsPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -63,9 +67,16 @@ internal fun WatchlistRoute(
         onNavigateToEdit = onNavigateToEdit,
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
+        onMoveUp = watchlistViewModel::moveUp,
+        onMoveDown = watchlistViewModel::moveDown,
         deleteFromWatchlist = watchlistViewModel::deleteFromWatchlist,
         clearWatchlist = watchlistViewModel::clearWatchlist
     )
+}
+
+sealed class BottomSheetMode {
+    data object Preview : BottomSheetMode()
+    data object Options : BottomSheetMode()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,14 +87,21 @@ internal fun WatchlistScreen(
     onNavigateToEdit: (NavOptions?) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
+    onMoveUp: (String) -> Unit,
+    onMoveDown: (String) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
     clearWatchlist: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+    )
     var quote by rememberSaveable(stateSaver = WatchlistQuoteSaver) {
         mutableStateOf(null)
+    }
+    var bottomSheetMode by rememberSaveable(stateSaver = BottomSheetModeSaver) {
+        mutableStateOf<BottomSheetMode>(BottomSheetMode.Preview)
     }
     var isBottomSheetExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -109,7 +127,7 @@ internal fun WatchlistScreen(
                             text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
                         )
                         Icon(
-                            imageVector = VxmIcons.Settings,
+                            imageVector = VxmIcons.Edit,
                             contentDescription = stringResource(id = R.string.feature_watchlist_manage_watchlist),
                             modifier = Modifier.padding(start = 8.dp)
                         )
@@ -117,23 +135,55 @@ internal fun WatchlistScreen(
                 }
             )
         },
+        sheetContainerColor = MaterialTheme.colorScheme.surface,
+        sheetContentColor = MaterialTheme.colorScheme.onSurface,
         sheetContent = {
             if (watchlistState is WatchlistState.Success && quote != null) {
-                QuoteSneakPeek(
-                    quote = quote!!.copy(
-                        change = quote!!.change ?: "",
-                        percentChange = quote!!.percentChange ?: ""
-                    ),
-                    deleteFromWatchlist = { symbol ->
-                        deleteFromWatchlist(symbol)
-                        if (quote!!.symbol == symbol) {
-                            val nextQuote =
-                                watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
-                            quote = nextQuote
-                        }
-                    },
-                    modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
-                )
+                when (bottomSheetMode) {
+                    BottomSheetMode.Preview -> {
+                        QuoteSneakPeek(
+                            quote = quote!!.copy(
+                                change = quote!!.change ?: "",
+                                percentChange = quote!!.percentChange ?: ""
+                            ),
+                            deleteFromWatchlist = { symbol ->
+                                deleteFromWatchlist(symbol)
+                                if (quote!!.symbol == symbol) {
+                                    val nextQuote =
+                                        watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
+                                    quote = nextQuote
+                                }
+                            },
+                            modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
+                        )
+                    }
+                    BottomSheetMode.Options -> {
+                        QuoteOptionsPeek(
+                            quote = quote!!,
+                            onDelete = {
+                                scope.launch {
+                                    deleteFromWatchlist(quote!!.symbol)
+                                    delay(100)
+                                    bottomSheetScaffoldState.bottomSheetState.hide()
+                                }
+                            },
+                            onMoveUp = {
+                                scope.launch {
+                                    onMoveUp(quote!!.symbol)
+                                    delay(100)
+                                    bottomSheetScaffoldState.bottomSheetState.hide()
+                                }
+                            },
+                            onMoveDown = {
+                                scope.launch {
+                                    onMoveDown(quote!!.symbol)
+                                    delay(100)
+                                    bottomSheetScaffoldState.bottomSheetState.hide()
+                                }
+                            }
+                        )
+                    }
+                }
             }
         },
     ) { bottomSheetPadding ->
@@ -198,12 +248,20 @@ internal fun WatchlistScreen(
                         WatchlistedQuote(
                             quote = loadedQuote ?: watchlistQuote,
                             onNavigateToQuote = onNavigateToQuote,
-                            onClick = {
+                            onMoreClick = {
                                 quote = loadedQuote ?: watchlistQuote
+                                bottomSheetMode = BottomSheetMode.Options
                                 scope.launch {
                                     bottomSheetScaffoldState.bottomSheetState.expand()
                                 }
-                            }
+                            },
+                            onClick = {
+                                quote = loadedQuote ?: watchlistQuote
+                                bottomSheetMode = BottomSheetMode.Preview
+                                scope.launch {
+                                    bottomSheetScaffoldState.bottomSheetState.expand()
+                                }
+                            },
                         )
                     }
                 }
@@ -242,6 +300,7 @@ private fun WatchlistSkeleton(
                 WatchlistedQuote(
                     quote = watchlistQuote,
                     onNavigateToQuote = onNavigateToQuote,
+                    onMoreClick = { },
                     onClick = { }
                 )
             }
@@ -299,6 +358,8 @@ private fun PreviewWatchlistScreen() {
             onNavigateToEdit = { },
             onNavigateToQuote = { },
             onShowSnackbar = { _, _, _ -> true },
+            onMoveUp = { },
+            onMoveDown = { },
             deleteFromWatchlist = { },
             clearWatchlist = { }
         )
@@ -338,7 +399,7 @@ private fun PreviewLoading() {
     }
 }
 
-val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
+private val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
     save = { quote ->
         quote?.let {
             listOf(
@@ -363,5 +424,21 @@ val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
             logo = savedList[5] as String,
             order = savedList[6] as Int
         )
+    }
+)
+
+private val BottomSheetModeSaver = Saver<BottomSheetMode, String>(
+    save = { mode ->
+        when (mode) {
+            BottomSheetMode.Preview -> "preview"
+            BottomSheetMode.Options -> "options"
+        }
+    },
+    restore = { value ->
+        when (value) {
+            "preview" -> BottomSheetMode.Preview
+            "options" -> BottomSheetMode.Options
+            else -> BottomSheetMode.Preview // Default fallback
+        }
     }
 )
