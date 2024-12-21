@@ -49,7 +49,6 @@ import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteOptionsPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -146,14 +145,6 @@ internal fun WatchlistScreen(
                                 change = quote!!.change ?: "",
                                 percentChange = quote!!.percentChange ?: ""
                             ),
-                            deleteFromWatchlist = { symbol ->
-                                deleteFromWatchlist(symbol)
-                                if (quote!!.symbol == symbol) {
-                                    val nextQuote =
-                                        watchlistState.data.values.firstOrNull { quote -> quote.symbol != symbol }
-                                    quote = nextQuote
-                                }
-                            },
                             modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
                         )
                     }
@@ -163,21 +154,18 @@ internal fun WatchlistScreen(
                             onDelete = {
                                 scope.launch {
                                     deleteFromWatchlist(quote!!.symbol)
-                                    delay(100)
                                     bottomSheetScaffoldState.bottomSheetState.hide()
                                 }
                             },
                             onMoveUp = {
                                 scope.launch {
                                     onMoveUp(quote!!.symbol)
-                                    delay(100)
                                     bottomSheetScaffoldState.bottomSheetState.hide()
                                 }
                             },
                             onMoveDown = {
                                 scope.launch {
                                     onMoveDown(quote!!.symbol)
-                                    delay(100)
                                     bottomSheetScaffoldState.bottomSheetState.hide()
                                 }
                             }

@@ -35,7 +35,6 @@ import java.util.Locale
 @Composable
 internal fun QuoteSneakPeek(
     quote: WatchlistQuote,
-    deleteFromWatchlist: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     VxmListItem(
@@ -140,7 +139,6 @@ private fun PreviewBottomSheetContent() {
                 logo = null,
                 order = 0
             ),
-            deleteFromWatchlist = {},
         )
     }
 }
