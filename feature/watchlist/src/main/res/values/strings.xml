@@ -18,4 +18,5 @@
     <string name="feature_watchlist_edit_watchlist_save">Save</string>
     <string name="feature_watchlist_move_up">Move up</string>
     <string name="feature_watchlist_move_down">Move down</string>
+    <string name="feature_watchlist_more_details">More details</string>
 </resources>

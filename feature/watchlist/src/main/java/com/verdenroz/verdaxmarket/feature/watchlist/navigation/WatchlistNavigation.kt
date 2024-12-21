@@ -32,6 +32,7 @@ fun NavGraphBuilder.watchlistScreen(
     composable(route = EDIT_WATCHLIST_ROUTE) {
         EditWatchlistRoute(
             onNavigateBack = onNavigateBack,
+            onNavigateToQuote = onNavigateToQuote,
         )
     }
 }

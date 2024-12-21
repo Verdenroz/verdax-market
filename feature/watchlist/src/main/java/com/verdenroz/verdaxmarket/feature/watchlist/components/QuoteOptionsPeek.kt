@@ -40,9 +40,10 @@ import com.verdenroz.verdaxmarket.feature.watchlist.R
 @Composable
 internal fun QuoteOptionsPeek(
     quote: WatchlistQuote,
-    onDelete: () -> Unit,
+    onNavigateToQuote: () -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -93,7 +94,7 @@ internal fun QuoteOptionsPeek(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (quote.logo != null) {
+            if (!quote.logo.isNullOrBlank()) {
                 VxmAsyncImage(
                     model = quote.logo!!,
                     description = stringResource(id = R.string.feature_watchlist_logo_description, quote.name),
@@ -140,6 +141,11 @@ internal fun QuoteOptionsPeek(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            QuoteOption(
+                text = stringResource(id = R.string.feature_watchlist_more_details),
+                icon = VxmIcons.Search,
+                onClick = onNavigateToQuote
+            )
             QuoteOption(
                 text = stringResource(id = R.string.feature_watchlist_move_up),
                 icon = VxmIcons.KeyboardUp,
@@ -203,9 +209,10 @@ private fun PreviewQuoteOptionsContent() {
                     logo = null,
                     order = 0
                 ),
-                onDelete = { },
+                onNavigateToQuote = { },
                 onMoveUp = { },
-                onMoveDown = { }
+                onMoveDown = { },
+                onDelete = { },
             )
         }
     }
