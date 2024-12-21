@@ -3,7 +3,6 @@ package com.verdenroz.verdaxmarket.feature.watchlist.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +47,6 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundC
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.R
-import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -61,18 +58,22 @@ internal fun WatchlistedQuote(
     onNavigateToQuote: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Keep track of tap gesture
-    var isTapped by remember { mutableStateOf(false) }
-    LaunchedEffect(isTapped) {
-        delay(300)
-        isTapped = false
-    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
+            .pointerInput(quote.symbol) {
+                detectTapGestures(
+                    onTap = {
+                        onClick()
+                    },
+                    onDoubleTap = {
+                        onNavigateToQuote(quote.symbol)
+                    }
+                )
+            }
     ) {
         IconButton(
             onClick = onMoreClick,
@@ -86,7 +87,7 @@ internal fun WatchlistedQuote(
             )
         }
 
-        if (quote.logo != null) {
+        if (!quote.logo.isNullOrBlank()) {
             VxmAsyncImage(
                 model = quote.logo!!,
                 description = stringResource(id = R.string.feature_watchlist_logo_description),
@@ -113,20 +114,6 @@ internal fun WatchlistedQuote(
             }
         }
         VxmListItem(
-            modifier = modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            // Workaround for double tap gesture without the delay
-                            if (isTapped) {
-                                onNavigateToQuote(quote.symbol)
-                            } else {
-                                isTapped = true
-                            }
-                        }
-                    )
-                }
-                .clickable { onClick() },
             headlineContent = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -191,6 +178,9 @@ internal fun WatchlistedQuote(
 internal fun EditableWatchlistQuote(
     quote: WatchlistQuote,
     dragModifier: Modifier,
+    onClick: () -> Unit,
+    onMoreClick: () -> Unit,
+    onNavigateToQuote: (String) -> Unit,
     onDelete: (WatchlistQuote) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -251,9 +241,9 @@ internal fun EditableWatchlistQuote(
         ) {
             WatchlistedQuote(
                 quote = quote,
-                onClick = { },
-                onMoreClick = { },
-                onNavigateToQuote = { }
+                onClick = onClick,
+                onMoreClick = onMoreClick,
+                onNavigateToQuote = onNavigateToQuote
             )
         }
         IconButton(
@@ -307,7 +297,10 @@ private fun PreviewEditableWatchlistedQuote() {
                 order = 0
             ),
             dragModifier = Modifier,
+            onClick = { },
+            onMoreClick = { },
             onDelete = { },
+            onNavigateToQuote = { }
         )
     }
 }

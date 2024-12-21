@@ -387,7 +387,7 @@ private fun PreviewLoading() {
     }
 }
 
-private val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
+internal val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
     save = { quote ->
         quote?.let {
             listOf(
@@ -415,7 +415,7 @@ private val WatchlistQuoteSaver = listSaver<WatchlistQuote?, Any>(
     }
 )
 
-private val BottomSheetModeSaver = Saver<BottomSheetMode, String>(
+internal val BottomSheetModeSaver = Saver<BottomSheetMode, String>(
     save = { mode ->
         when (mode) {
             BottomSheetMode.Preview -> "preview"
