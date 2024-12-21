@@ -134,8 +134,6 @@ internal fun SearchBarContent(
             }
 
             is SearchState.Success -> {
-
-
                 RecentQuotes(
                     recentQuotes = searchState.recentQuotes,
                     recentQuotesInWatchlist = recentQuotesInWatchlist,
