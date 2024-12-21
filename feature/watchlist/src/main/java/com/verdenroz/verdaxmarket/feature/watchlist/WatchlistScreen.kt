@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -45,7 +46,6 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
-import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistFab
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteOptionsPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
@@ -148,14 +148,12 @@ internal fun WatchlistScreen(
                             modifier = Modifier.clickable { onNavigateToQuote(quote!!.symbol) }
                         )
                     }
+
                     BottomSheetMode.Options -> {
                         QuoteOptionsPeek(
                             quote = quote!!,
-                            onDelete = {
-                                scope.launch {
-                                    deleteFromWatchlist(quote!!.symbol)
-                                    bottomSheetScaffoldState.bottomSheetState.hide()
-                                }
+                            onNavigateToQuote = {
+                                onNavigateToQuote(quote!!.symbol)
                             },
                             onMoveUp = {
                                 scope.launch {
@@ -166,6 +164,12 @@ internal fun WatchlistScreen(
                             onMoveDown = {
                                 scope.launch {
                                     onMoveDown(quote!!.symbol)
+                                    bottomSheetScaffoldState.bottomSheetState.hide()
+                                }
+                            },
+                            onDelete = {
+                                scope.launch {
+                                    deleteFromWatchlist(quote!!.symbol)
                                     bottomSheetScaffoldState.bottomSheetState.hide()
                                 }
                             }
@@ -179,23 +183,48 @@ internal fun WatchlistScreen(
             is WatchlistState.Loading -> {
                 WatchlistSkeleton(
                     watchlist = watchlist,
+                    onClick = { watchlistQuote ->
+                        quote = watchlistQuote
+                        bottomSheetMode = BottomSheetMode.Preview
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    onMoreClick = { watchlistQuote ->
+                        quote = watchlistQuote
+                        bottomSheetMode = BottomSheetMode.Options
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
                     onNavigateToQuote = onNavigateToQuote,
-                    clearWatchlist = clearWatchlist
                 )
             }
 
             is WatchlistState.Error -> {
                 WatchlistSkeleton(
                     watchlist = watchlist,
+                    onClick = { watchlistQuote ->
+                        quote = watchlistQuote
+                        bottomSheetMode = BottomSheetMode.Preview
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    onMoreClick = { watchlistQuote ->
+                        quote = watchlistQuote
+                        bottomSheetMode = BottomSheetMode.Options
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
                     onNavigateToQuote = onNavigateToQuote,
-                    clearWatchlist = clearWatchlist
                 )
 
                 LaunchedEffect(watchlistState.error) {
                     onShowSnackbar(
                         watchlistState.error.asUiText().asString(context),
-                        UiText.StringResource(R.string.feature_watchlist_dismiss)
-                            .asString(context),
+                        UiText.StringResource(R.string.feature_watchlist_dismiss).asString(context),
                         SnackbarDuration.Short
                     )
                 }
@@ -223,8 +252,7 @@ internal fun WatchlistScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottomSheetPadding)
-                        .padding(bottom = if (isBottomSheetExpanded) 64.dp else 0.dp),
+                        .padding(if (isBottomSheetExpanded) bottomSheetPadding else PaddingValues(0.dp)),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(
@@ -236,16 +264,16 @@ internal fun WatchlistScreen(
                         WatchlistedQuote(
                             quote = loadedQuote ?: watchlistQuote,
                             onNavigateToQuote = onNavigateToQuote,
-                            onMoreClick = {
+                            onClick = {
                                 quote = loadedQuote ?: watchlistQuote
-                                bottomSheetMode = BottomSheetMode.Options
+                                bottomSheetMode = BottomSheetMode.Preview
                                 scope.launch {
                                     bottomSheetScaffoldState.bottomSheetState.expand()
                                 }
                             },
-                            onClick = {
+                            onMoreClick = {
                                 quote = loadedQuote ?: watchlistQuote
-                                bottomSheetMode = BottomSheetMode.Preview
+                                bottomSheetMode = BottomSheetMode.Options
                                 scope.launch {
                                     bottomSheetScaffoldState.bottomSheetState.expand()
                                 }
@@ -262,16 +290,11 @@ internal fun WatchlistScreen(
 @Composable
 private fun WatchlistSkeleton(
     watchlist: List<WatchlistQuote>,
+    onClick: (WatchlistQuote) -> Unit,
+    onMoreClick: (WatchlistQuote) -> Unit,
     onNavigateToQuote: (String) -> Unit,
-    clearWatchlist: () -> Unit
 ) {
     Scaffold(
-        floatingActionButton = {
-            ClearWatchlistFab(
-                fabPadding = 64.dp,
-                clearWatchlist = clearWatchlist,
-            )
-        },
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) { padding ->
@@ -288,8 +311,12 @@ private fun WatchlistSkeleton(
                 WatchlistedQuote(
                     quote = watchlistQuote,
                     onNavigateToQuote = onNavigateToQuote,
-                    onMoreClick = { },
-                    onClick = { }
+                    onClick = {
+                        onClick(watchlistQuote)
+                    },
+                    onMoreClick = {
+                        onMoreClick(watchlistQuote)
+                    }
                 )
             }
         }
@@ -380,8 +407,9 @@ private fun PreviewLoading() {
                         order = 1
                     ),
                 ),
-                onNavigateToQuote = {},
-                clearWatchlist = {}
+                onClick = { },
+                onMoreClick = { },
+                onNavigateToQuote = { },
             )
         }
     }
