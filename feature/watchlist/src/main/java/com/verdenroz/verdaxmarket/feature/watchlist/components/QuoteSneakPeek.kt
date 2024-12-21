@@ -8,18 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -47,46 +38,6 @@ internal fun QuoteSneakPeek(
     deleteFromWatchlist: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(text = stringResource(id = R.string.feature_watchlist_confirm_delete_title)) },
-            text = {
-                Text(
-                    text = stringResource(
-                        id = R.string.feature_watchlist_confirm_delete_message,
-                        quote.symbol
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        deleteFromWatchlist(quote.symbol)
-                        showDialog = false
-                    }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.feature_watchlist_confirm),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDialog = false }
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.feature_watchlist_cancel),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        )
-    }
-
     VxmListItem(
         modifier = modifier,
         leadingContent = {
@@ -163,27 +114,10 @@ internal fun QuoteSneakPeek(
                     text = quote.percentChange ?: "",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (quote.percentChange!!.startsWith("-")) getPositiveTextColor() else getPositiveTextColor(),
+                    color = if (quote.percentChange!!.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
                 )
             }
-        },
-        trailingContent = {
-            SmallFloatingActionButton(
-                onClick = { showDialog = true },
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ) {
-                VxmDeleteIconButton(
-                    onClick = { showDialog = true }
-                )
-            }
-        },
-        colors = ListItemDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            headlineColor = MaterialTheme.colorScheme.onPrimary,
-            overlineColor = MaterialTheme.colorScheme.onPrimary,
-            supportingColor = MaterialTheme.colorScheme.onPrimary,
-        )
+        }
     )
     HorizontalDivider(
         thickness = Dp.Hairline,
