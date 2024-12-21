@@ -48,6 +48,16 @@ interface WatchlistRepository {
     suspend fun updateWatchlist(watchlist: List<WatchlistQuote>)
 
     /**
+     * Move a symbol up in the user's watchlist by decreasing its [WatchlistQuote.order]
+     */
+    suspend fun moveUp(string: String)
+
+    /**
+     * Move a symbol down in the user's watchlist by increasing its [WatchlistQuote.order]
+     */
+    suspend fun moveDown(string: String)
+
+    /**
      * Check if a symbol is in the user's watchlist
      */
     fun isSymbolInWatchlist(symbol: String): Flow<Boolean>

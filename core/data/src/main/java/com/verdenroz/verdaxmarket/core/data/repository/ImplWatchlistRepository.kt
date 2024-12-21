@@ -91,23 +91,27 @@ class ImplWatchlistRepository @Inject constructor(
                                     }
                                     flowOf(Result.Success(quotesWithOrder))
                                 }
+
                                 is Result.Loading -> flowOf(Result.Loading())
                                 // If the socket is not available, poll the quotes from the API
                                 else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
                                     flow {
                                         while (true) {
-                                            val updatedQuotes = api.getBulkQuote(symbols).asExternalModel().map { quote ->
-                                                val order = symbolsWithOrderMap[quote.symbol] ?: 0
-                                                WatchlistQuote(
-                                                    symbol = quote.symbol,
-                                                    name = quote.name,
-                                                    price = quote.price,
-                                                    change = quote.change,
-                                                    percentChange = quote.percentChange,
-                                                    logo = quote.logo,
-                                                    order = order
-                                                )
-                                            }
+                                            val updatedQuotes =
+                                                api.getBulkQuote(symbols).asExternalModel()
+                                                    .map { quote ->
+                                                        val order =
+                                                            symbolsWithOrderMap[quote.symbol] ?: 0
+                                                        WatchlistQuote(
+                                                            symbol = quote.symbol,
+                                                            name = quote.name,
+                                                            price = quote.price,
+                                                            change = quote.change,
+                                                            percentChange = quote.percentChange,
+                                                            logo = quote.logo,
+                                                            order = order
+                                                        )
+                                                    }
                                             emit(Result.Success(updatedQuotes))
 
                                             when (isOpen) {
@@ -186,6 +190,54 @@ class ImplWatchlistRepository @Inject constructor(
                 )
             }
             quotesDao.updateAll(quotesToUpdate)
+        }
+    }
+
+    override suspend fun moveUp(symbol: String) {
+        withContext(ioDispatcher) {
+            val quotes = quotesDao.getAllQuoteData().sortedBy { it.order }
+            val index = quotes.indexOfFirst { it.symbol == symbol }
+
+            if (index > 0) {
+                // Get the quote we want to move and its current order
+                val currentQuote = quotes[index]
+                val newOrder = currentQuote.order - 1
+
+                // Update all quotes between the new position and the current position
+                val quotesToUpdate = quotes.map { quote ->
+                    when {
+                        quote.symbol == symbol -> quote.copy(order = newOrder)
+                        quote.order == newOrder -> quote.copy(order = quote.order + 1)
+                        else -> quote
+                    }
+                }
+
+                quotesDao.updateAll(quotesToUpdate)
+            }
+        }
+    }
+
+    override suspend fun moveDown(symbol: String) {
+        withContext(ioDispatcher) {
+            val quotes = quotesDao.getAllQuoteData().sortedBy { it.order }
+            val index = quotes.indexOfFirst { it.symbol == symbol }
+
+            if (index < quotes.size - 1) {
+                // Get the quote we want to move and its current order
+                val currentQuote = quotes[index]
+                val newOrder = currentQuote.order + 1
+
+                // Update all quotes between the current position and the new position
+                val quotesToUpdate = quotes.map { quote ->
+                    when {
+                        quote.symbol == symbol -> quote.copy(order = newOrder)
+                        quote.order == newOrder -> quote.copy(order = quote.order - 1)
+                        else -> quote
+                    }
+                }
+
+                quotesDao.updateAll(quotesToUpdate)
+            }
         }
     }
 

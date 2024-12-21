@@ -79,4 +79,16 @@ class WatchlistViewModel @Inject constructor(
             watchlistRepository.clearWatchList()
         }
     }
+
+    fun moveUp(symbol: String) {
+        viewModelScope.launch {
+            watchlistRepository.moveUp(symbol)
+        }
+    }
+
+    fun moveDown(symbol: String) {
+        viewModelScope.launch {
+            watchlistRepository.moveDown(symbol)
+        }
+    }
 }
