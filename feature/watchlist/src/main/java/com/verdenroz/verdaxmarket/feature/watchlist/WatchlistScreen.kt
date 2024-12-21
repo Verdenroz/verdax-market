@@ -140,7 +140,7 @@ internal fun WatchlistScreen(
         when (watchlistState) {
             is WatchlistState.Loading -> {
                 WatchlistSkeleton(
-                    watchlist = watchlist.sortedBy { it.order },
+                    watchlist = watchlist,
                     onNavigateToQuote = onNavigateToQuote,
                     clearWatchlist = clearWatchlist
                 )
@@ -148,7 +148,7 @@ internal fun WatchlistScreen(
 
             is WatchlistState.Error -> {
                 WatchlistSkeleton(
-                    watchlist = watchlist.sortedBy { it.order },
+                    watchlist = watchlist,
                     onNavigateToQuote = onNavigateToQuote,
                     clearWatchlist = clearWatchlist
                 )
@@ -190,7 +190,7 @@ internal fun WatchlistScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     items(
-                        items  = watchlistState.data.values.sortedBy { it.order },
+                        items = watchlist,
                         key = { it.symbol }
                     ) { watchlistQuote ->
                         val loadedQuote = watchlistState.data[watchlistQuote.symbol]

@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,14 +39,12 @@ class WatchlistViewModel @Inject constructor(
                         liveResult.data.forEach { liveQuote ->
                             put(liveQuote.symbol, liveQuote)
                         }
-                        // Add db quotes that are not in live data
-                        watchlist.value.forEach { dbQuote ->
+                        dbQuotes.forEach { dbQuote ->
                             putIfAbsent(dbQuote.symbol, dbQuote)
                         }
                     }
                     WatchlistState.Success(quotesMap)
                 }
-
                 is Result.Error -> WatchlistState.Error(liveResult.error)
                 is Result.Loading -> WatchlistState.Loading
             }
@@ -55,12 +54,13 @@ class WatchlistViewModel @Inject constructor(
             initialValue = WatchlistState.Loading
         )
 
-    val watchlist: StateFlow<List<WatchlistQuote>> = watchlistRepository.watchlist
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = emptyList()
-        )
+    val watchlist: StateFlow<List<WatchlistQuote>> =
+        watchlistRepository.watchlist.map { it.sortedBy { it.order } }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = emptyList()
+            )
 
     fun deleteFromWatchlist(symbol: String) {
         viewModelScope.launch {
