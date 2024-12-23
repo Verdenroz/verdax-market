@@ -19,4 +19,6 @@
     <string name="feature_watchlist_move_up">Move up</string>
     <string name="feature_watchlist_move_down">Move down</string>
     <string name="feature_watchlist_more_details">More details</string>
+    <string name="feature_watchlist_clear_dialog_title">Clear Watchlist</string>
+    <string name="feature_watchlist_clear_dialog_message">Are you sure you want to clear your watchlist? This action cannot be undone.</string>
 </resources>
