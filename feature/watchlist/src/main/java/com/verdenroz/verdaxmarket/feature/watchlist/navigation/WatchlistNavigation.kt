@@ -18,7 +18,7 @@ fun NavController.navigateToEditWatchlist(navOptions: NavOptions? = null) = navi
 
 fun NavGraphBuilder.watchlistScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToEdit: (NavOptions?) -> Unit,
+    onNavigateToEdit: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     ) {

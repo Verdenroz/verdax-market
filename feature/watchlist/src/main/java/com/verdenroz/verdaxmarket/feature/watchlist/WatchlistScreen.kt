@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun WatchlistRoute(
-    onNavigateToEdit: (NavOptions?) -> Unit,
+    onNavigateToEdit: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     watchlistViewModel: WatchlistViewModel = hiltViewModel()
@@ -83,7 +83,7 @@ sealed class BottomSheetMode {
 internal fun WatchlistScreen(
     watchlist: List<WatchlistQuote>,
     watchlistState: WatchlistState,
-    onNavigateToEdit: (NavOptions?) -> Unit,
+    onNavigateToEdit: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     onMoveUp: (String) -> Unit,
