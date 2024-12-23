@@ -3,14 +3,18 @@ package com.verdenroz.verdaxmarket.feature.watchlist
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -30,13 +34,16 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmBackIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
+import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistDialog
 import com.verdenroz.verdaxmarket.feature.watchlist.components.EditableWatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteOptionsPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
@@ -63,6 +70,7 @@ internal fun EditWatchlistRoute(
         watchlist = editableWatchlist.toList(),
         onNavigateBack = onNavigateBack,
         onNavigateToQuote = onNavigateToQuote,
+        onClear = editableWatchlist::clear,
         onSave = {
             val updatedList = editableWatchlist.mapIndexed { index, quote ->
                 quote.copy(order = index)
@@ -110,6 +118,7 @@ private fun EditWatchlistScreen(
     watchlist: List<WatchlistQuote>,
     onNavigateBack: () -> Unit,
     onNavigateToQuote: (String) -> Unit,
+    onClear: () -> Unit,
     onSave: () -> Unit,
     onMoveUp: (WatchlistQuote) -> Unit,
     onMoveDown: (WatchlistQuote) -> Unit,
@@ -125,6 +134,17 @@ private fun EditWatchlistScreen(
     }
     var bottomSheetMode by rememberSaveable(stateSaver = BottomSheetModeSaver) {
         mutableStateOf<BottomSheetMode>(BottomSheetMode.Preview)
+    }
+    var showClearDialog by remember { mutableStateOf(false) }
+
+    if (showClearDialog) {
+        ClearWatchlistDialog(
+            onDismiss = { showClearDialog = false },
+            onConfirm = {
+                onClear()
+                showClearDialog = false
+            }
+        )
     }
 
     BottomSheetScaffold(
@@ -174,14 +194,31 @@ private fun EditWatchlistScreen(
         topBar = {
             VxmTopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.feature_watchlist_edit_watchlist_title))
+                    Text(
+                        text = stringResource(id = R.string.feature_watchlist_edit_watchlist_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        letterSpacing = 1.25.sp
+                    )
                 },
                 navigationIcon = {
                     VxmBackIconButton(onClick = onNavigateBack)
                 },
                 actions = {
-                    Button(
-                        onClick = onSave
+                    if (watchlist.isNotEmpty()) {
+                        IconButton(onClick = { showClearDialog = true }) {
+                            Icon(
+                                imageVector = VxmIcons.Delete,
+                                contentDescription = stringResource(id = R.string.feature_watchlist_clear),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    }
+                    OutlinedButton(
+                        onClick = onSave,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        )
                     ) {
                         Text(text = stringResource(id = R.string.feature_watchlist_edit_watchlist_save))
                     }
@@ -249,18 +286,18 @@ private fun PreviewEditWatchlistScreen() {
                     WatchlistQuote(
                         symbol = "AAPL",
                         name = "Apple Inc.",
-                        price = "123.45",
-                        change = "+1.23",
-                        percentChange = "+1.00%",
+                        price = null,
+                        change = null,
+                        percentChange = null,
                         logo = null,
                         order = 0
                     ),
                     WatchlistQuote(
                         symbol = "GOOGL",
                         name = "Alphabet Inc.",
-                        price = "234.56",
-                        change = "-2.34",
-                        percentChange = "-2.00%",
+                        price = null,
+                        change = null,
+                        percentChange = null,
                         logo = null,
                         order = 1
                     ),
@@ -268,6 +305,7 @@ private fun PreviewEditWatchlistScreen() {
             },
             onNavigateBack = { },
             onNavigateToQuote = { },
+            onClear = { },
             onSave = { },
             onMoveUp = { },
             onMoveDown = { },

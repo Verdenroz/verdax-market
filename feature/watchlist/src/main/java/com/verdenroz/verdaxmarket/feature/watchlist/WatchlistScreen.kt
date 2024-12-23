@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -24,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -36,9 +40,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavOptions
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -46,6 +50,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
+import com.verdenroz.verdaxmarket.feature.watchlist.components.ClearWatchlistDialog
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteOptionsPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.QuoteSneakPeek
 import com.verdenroz.verdaxmarket.feature.watchlist.components.WatchlistedQuote
@@ -111,25 +116,64 @@ internal fun WatchlistScreen(
             }
     }
 
+    var showClearDialog by remember { mutableStateOf(false) }
+
+    if (showClearDialog) {
+        ClearWatchlistDialog(
+            onDismiss = { showClearDialog = false },
+            onConfirm = {
+                clearWatchlist()
+                showClearDialog = false
+            }
+        )
+    }
+
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         topBar = {
             VxmTopAppBar(
-                title = { Text(stringResource(id = R.string.feature_watchlist_title)) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.feature_watchlist_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        letterSpacing = 1.25.sp
+                    )
+                },
                 actions = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.clickable(onClick = { onNavigateToEdit(null) })
+                    if (watchlist.isNotEmpty()) {
+                        IconButton(
+                            onClick = { showClearDialog = true },
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = VxmIcons.Delete,
+                                contentDescription = stringResource(id = R.string.feature_watchlist_clear),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+
+                    Surface(
+                        onClick = onNavigateToEdit,
+                        shape = RoundedCornerShape(16.dp),
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
-                        )
-                        Icon(
-                            imageVector = VxmIcons.Edit,
-                            contentDescription = stringResource(id = R.string.feature_watchlist_manage_watchlist),
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.feature_watchlist_manage_watchlist),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Icon(
+                                imageVector = VxmIcons.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             )
