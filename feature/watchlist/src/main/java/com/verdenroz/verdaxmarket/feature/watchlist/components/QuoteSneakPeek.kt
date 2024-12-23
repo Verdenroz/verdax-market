@@ -40,7 +40,7 @@ internal fun QuoteSneakPeek(
     VxmListItem(
         modifier = modifier,
         leadingContent = {
-            if (quote.logo != null) {
+            if (!quote.logo.isNullOrEmpty()) {
                 VxmAsyncImage(
                     model = quote.logo!!,
                     description = stringResource(
