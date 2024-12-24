@@ -1,10 +1,11 @@
 package com.verdenroz.verdaxmarket.core.data.utils
 
+import com.verdenroz.verdaxmarket.core.model.MarketHours
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Utility for reporting market open status
  */
 interface MarketMonitor {
-    val isMarketOpen: Flow<Boolean>
+    val marketHours: Flow<MarketHours>
 }
