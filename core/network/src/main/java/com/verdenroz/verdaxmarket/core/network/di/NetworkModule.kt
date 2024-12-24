@@ -4,7 +4,6 @@ import android.util.Log
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
-import com.verdenroz.verdaxmarket.core.network.sockets.HoursSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
@@ -95,15 +94,6 @@ object NetworkModule {
         json: Json,
     ): QuoteSocket {
         return QuoteSocket(json, client)
-    }
-
-    @Provides
-    @Singleton
-    fun provideHoursSocket(
-        client: OkHttpClient,
-        json: Json,
-    ): HoursSocket {
-        return HoursSocket(json, client)
     }
 
     /**
