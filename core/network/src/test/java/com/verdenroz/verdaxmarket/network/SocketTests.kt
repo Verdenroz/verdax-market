@@ -1,9 +1,11 @@
 package com.verdenroz.verdaxmarket.network
 
+import com.verdenroz.verdaxmarket.core.network.demo.DemoHoursSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoMarketSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoProfileSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoWatchlistSocket
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
+import com.verdenroz.verdaxmarket.core.network.sockets.HoursSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
@@ -23,12 +25,14 @@ class SocketTests {
     private lateinit var marketSocket: MarketSocket
     private lateinit var profileSocket: ProfileSocket
     private lateinit var quoteSocket: QuoteSocket
+    private lateinit var hoursSocket: HoursSocket
 
     @Before
     fun setup() {
         marketSocket = DemoMarketSocket().invoke()
         profileSocket = DemoProfileSocket().invoke()
         quoteSocket = DemoWatchlistSocket().invoke()
+        hoursSocket = DemoHoursSocket().invoke()
     }
 
     @After
@@ -172,5 +176,31 @@ class SocketTests {
         receivedData.forEach { (symbol, received) ->
             assertTrue(received.get(), "Should have received data for $symbol")
         }
+    }
+
+    @Test
+    fun testHoursSocket() = runBlocking {
+        val receivedData = AtomicBoolean(false)
+
+        withTimeout(5000) {
+            val channel = hoursSocket.connect(Unit)
+
+            val job = launch {
+                var messageCount = 0
+                for (message in channel) {
+                    assertNotNull(message) { "Received null hours data" }
+                    messageCount++
+                    receivedData.set(true)
+                    println("Received hours data #$messageCount: $message")
+                }
+            }
+
+            // Wait for 3 seconds
+            kotlinx.coroutines.delay(3000)
+            hoursSocket.disconnect(Unit)
+            job.cancel()
+        }
+
+        assertTrue(receivedData.get(), "Should have received hours data")
     }
 }
