@@ -9,6 +9,7 @@ import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
 import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
+import com.verdenroz.verdaxmarket.core.model.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
@@ -94,7 +95,7 @@ class ImplWatchlistRepository @Inject constructor(
 
                                 is Result.Loading -> flowOf(Result.Loading())
                                 // If the socket is not available, poll the quotes from the API
-                                else -> marketMonitor.isMarketOpen.flatMapLatest { isOpen ->
+                                else -> marketMonitor.marketHours.flatMapLatest { hours ->
                                     flow {
                                         while (true) {
                                             val updatedQuotes =
@@ -114,9 +115,9 @@ class ImplWatchlistRepository @Inject constructor(
                                                     }
                                             emit(Result.Success(updatedQuotes))
 
-                                            when (isOpen) {
-                                                true -> delay(MARKET_DATA_REFRESH_OPEN) // 15 seconds
-                                                false -> delay(MARKET_DATA_REFRESH_CLOSED) // 5 minutes
+                                            when (hours.status) {
+                                                MarketStatus.OPEN -> delay(MARKET_DATA_REFRESH_OPEN) // 15 seconds
+                                                else -> delay(MARKET_DATA_REFRESH_CLOSED) // 5 minutes
                                             }
                                         }
                                     }

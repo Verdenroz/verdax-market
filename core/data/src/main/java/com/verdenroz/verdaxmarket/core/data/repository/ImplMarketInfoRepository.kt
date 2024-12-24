@@ -16,6 +16,7 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
+import com.verdenroz.verdaxmarket.core.model.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,10 +55,12 @@ class ImplMarketInfoRepository @Inject constructor(
         Result.Loading()
     )
 
-    override val isOpen: Flow<Boolean> = marketStatusMonitor.isMarketOpen.stateIn(
+    override val isOpen: Flow<Boolean> = marketStatusMonitor.marketHours.map {
+        it.status == MarketStatus.OPEN
+    }.stateIn(
         CoroutineScope(ioDispatcher),
         SharingStarted.WhileSubscribed(5000L),
-        marketStatusMonitor.isMarketOpen()
+        true
     )
 
     override val indices: Flow<Result<List<MarketIndex>, DataError.Network>> =

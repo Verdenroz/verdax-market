@@ -12,6 +12,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
+import com.verdenroz.verdaxmarket.core.model.MarketHours
+import com.verdenroz.verdaxmarket.core.model.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.navigateToHome
 import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE
@@ -77,11 +80,14 @@ class VxmAppState(
             initialValue = false,
         )
 
-    val isMarketOpen: StateFlow<Boolean> = marketMonitor.isMarketOpen
+    val marketHours: StateFlow<MarketHours> = marketMonitor.marketHours
         .stateIn(
             scope = coroutineScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false,
+            initialValue = MarketHours(
+                MarketStatus.CLOSED,
+                MarketStatusReason.WEEKEND,
+            ),
         )
 
 
