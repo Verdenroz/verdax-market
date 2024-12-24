@@ -13,7 +13,9 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import javax.inject.Singleton
 
+@Singleton
 class HoursSocket(
     private val parser: Json,
     private val client: OkHttpClient
