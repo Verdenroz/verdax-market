@@ -12,6 +12,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
@@ -78,11 +79,12 @@ private fun PreviewVxmCenterTopBar() {
 }
 
 /**
- * VxmTopBar is a wrapper around [androidx.compose.material3.TopAppBar] with a smaller height.
+ * VxmTopBar is a wrapper around [androidx.compose.material3.TopAppBar] with a smaller height by default.
  * @param modifier Modifier to be applied to the layout.
  * @param title Title of the top bar.
  * @param navigationIcon Icon to be displayed on the left side of the top bar.
  * @param actions Actions to be displayed on the right side of the top bar.
+ * @param expandedHeight Height of the top bar.
  * @param colors Colors to be applied to the top bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,6 +94,7 @@ fun VxmTopAppBar(
     title: @Composable () -> Unit = {},
     navigationIcon: @Composable (() -> Unit) = {},
     actions: @Composable (RowScope.() -> Unit) = {},
+    expandedHeight: Dp = 48.dp,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(
         containerColor = MaterialTheme.colorScheme.surface,
         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
@@ -103,7 +106,7 @@ fun VxmTopAppBar(
         title = title,
         navigationIcon = navigationIcon,
         actions = actions,
-        expandedHeight = 48.dp,
+        expandedHeight = expandedHeight,
         colors = colors,
         modifier = modifier
     )
