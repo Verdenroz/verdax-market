@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -22,15 +24,19 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.verdenroz.verdaxmarket.R
-import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmNavigationSuiteScaffold
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSnackbarHost
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 
@@ -74,6 +80,13 @@ internal fun VxmAppContent(
     modifier: Modifier,
 ) {
     val currentDestination = appState.currentDestination
+    val marketHours by appState.marketHours.collectAsStateWithLifecycle()
+
+    var isHoursClicked by remember { mutableStateOf(false) }
+    val topBarHeight by animateDpAsState(
+        if (isHoursClicked) 128.dp else 80.dp,
+        label = "topBarHeight"
+    )
 
     VxmNavigationSuiteScaffold(
         modifier = modifier,
@@ -106,9 +119,19 @@ internal fun VxmAppContent(
             },
             topBar = {
                 if (appState.isTopLevelDestination) {
-                    VxmCenterTopBar(
-                        title = {
-                            Text(text = stringResource(R.string.app_name))
+                    VxmTopAppBar(
+                        navigationIcon = {
+                            MarketHoursCard(
+                                marketHours = marketHours,
+                                expanded = isHoursClicked,
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onTap = { isHoursClicked = !isHoursClicked }
+                                        )
+                                    },
+                            )
                         },
                         actions = {
                             IconButton(onClick = onNavigateToSettings) {
@@ -117,7 +140,8 @@ internal fun VxmAppContent(
                                     contentDescription = stringResource(id = R.string.settings)
                                 )
                             }
-                        }
+                        },
+                        expandedHeight = topBarHeight,
                     )
                 }
             }

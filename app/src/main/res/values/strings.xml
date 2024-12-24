@@ -2,4 +2,16 @@
     <string name="app_name">Verdax Market</string>
     <string name="not_connected">You are not connected to the Internet</string>
     <string name="settings">Settings</string>
+    <string name="market_status_open">Market Open</string>
+    <string name="market_status_closed">Market Closed</string>
+    <string name="market_status_premarket">Pre-Market</string>
+    <string name="market_status_after_hours">After Hours</string>
+    <string name="market_status_early_close">Early Close</string>
+    <string name="market_status_reason_weekend">The market is closed for the weekend.</string>
+    <string name="market_status_reason_holiday">The market is closed for a holiday.</string>
+    <string name="market_status_reason_regular_hours">The market is open during regular trading hours (9:30 AM - 4:00 PM ET).</string>
+    <string name="market_status_reason_premarket">The market is in pre-market trading hours (before 9:30 AM ET).</string>
+    <string name="market_status_reason_after_hours">The market is in after-hours trading (after 4:00 PM ET).</string>
+    <string name="market_status_reason_early_close">The market closed early today (1:00 PM ET).</string>
+    <string name="market_status_reason_outside_hours">The market is currently outside of regular trading hours.</string>
 </resources>
