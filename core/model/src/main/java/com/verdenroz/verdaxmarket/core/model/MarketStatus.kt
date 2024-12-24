@@ -7,3 +7,13 @@ enum class MarketStatus {
     AFTER_HOURS,
     EARLY_CLOSE,
 }
+
+enum class MarketStatusReason {
+    WEEKEND,
+    HOLIDAY,
+    REGULAR_HOURS,
+    PRE_MARKET,
+    AFTER_HOURS,
+    EARLY_CLOSE,
+    OUTSIDE_HOURS
+}
