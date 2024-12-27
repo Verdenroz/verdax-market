@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.core.network.sockets
 
-import android.util.Log
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket.Companion.SOCKET_URL
@@ -23,24 +22,16 @@ class ProfileSocket @Inject constructor(
     private val client: OkHttpClient
 ) : FinanceQuerySocket<ProfileResponse?, String>, WebSocketListener() {
 
-    private val activeConnections = mutableMapOf<String, ConnectionInfo>()
+    private val connections = mutableMapOf<String, WebSocket>()
+    private val channels = mutableMapOf<String, Channel<ProfileResponse?>>()
     private val mutex = Mutex()
 
-    private data class ConnectionInfo(
-        val webSocket: WebSocket,
-        val channel: Channel<ProfileResponse?>
-    )
-
     override suspend fun connect(params: String): Channel<ProfileResponse?> = mutex.withLock {
-        // Close existing connection if it exists
-        activeConnections[params]?.let { connectionInfo ->
-            Log.d("ProfileSocket", "Closing existing connection for $params")
-            connectionInfo.webSocket.close(1000, "New connection requested")
-            connectionInfo.channel.close()
-            activeConnections.remove(params)
+        if (connections.containsKey(params)) {
+            return@withLock channels[params]!!
         }
 
-        val channel = Channel<ProfileResponse?>(Channel.BUFFERED)
+        val newChannel = Channel<ProfileResponse?>(Channel.BUFFERED)
         val url = "$SOCKET_URL/profile/$params"
         val request = Request.Builder()
             .url(url)
@@ -48,35 +39,35 @@ class ProfileSocket @Inject constructor(
             .build()
 
         val webSocket = client.newWebSocket(request, this)
-        activeConnections[params] = ConnectionInfo(webSocket, channel)
+        connections[params] = webSocket
+        channels[params] = newChannel
 
-        Log.d("ProfileSocket", "New connection created for $params")
-        return@withLock channel
+        return@withLock newChannel
     }
 
-    override suspend fun disconnect(params: String): Unit = mutex.withLock {
-        activeConnections[params]?.let { connectionInfo ->
-            connectionInfo.webSocket.close(1000, null)
-            connectionInfo.channel.close()
-            activeConnections.remove(params)
-            Log.d("ProfileSocket", "Connection closed for $params")
+    override suspend fun disconnect(params: String) {
+        mutex.withLock {
+            connections[params]?.close(1000, null)
+            connections.remove(params)
+            channels[params]?.close()
+            channels.remove(params)
         }
     }
 
+
     override fun onMessage(webSocket: WebSocket, text: String) {
         val profileResponse = parser.decodeFromString<ProfileResponse>(text)
-        Log.d("ProfileSocket", "Received profile response for $profileResponse")
-        activeConnections.values.find { it.webSocket == webSocket }?.channel?.trySend(
-            profileResponse
-        )
+        connections.entries.find { it.value == webSocket }?.key?.let { key ->
+            channels[key]?.trySend(profileResponse)
+        }
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        activeConnections.entries.find { it.value.webSocket == webSocket }
-            ?.let { (_, connectionInfo) ->
-                connectionInfo.channel.trySend(null)
-                webSocket.close(1000, t.message)
-                // Don't remove from activeConnections here - let disconnect handle that
-            }
+        connections.entries.find { it.value == webSocket }?.key?.let { key ->
+            channels[key]?.trySend(null)
+            connections.remove(key)
+            channels.remove(key)
+        }
+        webSocket.close(1000, t.message)
     }
 }
