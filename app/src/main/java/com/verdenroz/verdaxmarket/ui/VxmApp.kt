@@ -43,6 +43,7 @@ import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 @Composable
 fun VxmApp(
     appState: VxmAppState,
+    showMarketHours: Boolean,
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
@@ -63,6 +64,7 @@ fun VxmApp(
 
     VxmAppContent(
         appState = appState,
+        showMarketHours = showMarketHours,
         snackbarHostState = snackbarHostState,
         windowAdaptiveInfo = windowAdaptiveInfo,
         onNavigateToSettings = appState::navigateToSettings,
@@ -74,6 +76,7 @@ fun VxmApp(
 @Composable
 internal fun VxmAppContent(
     appState: VxmAppState,
+    showMarketHours: Boolean,
     snackbarHostState: SnackbarHostState,
     windowAdaptiveInfo: WindowAdaptiveInfo,
     onNavigateToSettings: () -> Unit,
@@ -95,9 +98,8 @@ internal fun VxmAppContent(
             appState.topLevelDestinations.forEach { destination ->
                 // see what top level destination is selected based on the current destination
                 val selected = currentDestination?.hierarchy?.any {
-                    it.route?.contains(destination.name, ignoreCase = true)
-                        ?: false
-                } ?: false
+                    it.route?.contains(destination.name, ignoreCase = true) == true
+                } == true
 
                 item(
                     selected = selected,
@@ -121,17 +123,19 @@ internal fun VxmAppContent(
                 if (appState.isTopLevelDestination) {
                     VxmTopAppBar(
                         navigationIcon = {
-                            MarketHoursCard(
-                                marketHours = marketHours,
-                                expanded = isHoursClicked,
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onTap = { isHoursClicked = !isHoursClicked }
-                                        )
-                                    },
-                            )
+                            if (showMarketHours) {
+                                MarketHoursCard(
+                                    marketHours = marketHours,
+                                    expanded = isHoursClicked,
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onTap = { isHoursClicked = !isHoursClicked }
+                                            )
+                                        }
+                                )
+                            }
                         },
                         actions = {
                             IconButton(onClick = onNavigateToSettings) {
@@ -141,7 +145,7 @@ internal fun VxmAppContent(
                                 )
                             }
                         },
-                        expandedHeight = topBarHeight,
+                        expandedHeight = if (showMarketHours) topBarHeight else 48.dp,
                     )
                 }
             }

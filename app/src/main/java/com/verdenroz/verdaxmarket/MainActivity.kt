@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isDarkTheme = shouldUseDarkTheme(uiState = uiState)
+            val showMarketHours = shouldShowMarketHOurs(uiState = uiState)
 
             DisposableEffect(isDarkTheme) {
                 enableEdgeToEdge(
@@ -96,7 +97,10 @@ class MainActivity : ComponentActivity() {
             )
 
             VxmTheme(isDarkTheme = isDarkTheme) {
-                VxmApp(appState = appState)
+                VxmApp(
+                    appState = appState,
+                    showMarketHours = showMarketHours
+                )
             }
         }
     }
@@ -112,6 +116,14 @@ private fun shouldUseDarkTheme(uiState: MainActivityUiState): Boolean {
         }
 
         is MainActivityUiState.Loading -> isSystemInDarkTheme()
+    }
+}
+
+@Composable
+private fun shouldShowMarketHOurs(uiState: MainActivityUiState): Boolean {
+    return when (uiState) {
+        is MainActivityUiState.Success -> uiState.userSetting.showMarketHours
+        is MainActivityUiState.Loading -> false
     }
 }
 
