@@ -25,6 +25,7 @@ class UserSettingsStore @Inject constructor(
                 notificationsEnabled = it.notificationsEnabled,
                 hintsEnabled = it.hintsEnabled,
                 showMarketHours = it.showMarketHours,
+                isSynced = it.syncEnabled,
                 enableAnonymousAnalytics = it.enableAnalytics,
                 isOnboardingComplete = it.isOnboardingComplete
             )
@@ -57,6 +58,12 @@ class UserSettingsStore @Inject constructor(
     suspend fun setShowMarketHours(showMarketHours: Boolean) {
         userSettingsDataStore.updateData {
             it.copy { this.showMarketHours = showMarketHours }
+        }
+    }
+
+    suspend fun setSync(isSynced: Boolean) {
+        userSettingsDataStore.updateData {
+            it.copy { this.syncEnabled = isSynced }
         }
     }
 

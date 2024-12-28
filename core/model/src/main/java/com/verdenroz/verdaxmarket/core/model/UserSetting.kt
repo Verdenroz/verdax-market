@@ -5,6 +5,7 @@ data class UserSetting(
     val notificationsEnabled: Boolean = true,
     val hintsEnabled: Boolean = true,
     val showMarketHours: Boolean = true,
+    val isSynced: Boolean = true,
     val enableAnonymousAnalytics: Boolean = true,
     val isOnboardingComplete: Boolean = false
 )

@@ -20,15 +20,17 @@ class ImplUserDataRepository @Inject constructor(
     override suspend fun setThemePreference(themePreference: ThemePreference) =
         userSettingsStore.setThemePreference(themePreference)
 
-    override suspend fun setNotificationsEnabled(notificationsEnabled: Boolean) {
+    override suspend fun setNotificationsEnabled(notificationsEnabled: Boolean) =
         notificationManager.updateNotificationSettings(notificationsEnabled)
-    }
 
     override suspend fun setHintsEnabled(hintsEnabled: Boolean) =
         userSettingsStore.setHintsEnabled(hintsEnabled)
 
     override suspend fun setShowMarketHours(showMarketHours: Boolean) =
         userSettingsStore.setShowMarketHours(showMarketHours)
+
+    override suspend fun setSync(isSynced: Boolean) =
+        userSettingsStore.setSync(isSynced)
 
     override suspend fun setEnableAnonymousAnalytics(enableAnonymousAnalytics: Boolean) =
         userSettingsStore.setEnableAnalytics(enableAnonymousAnalytics)

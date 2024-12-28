@@ -14,7 +14,8 @@ message UserSettings {
   bool notifications_enabled = 2;
   bool hints_enabled = 3;
   bool show_market_hours = 4;
-  bool enable_analytics = 5;
-  bool is_onboarding_complete = 6;
-  bool is_first_launch = 7;
+  bool sync_enabled = 5;
+  bool enable_analytics = 6;
+  bool is_onboarding_complete = 7;
+  bool is_first_launch = 8;
 }

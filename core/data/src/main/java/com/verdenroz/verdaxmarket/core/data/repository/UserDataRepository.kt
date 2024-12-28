@@ -37,6 +37,11 @@ interface UserDataRepository {
     suspend fun setShowMarketHours(showMarketHours: Boolean)
 
     /**
+     * Sets whether user data should be synced with cloud
+     */
+    suspend fun setSync(isSynced: Boolean)
+
+    /**
      * Sets whether user data should be sent anonymously for analytics
      */
     suspend fun setEnableAnonymousAnalytics(enableAnonymousAnalytics: Boolean)
