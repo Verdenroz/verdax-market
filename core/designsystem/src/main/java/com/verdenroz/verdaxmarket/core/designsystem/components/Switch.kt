@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
@@ -15,6 +16,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
  */
 @Composable
 fun VxmSwitch(
+    modifier: Modifier = Modifier,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -26,7 +28,8 @@ fun VxmSwitch(
             uncheckedThumbColor = MaterialTheme.colorScheme.inverseOnSurface,
             checkedTrackColor = MaterialTheme.colorScheme.inverseSurface,
             uncheckedTrackColor = MaterialTheme.colorScheme.inverseSurface
-        )
+        ),
+        modifier = modifier
     )
 }
 

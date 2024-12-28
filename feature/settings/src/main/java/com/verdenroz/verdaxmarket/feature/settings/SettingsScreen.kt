@@ -97,6 +97,7 @@ fun SettingsRoute(
         onNotificationSettingChange = settingsViewModel::updateNotificationSetting,
         onHintsSettingChange = settingsViewModel::updateHintsSetting,
         onShowMarketHoursChange = settingsViewModel::updateShowMarketHoursSetting,
+        onSyncChange = settingsViewModel::updateSyncSetting,
         onEnableAnonymousAnalyticsChange = settingsViewModel::updateEnableAnonymousAnalyticsSetting,
     )
 }
@@ -117,6 +118,7 @@ internal fun SettingsScreen(
     onNotificationSettingChange: (Boolean) -> Unit,
     onHintsSettingChange: (Boolean) -> Unit,
     onShowMarketHoursChange: (Boolean) -> Unit,
+    onSyncChange: (Boolean) -> Unit,
     onEnableAnonymousAnalyticsChange: (Boolean) -> Unit,
 ) {
     when (settingsUiState) {
@@ -144,12 +146,14 @@ internal fun SettingsScreen(
                 ) {
                     AccountSection(
                         userState = authState,
+                        isSynced = settings.isSynced,
                         onSignUpWithEmail = onSignUpWithEmail,
                         onSignInWithEmail = onSignInWithEmail,
                         onSignInWithGoogle = onSignInWithGoogle,
                         onSignInWithGithub = onSignInWithGithub,
                         onForgetPassword = onForgetPassword,
                         onSignOut = onSignOut,
+                        onSyncChange = onSyncChange,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
@@ -193,6 +197,17 @@ internal fun SettingsScreen(
                             onCheckedChange = onNotificationSettingChange
                         )
                     }
+
+//                    // Notifications Section
+//                    SettingsSection(title = stringResource(id = R.string.feature_settings_notifications)) {
+//                        SwitchSettingItem(
+//                            title = stringResource(id = R.string.feature_settings_notifications_title),
+//                            description = stringResource(id = R.string.feature_settings_notifications_description),
+//                            icon = VxmIcons.Notification,
+//                            checked = settings.notificationsEnabled,
+//                            onCheckedChange = onNotificationSettingChange
+//                        )
+//                    }
 
                     // Privacy Section
                     SettingsSection(title = stringResource(id = R.string.feature_settings_privacy)) {
@@ -251,6 +266,7 @@ private fun PreviewSettingsScreen() {
                     notificationsEnabled = true,
                     hintsEnabled = true,
                     showMarketHours = true,
+                    isSynced = true,
                     enableAnonymousAnalytics = true,
                 )
             ),
@@ -262,16 +278,17 @@ private fun PreviewSettingsScreen() {
             ),
             onSignUpWithEmail = { _, _ -> },
             onSignInWithEmail = { _, _ -> },
-            onSignInWithGoogle = {},
-            onSignInWithGithub = {},
-            onForgetPassword = {},
-            onSignOut = {},
-            onNavigateBack = {},
-            onThemePreferenceChange = {},
-            onNotificationSettingChange = {},
-            onHintsSettingChange = {},
-            onShowMarketHoursChange = {},
-            onEnableAnonymousAnalyticsChange = {},
+            onSignInWithGoogle = { },
+            onSignInWithGithub = { },
+            onForgetPassword = { },
+            onSignOut = { },
+            onNavigateBack = { },
+            onThemePreferenceChange = { },
+            onNotificationSettingChange = { },
+            onHintsSettingChange = { },
+            onShowMarketHoursChange = { },
+            onSyncChange = { },
+            onEnableAnonymousAnalyticsChange = { },
         )
     }
 }

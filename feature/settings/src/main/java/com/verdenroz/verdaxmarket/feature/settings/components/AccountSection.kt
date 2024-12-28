@@ -32,12 +32,14 @@ import com.verdenroz.verdaxmarket.feature.settings.UserAuthState
 @Composable
 fun AccountSection(
     userState: UserAuthState,
+    isSynced: Boolean,
     onSignUpWithEmail: (String, String) -> Unit,
     onSignInWithEmail: (String, String) -> Unit,
     onSignInWithGoogle: () -> Unit,
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
+    onSyncChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showAccountDialog by remember { mutableStateOf(false) }
@@ -163,8 +165,10 @@ fun AccountSection(
     if (showAccountDialog && userState is UserAuthState.SignedIn) {
         AccountDialog(
             user = userState,
+            isSynced = isSynced,
             onDismiss = { showAccountDialog = false },
-            onSignOut = onSignOut
+            onSignOut = onSignOut,
+            onSyncChange = onSyncChange
         )
     }
 
@@ -200,30 +204,36 @@ fun PreviewAccountSection() {
                     photoUrl = "",
                     creationDate = "November 9, 2024"
                 ),
+                isSynced = true,
                 onSignUpWithEmail = { _, _ -> },
                 onSignInWithEmail = { _, _ -> },
                 onSignInWithGoogle = {},
                 onSignInWithGithub = {},
                 onForgetPassword = {},
-                onSignOut = {}
+                onSignOut = {},
+                onSyncChange = {}
             )
             AccountSection(
                 userState = UserAuthState.SignedOut,
+                isSynced = true,
                 onSignUpWithEmail = { _, _ -> },
                 onSignInWithEmail = { _, _ -> },
                 onSignInWithGoogle = {},
                 onSignInWithGithub = {},
                 onForgetPassword = {},
-                onSignOut = {}
+                onSignOut = {},
+                onSyncChange = {}
             )
             AccountSection(
                 userState = UserAuthState.Loading,
+                isSynced = true,
                 onSignUpWithEmail = { _, _ -> },
                 onSignInWithEmail = { _, _ -> },
                 onSignInWithGoogle = {},
                 onSignInWithGithub = {},
                 onForgetPassword = {},
-                onSignOut = {}
+                onSignOut = {},
+                onSyncChange = {}
             )
         }
     }

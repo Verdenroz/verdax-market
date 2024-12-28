@@ -27,6 +27,7 @@ class SettingsViewModel @Inject constructor(
                         notificationsEnabled = userData.notificationsEnabled,
                         hintsEnabled = userData.hintsEnabled,
                         showMarketHours = userData.showMarketHours,
+                        isSynced = userData.isSynced,
                         enableAnonymousAnalytics = userData.enableAnonymousAnalytics,
                     ),
                 )
@@ -62,6 +63,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun updateSyncSetting(isSynced: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.setSync(isSynced)
+        }
+    }
+
     fun updateEnableAnonymousAnalyticsSetting(isEnableAnonymousAnalytics: Boolean) {
         viewModelScope.launch {
             userDataRepository.setEnableAnonymousAnalytics(isEnableAnonymousAnalytics)
@@ -75,6 +82,7 @@ data class UserEditableSettings(
     val notificationsEnabled: Boolean,
     val hintsEnabled: Boolean,
     val showMarketHours: Boolean,
+    val isSynced: Boolean,
     val enableAnonymousAnalytics: Boolean,
 )
 

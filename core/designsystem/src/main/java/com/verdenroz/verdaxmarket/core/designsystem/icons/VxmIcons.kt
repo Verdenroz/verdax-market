@@ -12,8 +12,10 @@ import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Edit
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.rounded.Settings
 object VxmIcons {
     val Home = Icons.Rounded.Home
     val Search = Icons.Rounded.Search
+    val Close = Icons.Rounded.Clear
     val List = Icons.AutoMirrored.Rounded.List
     val Account = Icons.Rounded.AccountCircle
     val Login = Icons.AutoMirrored.Rounded.Login
@@ -51,6 +54,7 @@ object VxmIcons {
     val Palette = Icons.Rounded.Palette
     val Help = Icons.AutoMirrored.Rounded.Help
     val Schedule = Icons.Outlined.Schedule
+    val Sync = Icons.Outlined.Sync
     val Notification = Icons.Outlined.Notifications
     val Analytics = Icons.Outlined.Analytics
 }

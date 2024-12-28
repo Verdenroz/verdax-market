@@ -3,6 +3,7 @@ package com.verdenroz.verdaxmarket.feature.settings.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSwitch
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
@@ -37,8 +39,10 @@ import com.verdenroz.verdaxmarket.feature.settings.UserAuthState
 @Composable
 internal fun AccountDialog(
     user: UserAuthState.SignedIn,
+    isSynced: Boolean,
+    onDismiss: () -> Unit,
     onSignOut: () -> Unit,
-    onDismiss: () -> Unit
+    onSyncChange: (Boolean) -> Unit
 ) {
     var showSignOutDialog by remember { mutableStateOf(false) }
 
@@ -59,7 +63,7 @@ internal fun AccountDialog(
                         modifier = Modifier.align(Alignment.TopEnd)
                     ) {
                         Icon(
-                            imageVector = VxmIcons.Remove,
+                            imageVector = VxmIcons.Close,
                             contentDescription = stringResource(R.string.feature_settings_close)
                         )
                     }
@@ -107,6 +111,42 @@ internal fun AccountDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = VxmIcons.Sync,
+                        contentDescription = stringResource(R.string.feature_settings_sync),
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier.weight(.8f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.feature_settings_sync),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = stringResource(R.string.feature_settings_sync_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    VxmSwitch(
+                        checked = isSynced,
+                        onCheckedChange = onSyncChange,
+                        modifier = Modifier
+                            .weight(.2f)
+                            .padding(end = 16.dp)
+                    )
+                }
+
                 Button(
                     onClick = { showSignOutDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inverseSurface),
@@ -140,8 +180,10 @@ private fun PreviewAccountDialog() {
                 photoUrl = "",
                 creationDate = "November 10, 2024",
             ),
+            isSynced = true,
+            onDismiss = {},
             onSignOut = {},
-            onDismiss = {}
+            onSyncChange = {}
         )
     }
 }

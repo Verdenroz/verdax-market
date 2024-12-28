@@ -46,4 +46,7 @@
     <string name="feature_settings_reset_link_sent">We\'ve sent a password reset link to %s</string>
     <string name="feature_settings_check_email_instructions">See email instructions to reset password</string>
     <string name="feature_settings_back_to_sign_in">Return to Sign In</string>
+    <string name="feature_settings_sync">Cloud Sync</string>
+    <string name="feature_settings_sync_title">Activate Cloud Sync</string>
+    <string name="feature_settings_sync_description">Keep your watchlist and settings synchronized with the cloud</string>
 </resources>
