@@ -51,7 +51,6 @@ class AuthViewModel @Inject constructor(
     companion object {
         private const val WEB_CLIENT_ID =
             "164158213127-l8dqusc0au44n2ubcm2kfl2io67tn23c.apps.googleusercontent.com"
-        private const val GITHUB_CLIENT_ID = "your_github_client_id"
         private const val TAG = "AuthViewModel"
     }
 
@@ -120,7 +119,6 @@ class AuthViewModel @Inject constructor(
             _authState.value = UserAuthState.Loading
 
             val provider = OAuthProvider.newBuilder("github.com").apply {
-                addCustomParameter("client_id", GITHUB_CLIENT_ID)
                 scopes = listOf("user:email")
             }.build()
 
