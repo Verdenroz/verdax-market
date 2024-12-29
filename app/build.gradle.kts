@@ -60,9 +60,10 @@ dependencies {
     implementation(projects.feature.settings)
 
     implementation(projects.core.common)
+    implementation(projects.core.data)
     implementation(projects.core.designsystem)
     implementation(projects.core.model)
-    implementation(projects.core.data)
+    implementation(projects.core.sync)
 
 
     implementation(libs.androidx.activity.compose)

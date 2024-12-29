@@ -1,6 +1,7 @@
 package com.verdenroz.verdaxmarket
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.verdenroz.core.sync.SyncManager
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
@@ -43,6 +45,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var recentSearchRepository: RecentSearchRepository
 
+    @Inject
+    lateinit var syncManager: SyncManager
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +67,17 @@ class MainActivity : ComponentActivity() {
 
                 // Start collecting the recent quotes
                 recentSearchRepository.recentQuotes.collect { }
+
+                launch {
+                    // Start collecting the sync state
+                    syncManager.syncState
+                        .onEach { syncState ->
+                            syncState.error?.let { error ->
+                                Log.e("SyncManager", "Sync error: $error")
+                            }
+                        }
+                        .collect { }
+                }
             }
         }
 
