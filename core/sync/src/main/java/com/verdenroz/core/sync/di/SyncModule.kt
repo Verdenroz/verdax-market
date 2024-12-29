@@ -1,7 +1,7 @@
 package com.verdenroz.core.sync.di
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import com.verdenroz.core.datastore.UserSettingsStore
 import com.verdenroz.core.sync.SyncManager
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
@@ -20,20 +20,27 @@ import kotlinx.coroutines.CoroutineScope
 object SyncModule {
 
     @Provides
-    fun providesFirebaseFirestore() = FirebaseFirestore.getInstance()
+    fun providesFirebaseDatabase() = FirebaseDatabase.getInstance()
 
     @Provides
     fun providesFirebaseAuth() = FirebaseAuth.getInstance()
 
     @Provides
     fun providesSyncManager(
-        firestore: FirebaseFirestore,
+        database: FirebaseDatabase,
         auth: FirebaseAuth,
         userSettingsStore: UserSettingsStore,
         watchlistRepository: WatchlistRepository,
         @Dispatcher(FinanceQueryDispatchers.IO) ioDispatcher: CoroutineDispatcher,
-        @ApplicationScope applicationScope: CoroutineScope
+        @ApplicationScope applicationScope: CoroutineScope,
     ): SyncManager {
-        return SyncManager(firestore, auth, userSettingsStore, watchlistRepository, ioDispatcher, applicationScope)
+        return SyncManager(
+            database,
+            auth,
+            userSettingsStore,
+            watchlistRepository,
+            ioDispatcher,
+            applicationScope,
+        )
     }
 }

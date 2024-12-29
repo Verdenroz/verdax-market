@@ -2,7 +2,7 @@ package com.verdenroz.core.sync
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import com.verdenroz.core.datastore.UserSettingsStore
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
@@ -29,19 +29,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Singleton
 class SyncManager @Inject constructor(
-    private val firestore: FirebaseFirestore,
+    private val database: FirebaseDatabase,
     private val auth: FirebaseAuth,
     private val userSettingsStore: UserSettingsStore,
     private val watchlistRepository: WatchlistRepository,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    @ApplicationScope private val scope: CoroutineScope
+    @ApplicationScope private val scope: CoroutineScope,
 ) {
 
     data class SyncState(
@@ -138,13 +140,13 @@ class SyncManager @Inject constructor(
      * Syncs the user settings with the cloud.
      */
     private suspend fun syncSettings() {
-        val cloudSettings = getSettings()
+        val cloudSettings = getCloudSettings()
         val localSettings = userSettingsStore.userSettings.first()
 
         if (cloudSettings != null && !localSettings.isOnboardingComplete) {
             userSettingsStore.updateSettings(cloudSettings)
         } else if (localSettings.isOnboardingComplete) {
-            syncSettings(localSettings)
+            syncCloudSettings(localSettings)
         }
     }
 
@@ -153,7 +155,7 @@ class SyncManager @Inject constructor(
      */
     private suspend fun syncWatchlist() {
         val localWatchlist = watchlistRepository.getWatchlist().map { it.asExternalModel() }
-        val cloudWatchlist = getWatchlist()
+        val cloudWatchlist = getCloudWatchlist()
 
         when {
             cloudWatchlist != null && localWatchlist.isEmpty() -> {
@@ -164,7 +166,7 @@ class SyncManager @Inject constructor(
                 watchlistRepository.updateWatchlist(mergedWatchlist)
             }
             localWatchlist.isNotEmpty() -> {
-                syncWatchlist(localWatchlist)
+                syncCloudWatchlist(localWatchlist)
             }
         }
     }
@@ -185,7 +187,7 @@ class SyncManager @Inject constructor(
                 .collect { settings ->
                     if (auth.currentUser != null && _syncState.value.isEnabled) {
                         try {
-                            syncSettings(settings)
+                            syncCloudSettings(settings)
                         } catch (e: Exception) {
                             _syncState.update { it.copy(error = e) }
                         }
@@ -201,7 +203,7 @@ class SyncManager @Inject constructor(
                 .collect { watchlist ->
                     if (auth.currentUser != null && _syncState.value.isEnabled) {
                         try {
-                            syncWatchlist(watchlist)
+                            syncCloudWatchlist(watchlist)
                         } catch (e: Exception) {
                             _syncState.update { it.copy(error = e) }
                         }
@@ -221,60 +223,9 @@ class SyncManager @Inject constructor(
     }
 
     /**
-     * Syncs the user settings with the cloud.
+     * Syncs the user settings with the Realtime Database.
      */
-    private suspend fun syncWatchlist(watchlist: List<WatchlistQuote>) {
-        currentUserId?.let { userId ->
-            val watchlistData = watchlist.map { quote ->
-                mapOf(
-                    "symbol" to quote.symbol,
-                    "name" to quote.name,
-                    "logo" to quote.logo,
-                    "order" to quote.order
-                )
-            }
-            firestore.collection("users")
-                .document(userId)
-                .collection("watchlist")
-                .document("symbols")
-                .set(mapOf("items" to watchlistData))
-                .await()
-        }
-    }
-
-    /**
-     * Gets the watchlist from the cloud.
-     */
-    private suspend fun getWatchlist(): List<WatchlistQuote>? {
-        return currentUserId?.let { userId ->
-            val snapshot = firestore.collection("users")
-                .document(userId)
-                .collection("watchlist")
-                .document("symbols")
-                .get()
-                .await()
-
-            @Suppress("UNCHECKED_CAST")
-            val items = snapshot.get("items") as? List<Map<String, Any>> ?: return null
-
-            items.map { item ->
-                WatchlistQuote(
-                    symbol = item["symbol"] as String,
-                    name = item["name"] as String,
-                    logo = item["logo"] as? String,
-                    order = (item["order"] as Long).toInt(),
-                    price = null,
-                    change = null,
-                    percentChange = null
-                )
-            }
-        }
-    }
-
-    /**
-     * Syncs the user settings with the cloud.
-     */
-    private suspend fun syncSettings(settings: UserSetting) {
+    private suspend fun syncCloudSettings(settings: UserSetting) {
         currentUserId?.let { userId ->
             val settingsData = mapOf(
                 "themePreference" to settings.themePreference.name,
@@ -284,39 +235,112 @@ class SyncManager @Inject constructor(
                 "enableAnonymousAnalytics" to settings.enableAnonymousAnalytics,
                 "isOnboardingComplete" to settings.isOnboardingComplete
             )
-            firestore.collection("users")
-                .document(userId)
-                .collection("settings")
-                .document("user_settings")
-                .set(settingsData)
-                .await()
+
+            suspendCancellableCoroutine { continuation ->
+                database.reference
+                    .child("users")
+                    .child(userId)
+                    .child("settings")
+                    .setValue(settingsData)
+                    .addOnSuccessListener { continuation.resume(Unit) }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+            }
         }
     }
 
     /**
-     * Gets the user settings from the cloud.
+     * Gets the user settings from the Realtime Database.
      */
-    private suspend fun getSettings(): UserSetting? {
+    private suspend fun getCloudSettings(): UserSetting? {
         return currentUserId?.let { userId ->
-            val snapshot = firestore.collection("users")
-                .document(userId)
-                .collection("settings")
-                .document("user_settings")
-                .get()
-                .await()
+            suspendCancellableCoroutine { continuation ->
+                database.reference
+                    .child("users")
+                    .child(userId)
+                    .child("settings")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        if (!snapshot.exists()) {
+                            continuation.resume(null)
+                            return@addOnSuccessListener
+                        }
 
-            if (!snapshot.exists()) return null
+                        val settings = UserSetting(
+                            themePreference = ThemePreference.valueOf(
+                                snapshot.child("themePreference").value as? String
+                                    ?: ThemePreference.SYSTEM.name
+                            ),
+                            notificationsEnabled = snapshot.child("notificationsEnabled").value as? Boolean ?: true,
+                            hintsEnabled = snapshot.child("hintsEnabled").value as? Boolean ?: true,
+                            showMarketHours = snapshot.child("showMarketHours").value as? Boolean ?: true,
+                            enableAnonymousAnalytics = snapshot.child("enableAnonymousAnalytics").value as? Boolean ?: false,
+                            isOnboardingComplete = snapshot.child("isOnboardingComplete").value as? Boolean ?: false
+                        )
+                        continuation.resume(settings)
+                    }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+            }
+        }
+    }
 
-            UserSetting(
-                themePreference = ThemePreference.valueOf(
-                    snapshot.getString("themePreference") ?: ThemePreference.SYSTEM.name
-                ),
-                notificationsEnabled = snapshot.getBoolean("notificationsEnabled") != false,
-                hintsEnabled = snapshot.getBoolean("hintsEnabled") != false,
-                showMarketHours = snapshot.getBoolean("showMarketHours") != false,
-                enableAnonymousAnalytics = snapshot.getBoolean("enableAnonymousAnalytics") == true,
-                isOnboardingComplete = snapshot.getBoolean("isOnboardingComplete") == true
-            )
+    /**
+     * Syncs the watchlist with the Realtime Database.
+     */
+    private suspend fun syncCloudWatchlist(watchlist: List<WatchlistQuote>) {
+        currentUserId?.let { userId ->
+            val watchlistData = watchlist.map { quote ->
+                mapOf(
+                    "symbol" to quote.symbol,
+                    "name" to quote.name,
+                    "logo" to quote.logo,
+                    "order" to quote.order
+                )
+            }
+
+            suspendCancellableCoroutine { continuation ->
+                database.reference
+                    .child("users")
+                    .child(userId)
+                    .child("watchlist")
+                    .setValue(watchlistData)
+                    .addOnSuccessListener { continuation.resume(Unit) }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+            }
+        }
+    }
+
+    /**
+     * Gets the watchlist from the Realtime Database.
+     */
+    private suspend fun getCloudWatchlist(): List<WatchlistQuote>? {
+        return currentUserId?.let { userId ->
+            suspendCancellableCoroutine { continuation ->
+                database.reference
+                    .child("users")
+                    .child(userId)
+                    .child("watchlist")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        if (!snapshot.exists()) {
+                            continuation.resume(null)
+                            return@addOnSuccessListener
+                        }
+
+                        val watchlist = snapshot.children.mapNotNull { itemSnapshot ->
+                            WatchlistQuote(
+                                symbol = itemSnapshot.child("symbol").value as? String ?: return@mapNotNull null,
+                                name = itemSnapshot.child("name").value as? String ?: return@mapNotNull null,
+                                logo = itemSnapshot.child("logo").value as? String,
+                                order = (itemSnapshot.child("order").value as? Long)?.toInt() ?: return@mapNotNull null,
+                                price = null,
+                                change = null,
+                                percentChange = null
+                            )
+                        }
+                        continuation.resume(watchlist)
+                    }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+            }
         }
     }
 }
