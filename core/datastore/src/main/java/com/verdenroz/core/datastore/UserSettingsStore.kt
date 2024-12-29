@@ -31,6 +31,24 @@ class UserSettingsStore @Inject constructor(
             )
         }
 
+    suspend fun updateSettings(userSettings: UserSetting) {
+        userSettingsDataStore.updateData {
+            it.copy {
+                this.themePreference = when (userSettings.themePreference) {
+                    ThemePreference.SYSTEM -> UserSettings.ThemePreference.SYSTEM
+                    ThemePreference.LIGHT -> UserSettings.ThemePreference.LIGHT
+                    ThemePreference.DARK -> UserSettings.ThemePreference.DARK
+                }
+                this.notificationsEnabled = userSettings.notificationsEnabled
+                this.hintsEnabled = userSettings.hintsEnabled
+                this.showMarketHours = userSettings.showMarketHours
+                this.syncEnabled = userSettings.isSynced
+                this.enableAnalytics = userSettings.enableAnonymousAnalytics
+                this.isOnboardingComplete = userSettings.isOnboardingComplete
+            }
+        }
+    }
+
     suspend fun setThemePreference(themePreference: ThemePreference) {
         userSettingsDataStore.updateData {
             it.copy {
