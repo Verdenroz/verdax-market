@@ -413,7 +413,7 @@ internal fun AuthDialog(
                             )
 
                             AuthButton(
-                                logo = painterResource(id = R.drawable.feature_settings_google_logo),
+                                logo = painterResource(id = if (LocalTheme.current) R.drawable.feature_settings_google_logo_dark else R.drawable.feature_settings_google_logo_light),
                                 contentDescription = stringResource(id = R.string.feature_settings_sign_in_with_google),
                                 text = stringResource(id = R.string.feature_settings_sign_in_with_google),
                                 onClick = {
@@ -422,7 +422,7 @@ internal fun AuthDialog(
                                 }
                             )
                             AuthButton(
-                                logo = painterResource(id = R.drawable.feature_settings_github_logo),
+                                logo = painterResource(id = if (LocalTheme.current) R.drawable.feature_settings_github_logo_dark else R.drawable.feature_settings_github_logo_light),
                                 contentDescription = stringResource(id = R.string.feature_settings_sign_in_with_github),
                                 text = stringResource(id = R.string.feature_settings_sign_in_with_github),
                                 onClick = {

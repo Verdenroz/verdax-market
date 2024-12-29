@@ -97,7 +97,7 @@ fun VxmTheme(
         MaterialTheme(
             colorScheme = if (isDarkTheme) darkScheme else lightScheme,
             typography = AppTypography,
-            content = { content() }
+            content = content
         )
     }
 }
