@@ -4,9 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.algolia.instantsearch.searcher.hits.HitsSearcher
+import com.algolia.search.client.ClientSearch
+import com.algolia.search.helper.toAttribute
 import com.algolia.search.model.APIKey
 import com.algolia.search.model.ApplicationID
 import com.algolia.search.model.IndexName
+import com.algolia.search.model.ObjectID
+import com.algolia.search.model.indexing.Partial
 import com.algolia.search.model.search.Query
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
@@ -46,6 +50,12 @@ class SearchViewModel @Inject constructor(
     val typeFilter: MutableStateFlow<List<TypeFilter>> =
         MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
 
+    private val client = ClientSearch(
+        applicationID = ApplicationID(BuildConfig.ALGOLIA_APP_ID),
+        apiKey = APIKey(BuildConfig.ALGOLIA_API_KEY)
+    )
+    private val index = client.initIndex(IndexName("stocks"))
+
     private val searchQuery: StateFlow<Query> = MutableStateFlow(Query(
         hitsPerPage = 10,
         facetFilters = (listOf(
@@ -60,8 +70,7 @@ class SearchViewModel @Inject constructor(
         query = searchQuery.value
     )
 
-    private val query: StateFlow<String> =
-        savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
+    private val query: StateFlow<String> = savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
 
     private val savedSearchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
@@ -91,15 +100,15 @@ class SearchViewModel @Inject constructor(
         emptyList()
     )
 
-    val resultsInWatchlist: StateFlow<List<Boolean>> = combine(
+    val resultsInWatchlist: StateFlow<Map<String, Boolean>> = combine(
         searchResults,
         watchlistRepository.watchlist
-    ) { results, watchlist ->
-        results.map { result -> watchlist.any { it.symbol == result.symbol } }
+    ) { symbols, watchlist ->
+        symbols.associate { (symbol, _) -> symbol to watchlist.any { it.symbol == symbol } }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000L),
-        emptyList()
+        emptyMap()
     )
 
     val recentQuotesInWatchlist: StateFlow<Map<String, Boolean>> = combine(
@@ -124,7 +133,6 @@ class SearchViewModel @Inject constructor(
             ) ?: emptyList()
         }
     }
-
     override fun onCleared() {
         super.onCleared()
         searcher.cancel()
@@ -154,6 +162,20 @@ class SearchViewModel @Inject constructor(
             viewModelScope.launch {
                 recentSearchRepository.upsertRecentQuery(query)
             }
+        }
+    }
+
+    fun onClick(result: SearchResult) {
+        viewModelScope.launch {
+            recentSearchRepository.upsertRecentQuery(query.value)
+            val viewCountAttribute = "views".toAttribute()
+            val partial = Partial.Increment(viewCountAttribute, 1)
+
+            // Update the object
+            index.partialUpdateObject(
+                objectID = ObjectID(result.objectID),
+                partial = partial
+            )
         }
     }
 
