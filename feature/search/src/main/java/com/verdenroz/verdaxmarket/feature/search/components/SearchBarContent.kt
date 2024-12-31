@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,71 +55,84 @@ internal fun SearchBarContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        searchResults.forEachIndexed { index, match ->
-            VxmListItem(
-                modifier = Modifier
-                    .clickable {
-                        onSearch()
-                        onClick(match)
-                        onNavigateToQuote(match.symbol)
-                    }
-                    .fillMaxWidth(),
-                headlineContent = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = match.symbol,
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 300.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            searchResults.forEachIndexed { index, match ->
+                VxmListItem(
+                    modifier = Modifier
+                        .clickable {
+                            onSearch()
+                            onClick(match)
+                            onNavigateToQuote(match.symbol)
+                        }
+                        .fillMaxWidth(),
+                    headlineContent = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = match.symbol,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
 
-                        Text(
-                            text = match.exchangeShortName,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    }
-                },
-                supportingContent = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = match.name,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 16.dp)
-                        )
-                        Text(
-                            text = match.type,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    }
-                },
-                trailingContent = {
-                    if (resultsInWatchlist[match.symbol] == true) {
-                        IconButton(onClick = { deleteFromWatchlist(match.symbol) }) {
-                            Icon(
-                                VxmIcons.Remove,
-                                contentDescription = stringResource(id = R.string.feature_search_remove)
+                            Text(
+                                text = match.exchangeShortName,
+                                style = MaterialTheme.typography.labelSmall,
                             )
                         }
-                    } else {
-                        IconButton(onClick = { addToWatchlist(match.symbol, match.name, null) }) {
-                            Icon(
-                                VxmIcons.Add,
-                                contentDescription = stringResource(id = R.string.feature_search_add)
+                    },
+                    supportingContent = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = match.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 16.dp)
+                            )
+                            Text(
+                                text = match.type,
+                                style = MaterialTheme.typography.labelSmall,
                             )
                         }
-                    }
-                },
-            )
-            HorizontalDivider()
+                    },
+                    trailingContent = {
+                        if (resultsInWatchlist[match.symbol] == true) {
+                            IconButton(onClick = { deleteFromWatchlist(match.symbol) }) {
+                                Icon(
+                                    VxmIcons.Remove,
+                                    contentDescription = stringResource(id = R.string.feature_search_remove)
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = {
+                                addToWatchlist(
+                                    match.symbol,
+                                    match.name,
+                                    null
+                                )
+                            }) {
+                                Icon(
+                                    VxmIcons.Add,
+                                    contentDescription = stringResource(id = R.string.feature_search_add)
+                                )
+                            }
+                        }
+                    },
+                )
+                HorizontalDivider()
+            }
         }
 
         RecentQueries(
