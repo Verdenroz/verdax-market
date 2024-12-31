@@ -34,9 +34,10 @@ internal fun SearchBarContent(
     searchResults: List<SearchResult>,
     recentQueries: List<String>,
     recentSymbolNames: List<Triple<String, String, String?>>,
-    resultsInWatchlist: List<Boolean>,
+    resultsInWatchlist: Map<String, Boolean>,
     recentQuotesInWatchlist: Map<String, Boolean>,
-    onClick: (String) -> Unit,
+    onSearch: () -> Unit,
+    onClick: (SearchResult) -> Unit,
     onNavigateToQuote: (String) -> Unit,
     addToWatchlist: (String, String, String?) -> Unit,
     deleteFromWatchlist: (String) -> Unit,
@@ -55,7 +56,8 @@ internal fun SearchBarContent(
             VxmListItem(
                 modifier = Modifier
                     .clickable {
-                        onClick(match.symbol)
+                        onSearch()
+                        onClick(match)
                         onNavigateToQuote(match.symbol)
                     }
                     .fillMaxWidth(),
@@ -97,7 +99,7 @@ internal fun SearchBarContent(
                     }
                 },
                 trailingContent = {
-                    if (resultsInWatchlist.getOrNull(index) == true) {
+                    if (resultsInWatchlist[match.symbol] == true) {
                         IconButton(onClick = { deleteFromWatchlist(match.symbol) }) {
                             Icon(
                                 VxmIcons.Remove,
@@ -157,21 +159,24 @@ private fun PreviewSearchBarContent() {
             name = "Apple Inc.",
             exchangeShortName = "NASDAQ",
             exchange = "NASDAQ",
-            type = "stock"
+            type = "stock",
+            objectID = "1"
         ),
         SearchResult(
             symbol = "GOOGL",
             name = "Alphabet Inc.",
             exchangeShortName = "NASDAQ",
             exchange = "NASDAQ",
-            type = "stock"
+            type = "stock",
+            objectID = "2"
         ),
         SearchResult(
             symbol = "MSFT",
             name = "Microsoft Corp.",
             exchangeShortName = "NASDAQ",
             exchange = "NASDAQ",
-            type = "stock"
+            type = "stock",
+            objectID = "3"
         )
     )
 
@@ -219,15 +224,20 @@ private fun PreviewSearchBarContent() {
                     Triple("GOOGL", "Alphabet Inc.", "https://logo.clearbit.com/abc.xyz"),
                     Triple("MSFT", "Microsoft Corp.", "https://logo.clearbit.com/microsoft.com")
                 ),
-                resultsInWatchlist = List(3) { false },
+                resultsInWatchlist = mapOf(
+                    "AAPL" to true,
+                    "GOOGL" to false,
+                    "MSFT" to false
+                ),
                 recentQuotesInWatchlist = mapOf(
                     "AAPL" to true,
                     "GOOGL" to false,
                     "MSFT" to false
                 ),
+                onSearch = {},
                 onClick = {},
                 onNavigateToQuote = {},
-                addToWatchlist = {_, _, _ -> },
+                addToWatchlist = { _, _, _ -> },
                 deleteFromWatchlist = {},
                 onRecentQueryClick = {},
                 removeRecentQuery = {},
