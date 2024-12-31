@@ -114,10 +114,14 @@ class SearchViewModel @Inject constructor(
     )
 
     init {
+        // Sort the search results by type and then by views
+        // Prioritizing stocks, then ETFs, and finally trusts
         searcher.response.subscribe { response ->
-            searchResults.value = response?.hits?.take(5)?.mapNotNull { hit ->
+            searchResults.value = response?.hits?.take(10)?.mapNotNull { hit ->
                 hit.deserialize(SearchResult.serializer()).takeIf { it.name.isNotBlank() }
-            } ?: emptyList()
+            }?.sortedWith(compareBy<SearchResult> { TypeFilter.entries.find { filter -> filter.type == it.type }?.ordinal }
+                .thenByDescending { it.views ?: 0 }
+            ) ?: emptyList()
         }
     }
 
