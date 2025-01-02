@@ -77,7 +77,7 @@ internal fun QuoteChart(
     val negativeTextColor = getNegativeTextColor()
     val positiveBackgroundColor = getPositiveBackgroundColor()
     val negativeBackgroundColor = getNegativeBackgroundColor()
-    var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.YEAR_TO_DATE) }
+    var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.SIX_MONTH) }
 
     when (val currentTimeSeries = timeSeries[timePeriod]) {
         is Result.Loading, null -> {
@@ -412,7 +412,7 @@ private fun drawXAxis(
     data: Map<String, HistoricalData>,
     timePeriod: TimePeriod
 ) {
-    val stepSize = (data.size / 4.5).toInt()
+    val stepSize = maxOf((data.size / 4.5).toInt(), 1)
     for (i in data.entries.indices step stepSize) {
         val date = data.entries.elementAt(i).key
         val formattedDate = formatDate(date, timePeriod)
