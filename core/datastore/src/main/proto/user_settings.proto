@@ -10,12 +10,21 @@ message UserSettings {
     DARK = 2;
   }
 
+  enum RegionPreference {
+    US = 0;
+    NA = 1;
+    SA = 2;
+    EU = 3;
+    AS = 4;
+    AF = 5;
+    AU = 6;
+    ME = 7;
+    GLOBAL = 8;
+  }
+
   ThemePreference theme_preference = 1;
-  bool notifications_enabled = 2;
+  RegionPreference region_preference = 2;
   bool hints_enabled = 3;
   bool show_market_hours = 4;
   bool sync_enabled = 5;
-  bool enable_analytics = 6;
-  bool is_onboarding_complete = 7;
-  bool is_first_launch = 8;
 }

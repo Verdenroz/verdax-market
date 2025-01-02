@@ -1,6 +1,7 @@
 package com.verdenroz.core.datastore
 
 import androidx.datastore.core.DataStore
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import kotlinx.coroutines.flow.map
@@ -22,12 +23,22 @@ class UserSettingsStore @Inject constructor(
                     UserSettings.ThemePreference.LIGHT -> ThemePreference.LIGHT
                     UserSettings.ThemePreference.DARK -> ThemePreference.DARK
                 },
-                notificationsEnabled = it.notificationsEnabled,
+                regionPreference = when (it.regionPreference) {
+                    null,
+                    UserSettings.RegionPreference.UNRECOGNIZED,
+                    UserSettings.RegionPreference.US -> RegionFilter.US
+                    UserSettings.RegionPreference.NA -> RegionFilter.NA
+                    UserSettings.RegionPreference.SA -> RegionFilter.SA
+                    UserSettings.RegionPreference.EU -> RegionFilter.EU
+                    UserSettings.RegionPreference.AS -> RegionFilter.AS
+                    UserSettings.RegionPreference.AF -> RegionFilter.AF
+                    UserSettings.RegionPreference.AU -> RegionFilter.AU
+                    UserSettings.RegionPreference.ME -> RegionFilter.ME
+                    UserSettings.RegionPreference.GLOBAL -> RegionFilter.GLOBAL
+                },
                 hintsEnabled = it.hintsEnabled,
                 showMarketHours = it.showMarketHours,
                 isSynced = it.syncEnabled,
-                enableAnonymousAnalytics = it.enableAnalytics,
-                isOnboardingComplete = it.isOnboardingComplete
             )
         }
 
@@ -39,12 +50,20 @@ class UserSettingsStore @Inject constructor(
                     ThemePreference.LIGHT -> UserSettings.ThemePreference.LIGHT
                     ThemePreference.DARK -> UserSettings.ThemePreference.DARK
                 }
-                this.notificationsEnabled = userSettings.notificationsEnabled
+                this.regionPreference = when (userSettings.regionPreference) {
+                    RegionFilter.US -> UserSettings.RegionPreference.US
+                    RegionFilter.NA -> UserSettings.RegionPreference.NA
+                    RegionFilter.SA -> UserSettings.RegionPreference.SA
+                    RegionFilter.EU -> UserSettings.RegionPreference.EU
+                    RegionFilter.AS -> UserSettings.RegionPreference.AS
+                    RegionFilter.AF -> UserSettings.RegionPreference.AF
+                    RegionFilter.AU -> UserSettings.RegionPreference.AU
+                    RegionFilter.ME -> UserSettings.RegionPreference.ME
+                    RegionFilter.GLOBAL -> UserSettings.RegionPreference.GLOBAL
+                }
                 this.hintsEnabled = userSettings.hintsEnabled
                 this.showMarketHours = userSettings.showMarketHours
                 this.syncEnabled = userSettings.isSynced
-                this.enableAnalytics = userSettings.enableAnonymousAnalytics
-                this.isOnboardingComplete = userSettings.isOnboardingComplete
             }
         }
     }
@@ -61,9 +80,21 @@ class UserSettingsStore @Inject constructor(
         }
     }
 
-    suspend fun setNotificationsEnabled(notificationsEnabled: Boolean) {
+    suspend fun setRegionPreference(regionPreference: RegionFilter) {
         userSettingsDataStore.updateData {
-            it.copy { this.notificationsEnabled = notificationsEnabled }
+            it.copy {
+                this.regionPreference = when (regionPreference) {
+                    RegionFilter.US -> UserSettings.RegionPreference.US
+                    RegionFilter.NA -> UserSettings.RegionPreference.NA
+                    RegionFilter.SA -> UserSettings.RegionPreference.SA
+                    RegionFilter.EU -> UserSettings.RegionPreference.EU
+                    RegionFilter.AS -> UserSettings.RegionPreference.AS
+                    RegionFilter.AF -> UserSettings.RegionPreference.AF
+                    RegionFilter.AU -> UserSettings.RegionPreference.AU
+                    RegionFilter.ME -> UserSettings.RegionPreference.ME
+                    RegionFilter.GLOBAL -> UserSettings.RegionPreference.GLOBAL
+                }
+            }
         }
     }
 
@@ -82,18 +113,6 @@ class UserSettingsStore @Inject constructor(
     suspend fun setSync(isSynced: Boolean) {
         userSettingsDataStore.updateData {
             it.copy { this.syncEnabled = isSynced }
-        }
-    }
-
-    suspend fun setEnableAnalytics(enableAnalytics: Boolean) {
-        userSettingsDataStore.updateData {
-            it.copy { this.enableAnalytics = enableAnalytics }
-        }
-    }
-
-    suspend fun setIsOnboardingComplete(isOnboardingComplete: Boolean) {
-        userSettingsDataStore.updateData {
-            it.copy { this.isOnboardingComplete = isOnboardingComplete }
         }
     }
 }
