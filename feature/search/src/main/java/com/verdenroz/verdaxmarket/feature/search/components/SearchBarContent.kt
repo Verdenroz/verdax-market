@@ -147,10 +147,6 @@ internal fun SearchBarContent(
                 RecentQuotesSkeleton(recentSymbolNames)
             }
 
-            is SearchState.Error -> {
-                // Show error message
-            }
-
             is SearchState.Success -> {
                 RecentQuotes(
                     recentQuotes = searchState.recentQuotes,

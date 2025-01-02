@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.search
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,20 +13,23 @@ import com.algolia.search.model.IndexName
 import com.algolia.search.model.ObjectID
 import com.algolia.search.model.indexing.Partial
 import com.algolia.search.model.search.Query
-import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
+import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.model.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,14 +39,14 @@ private const val SEARCH_QUERY = "search_query"
 sealed interface SearchState {
     object Loading : SearchState
     data class Success(val recentQuotes: List<SimpleQuoteData>) : SearchState
-    data class Error(val error: DataError) : SearchState
 }
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val watchlistRepository: WatchlistRepository,
-    private val recentSearchRepository: RecentSearchRepository
+    private val recentSearchRepository: RecentSearchRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     val regionFilter = MutableStateFlow(RegionFilter.US)
@@ -82,10 +86,17 @@ class SearchViewModel @Inject constructor(
             emptyList()
         )
 
+    private val errorChannel = Channel<String>()
+    val searchErrors = errorChannel.receiveAsFlow()
+
     val searchState = recentSearchRepository.recentQuotes.map { quotes ->
         when (quotes) {
             is Result.Success -> SearchState.Success(quotes.data)
-            is Result.Error -> SearchState.Error(quotes.error)
+            is Result.Error -> {
+                val errorMessage = quotes.error.asUiText().asString(context)
+                errorChannel.send(errorMessage)
+                SearchState.Loading
+            }
             is Result.Loading -> SearchState.Loading
         }
     }.stateIn(

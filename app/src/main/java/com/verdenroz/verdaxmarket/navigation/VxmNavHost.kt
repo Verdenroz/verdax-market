@@ -30,6 +30,7 @@ fun VxmNavHost(
         )
         searchScreen(
             onNavigateToQuote = navController::navigateToQuote,
+            onShowSnackbar = onShowSnackbar,
         )
         watchlistScreen(
             onNavigateToEdit = navController::navigateToEditWatchlist,

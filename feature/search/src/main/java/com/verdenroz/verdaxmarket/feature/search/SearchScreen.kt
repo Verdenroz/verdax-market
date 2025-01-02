@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun SearchRoute(
     onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
     val typeFilter by searchViewModel.typeFilter.collectAsStateWithLifecycle()
@@ -47,6 +49,12 @@ internal fun SearchRoute(
     val searchState by searchViewModel.searchState.collectAsStateWithLifecycle()
     val recentQueries by searchViewModel.recentQueries.collectAsStateWithLifecycle()
     val recentSymbolNames by searchViewModel.recentSymbolsNames.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        searchViewModel.searchErrors.collect { error ->
+            onShowSnackbar(error, null, SnackbarDuration.Short)
+        }
+    }
 
     SearchScreen(
         searchState = searchState,

@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.search.navigation
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -12,10 +13,12 @@ fun NavController.navigateToSearch(navOptions: NavOptions) = navigate(SEARCH_ROU
 
 fun NavGraphBuilder.searchScreen(
     onNavigateToQuote: (String) -> Unit,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     composable(route = SEARCH_ROUTE) {
         SearchRoute(
             onNavigateToQuote = onNavigateToQuote,
+            onShowSnackbar = onShowSnackbar
         )
     }
 }
