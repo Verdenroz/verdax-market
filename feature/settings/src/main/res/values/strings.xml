@@ -3,7 +3,7 @@
 
     <string name="feature_settings_theme">Theme</string>
     <string name="feature_settings_theme_description">Choose your preferred theme</string>
-    <string name="feature_settings_appearane">Appearance</string>
+    <string name="feature_settings_appearance">Appearance</string>
     <string name="feature_settings_display">Display Preferences</string>
     <string name="feature_settings_hints">Show Hints</string>
     <string name="feature_settings_hints_description">Display tooltips for complex financial terms</string>
@@ -49,4 +49,7 @@
     <string name="feature_settings_sync">Cloud Sync</string>
     <string name="feature_settings_sync_title">Activate Cloud Sync</string>
     <string name="feature_settings_sync_description">Keep your watchlist and settings synchronized with the cloud</string>
+    <string name="feature_settings_region">Region</string>
+    <string name="feature_settings_region_description">Choose your preferred region</string>
+    <string name="feature_settings_location">Location</string>
 </resources>
