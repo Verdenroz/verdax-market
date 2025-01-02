@@ -6,10 +6,8 @@ import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
-import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
+import com.verdenroz.verdaxmarket.core.data.repository.QuoteRepository
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
-import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -24,10 +22,9 @@ import javax.inject.Inject
  * Use case to get historical data for a symbol for different time periods.
  */
 class GetTimeSeriesMapUseCase @Inject constructor(
-    private val api: FinanceQueryDataSource,
+    private val repository: QuoteRepository,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
-
     operator fun invoke(symbol: String): Flow<Map<TimePeriod, Result<Map<String, HistoricalData>, DataError.Network>>> =
         flow {
             val timeSeriesMap =
@@ -36,12 +33,9 @@ class GetTimeSeriesMapUseCase @Inject constructor(
             withContext(ioDispatcher) {
                 TimePeriod.entries.map { timePeriod ->
                     async {
-                        try {
-                            val interval = timeToInterval(timePeriod)
-                            val historicalData = api.getHistoricalData(symbol, timePeriod, interval).asExternalModel()
-                            timeSeriesMap[timePeriod] = Result.Success(historicalData)
-                        } catch (e: Exception) {
-                            timeSeriesMap[timePeriod] = Result.Error(handleNetworkException(e))
+                        val interval = timeToInterval(timePeriod)
+                        repository.getTimeSeries(symbol, timePeriod, interval).collect { result ->
+                            timeSeriesMap[timePeriod] = result
                         }
                     }
                 }
