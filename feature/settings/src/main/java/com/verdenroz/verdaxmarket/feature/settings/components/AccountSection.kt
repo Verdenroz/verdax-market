@@ -180,6 +180,10 @@ fun AccountSection(
             onSignInWithGithub = onSignInWithGithub,
             onForgetPassword = onForgetPassword,
             onDismiss = { showAuthDialog = false },
+            onSuccess = {
+                showAuthDialog = false
+                showAccountDialog = true
+            }
         )
     }
 

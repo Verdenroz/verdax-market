@@ -106,7 +106,8 @@ internal fun AuthDialog(
     onSignInWithGoogle: () -> Unit,
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onSuccess: () -> Unit
 ) {
     var isSigningUp by remember { mutableStateOf(false) }
     var isSigningIn by remember { mutableStateOf(false) }
@@ -151,7 +152,7 @@ internal fun AuthDialog(
                         modifier = Modifier.align(Alignment.CenterEnd)
                     ) {
                         Icon(
-                            imageVector = VxmIcons.Remove,
+                            imageVector = VxmIcons.Close,
                             contentDescription = stringResource(R.string.feature_settings_close)
                         )
                     }
@@ -295,7 +296,7 @@ internal fun AuthDialog(
 
                                         if (emailValidation.isValid && passwordValidation.isValid) {
                                             onSignInWithEmail(email, password)
-                                            onDismiss()
+                                            onSuccess()
                                         } else {
                                             emailError = emailValidation.error
                                             passwordError = passwordValidation.error
@@ -315,7 +316,7 @@ internal fun AuthDialog(
 
                                     if (emailValidation.isValid && passwordValidation.isValid) {
                                         onSignInWithEmail(email, password)
-                                        onDismiss()
+                                        onSuccess()
                                     } else {
                                         emailError = emailValidation.error
                                         passwordError = passwordValidation.error
@@ -372,7 +373,7 @@ internal fun AuthDialog(
 
                                         if (emailValidation.isValid && passwordValidation.isValid) {
                                             onSignUpWithEmail(email, password)
-                                            onDismiss()
+                                            onSuccess()
                                         } else {
                                             emailError = emailValidation.error
                                             passwordError = passwordValidation.error
@@ -393,7 +394,7 @@ internal fun AuthDialog(
 
                                     if (emailValidation.isValid && passwordValidation.isValid) {
                                         onSignUpWithEmail(email, password)
-                                        onDismiss()
+                                        onSuccess()
                                     } else {
                                         emailError = emailValidation.error
                                         passwordError = passwordValidation.error
@@ -418,7 +419,7 @@ internal fun AuthDialog(
                                 text = stringResource(id = R.string.feature_settings_sign_in_with_google),
                                 onClick = {
                                     onSignInWithGoogle()
-                                    onDismiss()
+                                    onSuccess()
                                 }
                             )
                             AuthButton(
@@ -427,7 +428,7 @@ internal fun AuthDialog(
                                 text = stringResource(id = R.string.feature_settings_sign_in_with_github),
                                 onClick = {
                                     onSignInWithGithub()
-                                    onDismiss()
+                                    onSuccess()
                                 }
                             )
 
@@ -482,6 +483,7 @@ private fun PreviewAuthDialog() {
             onSignInWithGoogle = {},
             onSignInWithGithub = {},
             onDismiss = {},
+            onSuccess = {}
         )
     }
 }
