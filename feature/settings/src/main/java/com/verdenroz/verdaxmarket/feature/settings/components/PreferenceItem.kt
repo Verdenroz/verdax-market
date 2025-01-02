@@ -19,34 +19,70 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.feature.settings.R
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ThemePreferenceItem(
+fun ThemePreferenceItem(
     currentTheme: ThemePreference,
     onThemeChange: (ThemePreference) -> Unit
 ) {
+    PreferenceItem(
+        currentPreference = currentTheme,
+        onPreferenceChange = onThemeChange,
+        title = stringResource(id = R.string.feature_settings_theme),
+        description = stringResource(id = R.string.feature_settings_theme_description),
+        icon = VxmIcons.Palette,
+        titleCase = true
+    )
+}
+
+@Composable
+fun RegionPreferenceItem(
+    currentRegion: RegionFilter,
+    onRegionChange: (RegionFilter) -> Unit,
+) {
+    PreferenceItem(
+        currentPreference = currentRegion,
+        onPreferenceChange = onRegionChange,
+        title = stringResource(id = R.string.feature_settings_region),
+        description = stringResource(id = R.string.feature_settings_region_description),
+        icon = VxmIcons.Map,
+        titleCase = false
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal inline fun <reified T : Enum<T>> PreferenceItem(
+    currentPreference: T,
+    crossinline onPreferenceChange: (T) -> Unit,
+    title: String,
+    description: String,
+    icon: ImageVector,
+    titleCase: Boolean = true
+) {
     var expanded by remember { mutableStateOf(false) }
-    val items = ThemePreference.entries
+    val items = enumValues<T>()
 
     VxmListItem(
         headlineContent = {
             Column {
                 Text(
-                    text = stringResource(id = R.string.feature_settings_theme),
+                    text = title,
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
-                    text = stringResource(id = R.string.feature_settings_theme_description),
+                    text = description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -54,7 +90,7 @@ internal fun ThemePreferenceItem(
         },
         leadingContent = {
             Icon(
-                imageVector = VxmIcons.Palette,
+                imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface
             )
@@ -65,9 +101,9 @@ internal fun ThemePreferenceItem(
                 onExpandedChange = { expanded = it }
             ) {
                 TextField(
-                    value = currentTheme.name.lowercase().replaceFirstChar {
+                    value = if (titleCase) currentPreference.name.lowercase().replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                    },
+                    } else currentPreference.name,
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -80,18 +116,19 @@ internal fun ThemePreferenceItem(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    items.forEach { theme ->
+                    items.forEach { preference ->
                         DropdownMenuItem(
                             text = {
-                                Text(theme.name.lowercase()
-                                    .replaceFirstChar {
-                                        if (it.isLowerCase()) it.titlecase(
-                                            Locale.getDefault()
-                                        ) else it.toString()
-                                    })
+                                Text(
+                                    text = if (titleCase) preference.name.lowercase()
+                                        .replaceFirstChar {
+                                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                                        }
+                                    else preference.name
+                                )
                             },
                             onClick = {
-                                onThemeChange(theme)
+                                onPreferenceChange(preference)
                                 expanded = false
                             },
                         )
@@ -110,9 +147,15 @@ internal fun ThemePreferenceItem(
 @Composable
 private fun PreviewThemeSetting() {
     VxmTheme {
-        ThemePreferenceItem(
-            currentTheme = ThemePreference.SYSTEM,
-            onThemeChange = {}
-        )
+        Column {
+            ThemePreferenceItem(
+                currentTheme = ThemePreference.SYSTEM,
+                onThemeChange = {}
+            )
+            RegionPreferenceItem(
+                currentRegion = RegionFilter.US,
+                onRegionChange = {}
+            )
+        }
     }
 }
