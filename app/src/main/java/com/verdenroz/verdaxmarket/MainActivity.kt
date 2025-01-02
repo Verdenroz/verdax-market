@@ -1,7 +1,6 @@
 package com.verdenroz.verdaxmarket
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -67,17 +66,6 @@ class MainActivity : ComponentActivity() {
 
                 // Start collecting the recent quotes
                 recentSearchRepository.recentQuotes.collect { }
-
-                launch {
-                    // Start collecting the sync state
-                    syncManager.syncState
-                        .onEach { syncState ->
-                            syncState.error?.let { error ->
-                                Log.e("SyncManager", "Sync error: $error")
-                            }
-                        }
-                        .collect { }
-                }
             }
         }
 
@@ -91,7 +79,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isDarkTheme = shouldUseDarkTheme(uiState = uiState)
-            val showMarketHours = shouldShowMarketHOurs(uiState = uiState)
+            val showMarketHours = shouldShowMarketHours(uiState = uiState)
 
             DisposableEffect(isDarkTheme) {
                 enableEdgeToEdge(
@@ -110,6 +98,7 @@ class MainActivity : ComponentActivity() {
             val appState = rememberVxmAppState(
                 networkMonitor = networkMonitor,
                 marketMonitor = marketMonitor,
+                syncManager = syncManager,
             )
 
             VxmTheme(isDarkTheme = isDarkTheme) {
@@ -136,7 +125,7 @@ private fun shouldUseDarkTheme(uiState: MainActivityUiState): Boolean {
 }
 
 @Composable
-private fun shouldShowMarketHOurs(uiState: MainActivityUiState): Boolean {
+private fun shouldShowMarketHours(uiState: MainActivityUiState): Boolean {
     return when (uiState) {
         is MainActivityUiState.Success -> uiState.userSetting.showMarketHours
         is MainActivityUiState.Loading -> false

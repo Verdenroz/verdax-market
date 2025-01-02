@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -38,6 +39,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmNavigationSuit
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSnackbarHost
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
+import com.verdenroz.verdaxmarket.feature.settings.navigation.navigateToSettings
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
 
 @Composable
@@ -49,10 +51,14 @@ fun VxmApp(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val syncState by appState.syncState.collectAsStateWithLifecycle()
     val isOffline by appState.isOffline.collectAsStateWithLifecycle()
 
-    // If user is not connected to the internet show a snack bar to inform them.
     val notConnectedMessage = stringResource(R.string.not_connected)
+    val syncError = stringResource(R.string.sync_error)
+    val syncRetry = stringResource(R.string.retry)
+
+    // If user is not connected to the internet show a snack bar to inform them.
     LaunchedEffect(isOffline) {
         if (isOffline) {
             snackbarHostState.showSnackbar(
@@ -62,12 +68,26 @@ fun VxmApp(
         }
     }
 
+    // If there is a sync error show a snack bar to inform the user and allow them to retry.
+    LaunchedEffect(syncState) {
+        if (syncState.error != null) {
+            val result = snackbarHostState.showSnackbar(
+                message = syncError,
+                actionLabel = syncRetry,
+                duration = SnackbarDuration.Long
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                appState.syncManager.retrySync()
+            }
+        }
+    }
+
     VxmAppContent(
         appState = appState,
         showMarketHours = showMarketHours,
         snackbarHostState = snackbarHostState,
         windowAdaptiveInfo = windowAdaptiveInfo,
-        onNavigateToSettings = appState::navigateToSettings,
+        onNavigateToSettings = appState.navController::navigateToSettings,
         modifier = modifier,
     )
 }

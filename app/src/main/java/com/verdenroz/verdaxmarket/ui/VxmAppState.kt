@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.verdenroz.core.sync.SyncManager
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.model.MarketHours
@@ -21,7 +22,6 @@ import com.verdenroz.verdaxmarket.feature.quotes.navigation.QUOTES_ROUTE
 import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE
 import com.verdenroz.verdaxmarket.feature.search.navigation.navigateToSearch
 import com.verdenroz.verdaxmarket.feature.settings.navigation.SETTINGS_ROUTE
-import com.verdenroz.verdaxmarket.feature.settings.navigation.navigateToSettings
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.WATCHLIST_ROUTE
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.navigateToWatchlist
 import com.verdenroz.verdaxmarket.navigation.TopLevelDestination
@@ -35,19 +35,23 @@ import kotlinx.coroutines.flow.stateIn
 fun rememberVxmAppState(
     networkMonitor: NetworkMonitor,
     marketMonitor: MarketMonitor,
+    syncManager: SyncManager,
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): VxmAppState {
     return remember(
         navController,
         coroutineScope,
-        networkMonitor
+        networkMonitor,
+        marketMonitor,
+        syncManager
     ) {
         VxmAppState(
             navController = navController,
             coroutineScope = coroutineScope,
             networkMonitor = networkMonitor,
             marketMonitor = marketMonitor,
+            syncManager = syncManager,
         )
     }
 }
@@ -55,6 +59,7 @@ fun rememberVxmAppState(
 @Stable
 class VxmAppState(
     val navController: NavHostController,
+    val syncManager: SyncManager,
     coroutineScope: CoroutineScope,
     networkMonitor: NetworkMonitor,
     marketMonitor: MarketMonitor,
@@ -92,6 +97,12 @@ class VxmAppState(
             ),
         )
 
+    val syncState = syncManager.syncState
+        .stateIn(
+            scope = coroutineScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = SyncManager.SyncState()
+        )
 
     /**
      * UI logic for navigating to a top level destination in the app. Top level destinations have
@@ -134,9 +145,4 @@ class VxmAppState(
             TopLevelDestination.WATCHLIST -> navController.navigateToWatchlist(topLevelNavOptions)
         }
     }
-
-    fun navigateToSettings() {
-        navController.navigateToSettings()
-    }
-
 }
