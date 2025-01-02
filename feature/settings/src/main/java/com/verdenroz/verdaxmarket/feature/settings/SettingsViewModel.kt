@@ -3,6 +3,7 @@ package com.verdenroz.verdaxmarket.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -24,11 +25,10 @@ class SettingsViewModel @Inject constructor(
                 SettingsUiState.Success(
                     settings = UserEditableSettings(
                         themePreference = userData.themePreference,
-                        notificationsEnabled = userData.notificationsEnabled,
+                        regionPreference = userData.regionPreference,
                         hintsEnabled = userData.hintsEnabled,
                         showMarketHours = userData.showMarketHours,
                         isSynced = userData.isSynced,
-                        enableAnonymousAnalytics = userData.enableAnonymousAnalytics,
                     ),
                 )
             }
@@ -44,10 +44,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-
-    fun updateNotificationSetting(isNotificationEnabled: Boolean) {
+    fun updateRegionPreference(region: RegionFilter) {
         viewModelScope.launch {
-            userDataRepository.setNotificationsEnabled(isNotificationEnabled)
+            userDataRepository.setRegionPreference(region)
         }
     }
 
@@ -69,21 +68,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateEnableAnonymousAnalyticsSetting(isEnableAnonymousAnalytics: Boolean) {
-        viewModelScope.launch {
-            userDataRepository.setEnableAnonymousAnalytics(isEnableAnonymousAnalytics)
-        }
-    }
-
 }
 
 data class UserEditableSettings(
     val themePreference: ThemePreference,
-    val notificationsEnabled: Boolean,
+    val regionPreference: RegionFilter,
     val hintsEnabled: Boolean,
     val showMarketHours: Boolean,
     val isSynced: Boolean,
-    val enableAnonymousAnalytics: Boolean,
 )
 
 

@@ -31,8 +31,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.feature.settings.components.AccountSection
+import com.verdenroz.verdaxmarket.feature.settings.components.RegionPreferenceItem
 import com.verdenroz.verdaxmarket.feature.settings.components.SwitchSettingItem
 import com.verdenroz.verdaxmarket.feature.settings.components.ThemePreferenceItem
 import kotlinx.coroutines.launch
@@ -94,11 +96,10 @@ fun SettingsRoute(
             }
         },
         onThemePreferenceChange = settingsViewModel::updateThemePreference,
-        onNotificationSettingChange = settingsViewModel::updateNotificationSetting,
+        onRegionPreferenceChange = settingsViewModel::updateRegionPreference,
         onHintsSettingChange = settingsViewModel::updateHintsSetting,
         onShowMarketHoursChange = settingsViewModel::updateShowMarketHoursSetting,
         onSyncChange = settingsViewModel::updateSyncSetting,
-        onEnableAnonymousAnalyticsChange = settingsViewModel::updateEnableAnonymousAnalyticsSetting,
     )
 }
 
@@ -115,11 +116,10 @@ internal fun SettingsScreen(
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
     onThemePreferenceChange: (ThemePreference) -> Unit,
-    onNotificationSettingChange: (Boolean) -> Unit,
+    onRegionPreferenceChange: (RegionFilter) -> Unit,
     onHintsSettingChange: (Boolean) -> Unit,
     onShowMarketHoursChange: (Boolean) -> Unit,
     onSyncChange: (Boolean) -> Unit,
-    onEnableAnonymousAnalyticsChange: (Boolean) -> Unit,
 ) {
     when (settingsUiState) {
         SettingsUiState.Loading -> LoadingScreen()
@@ -158,10 +158,18 @@ internal fun SettingsScreen(
                     )
 
                     // Appearance Section
-                    SettingsSection(title = stringResource(id = R.string.feature_settings_appearane)) {
+                    SettingsSection(title = stringResource(id = R.string.feature_settings_appearance)) {
                         ThemePreferenceItem(
                             currentTheme = settings.themePreference,
                             onThemeChange = onThemePreferenceChange
+                        )
+                    }
+
+                    // Region Section
+                    SettingsSection(title = stringResource(id = R.string.feature_settings_location)) {
+                        RegionPreferenceItem(
+                            currentRegion = settings.regionPreference,
+                            onRegionChange = onRegionPreferenceChange
                         )
                     }
 
@@ -184,39 +192,6 @@ internal fun SettingsScreen(
                             icon = VxmIcons.Schedule,
                             checked = settings.showMarketHours,
                             onCheckedChange = onShowMarketHoursChange
-                        )
-                    }
-
-                    // Notifications Section
-                    SettingsSection(title = stringResource(id = R.string.feature_settings_notifications)) {
-                        SwitchSettingItem(
-                            title = stringResource(id = R.string.feature_settings_notifications_title),
-                            description = stringResource(id = R.string.feature_settings_notifications_description),
-                            icon = VxmIcons.Notification,
-                            checked = settings.notificationsEnabled,
-                            onCheckedChange = onNotificationSettingChange
-                        )
-                    }
-
-//                    // Notifications Section
-//                    SettingsSection(title = stringResource(id = R.string.feature_settings_notifications)) {
-//                        SwitchSettingItem(
-//                            title = stringResource(id = R.string.feature_settings_notifications_title),
-//                            description = stringResource(id = R.string.feature_settings_notifications_description),
-//                            icon = VxmIcons.Notification,
-//                            checked = settings.notificationsEnabled,
-//                            onCheckedChange = onNotificationSettingChange
-//                        )
-//                    }
-
-                    // Privacy Section
-                    SettingsSection(title = stringResource(id = R.string.feature_settings_privacy)) {
-                        SwitchSettingItem(
-                            title = stringResource(id = R.string.feature_settings_analytics),
-                            description = stringResource(id = R.string.feature_settings_analytics_description),
-                            icon = VxmIcons.Analytics,
-                            checked = settings.enableAnonymousAnalytics,
-                            onCheckedChange = onEnableAnonymousAnalyticsChange
                         )
                     }
                 }
@@ -263,11 +238,10 @@ private fun PreviewSettingsScreen() {
             settingsUiState = SettingsUiState.Success(
                 settings = UserEditableSettings(
                     themePreference = ThemePreference.SYSTEM,
-                    notificationsEnabled = true,
+                    regionPreference = RegionFilter.US,
                     hintsEnabled = true,
                     showMarketHours = true,
                     isSynced = true,
-                    enableAnonymousAnalytics = true,
                 )
             ),
             authState = UserAuthState.SignedIn(
@@ -284,11 +258,10 @@ private fun PreviewSettingsScreen() {
             onSignOut = { },
             onNavigateBack = { },
             onThemePreferenceChange = { },
-            onNotificationSettingChange = { },
+            onRegionPreferenceChange = { },
             onHintsSettingChange = { },
             onShowMarketHoursChange = { },
             onSyncChange = { },
-            onEnableAnonymousAnalyticsChange = { },
         )
     }
 }
