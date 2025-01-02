@@ -9,6 +9,7 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.di.ApplicationScope
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
@@ -108,6 +109,23 @@ class SyncManager @Inject constructor(
                 }
             }
         }
+
+        // Sets sync to false if an error occurs
+        scope.launch {
+            _syncState.collect { state ->
+                if (state.error != null) {
+                    userSettingsStore.setSync(false)
+                }
+            }
+        }
+    }
+
+    fun retrySync() {
+        scope.launch {
+            _syncState.update { it.copy(error = null) }
+            // This will trigger the combine flow in init which will call initializeSync()
+            userSettingsStore.setSync(true)
+        }
     }
 
     /**
@@ -143,9 +161,9 @@ class SyncManager @Inject constructor(
         val cloudSettings = getCloudSettings()
         val localSettings = userSettingsStore.userSettings.first()
 
-        if (cloudSettings != null && !localSettings.isOnboardingComplete) {
+        if (cloudSettings != null) {
             userSettingsStore.updateSettings(cloudSettings)
-        } else if (localSettings.isOnboardingComplete) {
+        } else {
             syncCloudSettings(localSettings)
         }
     }
@@ -161,10 +179,12 @@ class SyncManager @Inject constructor(
             cloudWatchlist != null && localWatchlist.isEmpty() -> {
                 watchlistRepository.updateWatchlist(cloudWatchlist)
             }
+
             cloudWatchlist != null -> {
                 val mergedWatchlist = localWatchlist.mergeWith(cloudWatchlist)
                 watchlistRepository.updateWatchlist(mergedWatchlist)
             }
+
             localWatchlist.isNotEmpty() -> {
                 syncCloudWatchlist(localWatchlist)
             }
@@ -229,11 +249,9 @@ class SyncManager @Inject constructor(
         currentUserId?.let { userId ->
             val settingsData = mapOf(
                 "themePreference" to settings.themePreference.name,
-                "notificationsEnabled" to settings.notificationsEnabled,
+                "regionPreference" to settings.regionPreference.name,
                 "hintsEnabled" to settings.hintsEnabled,
                 "showMarketHours" to settings.showMarketHours,
-                "enableAnonymousAnalytics" to settings.enableAnonymousAnalytics,
-                "isOnboardingComplete" to settings.isOnboardingComplete
             )
 
             suspendCancellableCoroutine { continuation ->
@@ -243,7 +261,10 @@ class SyncManager @Inject constructor(
                     .child("settings")
                     .setValue(settingsData)
                     .addOnSuccessListener { continuation.resume(Unit) }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnFailureListener { e ->
+                        _syncState.update { it.copy(error = e) }
+                        continuation.resumeWithException(e)
+                    }
             }
         }
     }
@@ -270,15 +291,20 @@ class SyncManager @Inject constructor(
                                 snapshot.child("themePreference").value as? String
                                     ?: ThemePreference.SYSTEM.name
                             ),
-                            notificationsEnabled = snapshot.child("notificationsEnabled").value as? Boolean ?: true,
+                            regionPreference = RegionFilter.valueOf(
+                                snapshot.child("regionPreference").value as? String
+                                    ?: RegionFilter.US.name
+                            ),
                             hintsEnabled = snapshot.child("hintsEnabled").value as? Boolean ?: true,
-                            showMarketHours = snapshot.child("showMarketHours").value as? Boolean ?: true,
-                            enableAnonymousAnalytics = snapshot.child("enableAnonymousAnalytics").value as? Boolean ?: false,
-                            isOnboardingComplete = snapshot.child("isOnboardingComplete").value as? Boolean ?: false
+                            showMarketHours = snapshot.child("showMarketHours").value as? Boolean
+                                ?: true,
                         )
                         continuation.resume(settings)
                     }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnFailureListener { e ->
+                        _syncState.update { it.copy(error = e) }
+                        continuation.resumeWithException(e)
+                    }
             }
         }
     }
@@ -304,7 +330,10 @@ class SyncManager @Inject constructor(
                     .child("watchlist")
                     .setValue(watchlistData)
                     .addOnSuccessListener { continuation.resume(Unit) }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnFailureListener { e ->
+                        _syncState.update { it.copy(error = e) }
+                        continuation.resumeWithException(e)
+                    }
             }
         }
     }
@@ -328,10 +357,13 @@ class SyncManager @Inject constructor(
 
                         val watchlist = snapshot.children.mapNotNull { itemSnapshot ->
                             WatchlistQuote(
-                                symbol = itemSnapshot.child("symbol").value as? String ?: return@mapNotNull null,
-                                name = itemSnapshot.child("name").value as? String ?: return@mapNotNull null,
+                                symbol = itemSnapshot.child("symbol").value as? String
+                                    ?: return@mapNotNull null,
+                                name = itemSnapshot.child("name").value as? String
+                                    ?: return@mapNotNull null,
                                 logo = itemSnapshot.child("logo").value as? String,
-                                order = (itemSnapshot.child("order").value as? Long)?.toInt() ?: return@mapNotNull null,
+                                order = (itemSnapshot.child("order").value as? Long)?.toInt()
+                                    ?: return@mapNotNull null,
                                 price = null,
                                 change = null,
                                 percentChange = null
@@ -339,7 +371,10 @@ class SyncManager @Inject constructor(
                         }
                         continuation.resume(watchlist)
                     }
-                    .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnFailureListener { e ->
+                        _syncState.update { it.copy(error = e) }
+                        continuation.resumeWithException(e)
+                    }
             }
         }
     }
