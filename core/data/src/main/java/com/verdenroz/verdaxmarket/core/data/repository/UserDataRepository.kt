@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
+import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import kotlinx.coroutines.flow.Flow
@@ -14,8 +15,6 @@ interface UserDataRepository {
      */
     val userSetting: Flow<UserSetting>
 
-    val areNotificationsEnabled: Flow<Boolean>
-
     /**
      * Sets the user's theme preference
      */
@@ -24,7 +23,7 @@ interface UserDataRepository {
     /**
      * Sets whether notifications are enabled
      */
-    suspend fun setNotificationsEnabled(notificationsEnabled: Boolean)
+    suspend fun setRegionPreference(regionPreference: RegionFilter)
 
     /**
      * Sets whether to show tooltips on the UI
@@ -40,14 +39,4 @@ interface UserDataRepository {
      * Sets whether user data should be synced with cloud
      */
     suspend fun setSync(isSynced: Boolean)
-
-    /**
-     * Sets whether user data should be sent anonymously for analytics
-     */
-    suspend fun setEnableAnonymousAnalytics(enableAnonymousAnalytics: Boolean)
-
-    /**
-     * Sets whether the user has completed onboarding
-     */
-    suspend fun setIsOnboardingComplete(isOnboardingComplete: Boolean)
 }
