@@ -67,7 +67,7 @@ fun VxmSnackbar(
 
             data.visuals.actionLabel?.let { actionLabel ->
                 TextButton(
-                    onClick = { data.dismiss() },
+                    onClick = { data.performAction() },
                     modifier = Modifier.weight(.4f),
                 ) {
                     Text(
