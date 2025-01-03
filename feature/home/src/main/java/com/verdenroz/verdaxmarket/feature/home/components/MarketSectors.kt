@@ -2,6 +2,7 @@ package com.verdenroz.verdaxmarket.feature.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SnackbarDuration
@@ -25,7 +27,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +46,10 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
+import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
+import com.verdenroz.verdaxmarket.core.model.Sector
+import com.verdenroz.verdaxmarket.core.model.toDisplayName
 import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 
@@ -47,6 +57,7 @@ import kotlinx.coroutines.launch
 internal fun MarketSectors(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     sectors: Result<List<MarketSector>, DataError.Network>,
+    sectorTimeSeries: Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>,
 ) {
     val context = LocalContext.current
     Column(
@@ -88,7 +99,10 @@ internal fun MarketSectors(
                         items = sectors.data,
                         key = { sector -> sector.sector }
                     ) { sector ->
-                        MarketSectorCard(sector)
+                        MarketSectorCard(
+                            sector = sector,
+                            timeSeries = sectorTimeSeries[sector.sector]
+                        )
                     }
                 }
             }
@@ -98,21 +112,26 @@ internal fun MarketSectors(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarketSectorCard(sector: MarketSector) {
+fun MarketSectorCard(
+    sector: MarketSector,
+    timeSeries: Result<Map<String, HistoricalData>, DataError.Network>?,
+    modifier: Modifier = Modifier
+) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
+
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
             PlainTooltip {
-                Text(sector.sector)
+                Text(sector.sector.toDisplayName())
             }
         },
         state = tooltipState
     ) {
         Card(
-            modifier = Modifier
-                .size(175.dp, 100.dp)
+            modifier = modifier
+                .size(225.dp, 150.dp)
                 .clickable { scope.launch { tooltipState.show() } },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -123,40 +142,119 @@ fun MarketSectorCard(sector: MarketSector) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(8.dp),
-                verticalArrangement = Arrangement.SpaceAround
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = sector.sector,
+                    text = sector.sector.toDisplayName(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Column {
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_day_return),
-                        value = sector.dayReturn,
-                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    when (timeSeries) {
+                        is Result.Success -> {
+                            SectorSparkline(
+                                timeSeries = timeSeries.data,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        is Result.Loading -> {
+                            LinearProgressIndicator()
+                        }
+
+                        is Result.Error, null -> {
+                            // no sparkline
+                        }
+                    }
+                }
+
+                if (timeSeries is Result.Success) {
+                    Text(
+                        text = stringResource(id = R.string.feature_home_sector_trend),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_ytd_return),
-                        value = sector.ytdReturn,
-                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
-                    )
-                    PerformanceRow(
-                        title = stringResource(id = R.string.feature_home_three_year_return),
-                        value = sector.threeYearReturn,
-                        color = if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
-                    )
+                }
+
+                PerformanceRow(
+                    title = stringResource(id = R.string.feature_home_sector_return),
+                    value = sector.yearReturn,
+                    color = if (sector.yearReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
+                )
+            }
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewMarketSectors() {
+    VxmTheme {
+        Column {
+            MarketSectorCard(
+                sector = MarketSector(
+                    sector = Sector.TECHNOLOGY,
+                    dayReturn = "+1.23%",
+                    ytdReturn = "+4.56%",
+                    yearReturn = "+12.34%",
+                    threeYearReturn = "+56.78%",
+                    fiveYearReturn = "+90.12%",
+                ),
+                timeSeries = null
+            )
+            MarketSectorCard(
+                sector = MarketSector(
+                    sector = Sector.TECHNOLOGY,
+                    dayReturn = "+1.23%",
+                    ytdReturn = "+4.56%",
+                    yearReturn = "+12.34%",
+                    threeYearReturn = "+56.78%",
+                    fiveYearReturn = "+90.12%",
+                ),
+                timeSeries = Result.Loading()
+            )
+        }
+    }
+}
+
+@Composable
+fun MarketSectorsSkeleton(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primaryContainer
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        repeat(5) {
+            item(key = it) {
+                Card(
+                    modifier = modifier.size(225.dp, 150.dp),
+                    colors = CardDefaults.cardColors(containerColor = color)
+                ) {
+                    // skeleton
                 }
             }
         }
     }
 }
 
+@ThemePreviews
 @Composable
-fun PerformanceRow(
+private fun PreviewMarketSectorsSkeleton() {
+    VxmTheme {
+        MarketSectorsSkeleton()
+    }
+}
+
+@Composable
+private fun PerformanceRow(
     title: String,
     value: String,
     color: Color,
@@ -179,48 +277,46 @@ fun PerformanceRow(
     }
 }
 
-@ThemePreviews
 @Composable
-private fun PreviewMarketSectors() {
-    VxmTheme {
-        MarketSectorCard(
-            sector = MarketSector(
-                sector = "Technology",
-                dayReturn = "+1.23%",
-                ytdReturn = "+4.56%",
-                yearReturn = "+12.34%",
-                threeYearReturn = "+56.78%",
-                fiveYearReturn = "+90.12%",
-            )
-        )
-    }
-}
-
-@Composable
-fun MarketSectorsSkeleton(
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primaryContainer
+private fun SectorSparkline(
+    timeSeries: Map<String, HistoricalData>,
+    modifier: Modifier = Modifier
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        repeat(5) {
-            item(key = it) {
-                Card(
-                    modifier = modifier.size(175.dp, 100.dp),
-                    colors = CardDefaults.cardColors(containerColor = color)
-                ) {
-                    // skeleton
-                }
-            }
-        }
-    }
-}
+    val prices = timeSeries.values.toList().asReversed().map { it.close }
+    val isPositive = prices.lastOrNull()?.let { it > (prices.firstOrNull() ?: it) } != false
+    val color = if (isPositive) getPositiveTextColor() else getNegativeTextColor()
 
-@ThemePreviews
-@Composable
-private fun PreviewMarketSectorsSkeleton() {
-    VxmTheme {
-        MarketSectorsSkeleton()
-    }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .drawBehind {
+                if (prices.isEmpty()) return@drawBehind
+
+                val minPrice = prices.minOrNull() ?: return@drawBehind
+                val maxPrice = prices.maxOrNull() ?: return@drawBehind
+                val priceRange = maxPrice - minPrice
+
+                val path = Path()
+                prices.forEachIndexed { index, price ->
+                    val x = size.width * index / (prices.size - 1)
+                    val y = size.height - (size.height * (price - minPrice) / priceRange)
+
+                    if (index == 0) {
+                        path.moveTo(x, y)
+                    } else {
+                        path.lineTo(x, y)
+                    }
+                }
+
+                drawPath(
+                    path = path,
+                    color = color,
+                    style = Stroke(
+                        width = 2f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
+                )
+            }
+    )
 }

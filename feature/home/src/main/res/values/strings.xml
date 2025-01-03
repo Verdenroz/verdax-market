@@ -14,4 +14,6 @@
     <string name="feature_home_topLosers">Top Losers</string>
     <string name="feature_home_news">News</string>
     <string name="feature_home_news_img">News image</string>
+    <string name="feature_home_sector_trend">1Y Trend</string>
+    <string name="feature_home_sector_return">One Year Return</string>
 </resources>

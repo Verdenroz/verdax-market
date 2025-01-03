@@ -17,10 +17,12 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.Sector
 import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
 import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
 import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors
@@ -32,9 +34,10 @@ internal fun HomeRoute(
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
-    val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
     val indices by homeViewModel.indices.collectAsStateWithLifecycle()
+    val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
+    val sectorTimeSeries by homeViewModel.sectorTimeSeries.collectAsStateWithLifecycle()
+    val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
     val actives by homeViewModel.actives.collectAsStateWithLifecycle()
     val losers by homeViewModel.losers.collectAsStateWithLifecycle()
     val gainers by homeViewModel.gainers.collectAsStateWithLifecycle()
@@ -43,6 +46,7 @@ internal fun HomeRoute(
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
         sectors = sectors,
+        sectorTimeSeries = sectorTimeSeries,
         headlines = headlines,
         indices = indices,
         actives = actives,
@@ -53,8 +57,9 @@ internal fun HomeRoute(
 
 @Composable
 internal fun HomeScreen(
-    sectors: Result<List<MarketSector>, DataError.Network>,
     indices: Result<List<MarketIndex>, DataError.Network>,
+    sectors: Result<List<MarketSector>, DataError.Network>,
+    sectorTimeSeries: Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>,
     headlines: Result<List<News>, DataError.Network>,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
@@ -81,6 +86,7 @@ internal fun HomeScreen(
         item {
             MarketSectors(
                 sectors = sectors,
+                sectorTimeSeries = sectorTimeSeries,
                 onShowSnackbar = onShowSnackbar,
             )
         }
@@ -109,7 +115,7 @@ internal fun HomeScreen(
 private fun PreviewSuccessHomeScreen() {
     val sectors = listOf(
         MarketSector(
-            sector = "Technology",
+            sector = Sector.TECHNOLOGY,
             dayReturn = "0.5%",
             ytdReturn = "1.2%",
             yearReturn = "3.4%",
@@ -117,7 +123,7 @@ private fun PreviewSuccessHomeScreen() {
             fiveYearReturn = "-7.8%"
         ),
         MarketSector(
-            sector = "Consumer Cyclical",
+            sector = Sector.CONSUMER_CYCLICAL,
             dayReturn = "-0.5%",
             ytdReturn = "-1.2%",
             yearReturn = "-3.4%",
@@ -200,6 +206,7 @@ private fun PreviewSuccessHomeScreen() {
             onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Success(sectors),
+            sectorTimeSeries = emptyMap(),
             headlines = Result.Success(headlines),
             indices = Result.Success(indices),
             actives = Result.Success(movers),
@@ -217,6 +224,10 @@ private fun PreviewLoadingHomeScreen() {
             onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
             sectors = Result.Loading(),
+            sectorTimeSeries = mapOf(
+                Sector.TECHNOLOGY to Result.Loading(),
+                Sector.CONSUMER_CYCLICAL to Result.Loading()
+            ),
             indices = Result.Loading(),
             headlines = Result.Loading(),
             actives = Result.Loading(),
