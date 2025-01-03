@@ -1,6 +1,10 @@
 plugins {
-    alias(libs.plugins.verdaxmarket.jvm.library)
+    alias(libs.plugins.verdaxmarket.android.library)
     alias(libs.plugins.verdaxmarket.hilt)
+}
+
+android {
+    namespace = "com.verdenroz.core.common"
 }
 
 dependencies {
