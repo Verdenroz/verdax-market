@@ -2,7 +2,7 @@ package com.verdenroz.verdaxmarket.core.model
 
 /**
  * Local data class for sector information
- * @param sector the sector name
+ * @param sector the [Sector] of the market
  * @param dayReturn the return for the day
  * @param ytdReturn the return year to date
  * @param yearReturn the return for the year
@@ -10,7 +10,7 @@ package com.verdenroz.verdaxmarket.core.model
  * @param fiveYearReturn the return for the past five years
  */
 data class MarketSector(
-    val sector: String,
+    val sector: Sector,
     val dayReturn: String,
     val ytdReturn: String,
     val yearReturn: String,
