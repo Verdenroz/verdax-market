@@ -32,7 +32,7 @@ setup.
 Current list of convention plugins:
 
 - [`verdaxmarket.android.application`](convention/src/main/kotlin/AndroidApplicationConventionPlugin.kt),
-  [`verdaxmarket.android.library`](convention/src/main/kotlin/AndroidLibraryConventionPlugin.kt), [`verdaxmarket.jvm.library`](convention/src/main/kotlin/JvmLibraryConventionPlugin.kt)
+  [`verdaxmarket.android.library`](convention/src/main/kotlin/AndroidLibraryConventionPlugin.kt),
   [`verdaxmarket.android.test`](convention/src/main/kotlin/AndroidTestConventionPlugin.kt):
   Configures common Android and Kotlin options.
 - [`verdaxmarket.android.application.compose`](convention/src/main/kotlin/AndroidApplicationComposeConventionPlugin.kt),
