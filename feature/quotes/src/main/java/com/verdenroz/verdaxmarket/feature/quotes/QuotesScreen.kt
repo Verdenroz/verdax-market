@@ -40,6 +40,7 @@ import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.Profile
+import com.verdenroz.verdaxmarket.core.model.Sector
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import com.verdenroz.verdaxmarket.feature.quotes.components.QuoteChart
@@ -287,7 +288,7 @@ private fun PreviewQuoteScreen() {
                     similar = emptyList(),
                     news = emptyList(),
                     performance = MarketSector(
-                        sector = "Technology",
+                        sector = Sector.TECHNOLOGY,
                         dayReturn = "+1.5%",
                         yearReturn = "+1.5%",
                         threeYearReturn = "+1.5%",
