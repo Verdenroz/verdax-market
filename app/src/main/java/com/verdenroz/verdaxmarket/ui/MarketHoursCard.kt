@@ -147,9 +147,9 @@ private fun MarketStatusReason.toStringRes(): String = when (this) {
 
 @Composable
 private fun MarketStatus.toColor() = when (this) {
-    MarketStatus.OPEN -> Color(0xFF006400) // Dark green
-    MarketStatus.PREMARKET -> Color(0xFFADD8E6) // Light blue
-    MarketStatus.AFTER_HOURS -> Color(0xFFFFA500) // Orange
+    MarketStatus.OPEN -> Color(0xFF00C853) // Dark green
+    MarketStatus.PREMARKET -> Color(0xFF00ACC1) // Light blue
+    MarketStatus.AFTER_HOURS -> Color(0xFFFB8C00) // Orange
     MarketStatus.CLOSED -> Color(MaterialTheme.colorScheme.error.toArgb())
     MarketStatus.EARLY_CLOSE -> Color(MaterialTheme.colorScheme.error.toArgb())
 }
@@ -161,13 +161,44 @@ private fun PreviewMarketHoursCard() {
         Surface(
             modifier = Modifier.fillMaxWidth()
         ) {
-            MarketHoursCard(
-                marketHours = MarketHours(
-                    status = MarketStatus.OPEN,
-                    reason = MarketStatusReason.REGULAR_HOURS
-                ),
-                expanded = false
-            )
+            Column {
+                MarketHoursCard(
+                    marketHours = MarketHours(
+                        status = MarketStatus.PREMARKET,
+                        reason = MarketStatusReason.PRE_MARKET
+                    ),
+                    expanded = false
+                )
+                MarketHoursCard(
+                    marketHours = MarketHours(
+                        status = MarketStatus.OPEN,
+                        reason = MarketStatusReason.REGULAR_HOURS
+                    ),
+                    expanded = false
+                )
+                MarketHoursCard(
+                    marketHours = MarketHours(
+                        status = MarketStatus.AFTER_HOURS,
+                        reason = MarketStatusReason.AFTER_HOURS
+                    ),
+                    expanded = false
+                )
+                MarketHoursCard(
+                    marketHours = MarketHours(
+                        status = MarketStatus.CLOSED,
+                        reason = MarketStatusReason.WEEKEND
+                    ),
+                    expanded = false
+                )
+                MarketHoursCard(
+                    marketHours = MarketHours(
+                        status = MarketStatus.EARLY_CLOSE,
+                        reason = MarketStatusReason.EARLY_CLOSE
+                    ),
+                    expanded = false
+                )
+            }
+
         }
     }
 }
