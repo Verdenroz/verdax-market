@@ -27,4 +27,5 @@ message UserSettings {
   bool hints_enabled = 3;
   bool show_market_hours = 4;
   bool sync_enabled = 5;
+  bool is_first_launch = 6;
 }
