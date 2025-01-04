@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
@@ -27,12 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -146,7 +142,7 @@ fun MarketSectorCard(
             ) {
                 Text(
                     text = sector.sector.toDisplayName(),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -156,10 +152,12 @@ fun MarketSectorCard(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     when (timeSeries) {
                         is Result.Success -> {
-                            SectorSparkline(
+                            Sparkline(
                                 timeSeries = timeSeries.data,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -183,6 +181,7 @@ fun MarketSectorCard(
                     )
                 }
 
+                HorizontalDivider()
                 PerformanceRow(
                     title = stringResource(id = R.string.feature_home_sector_return),
                     value = sector.yearReturn,
@@ -275,48 +274,4 @@ private fun PerformanceRow(
             color = color
         )
     }
-}
-
-@Composable
-private fun SectorSparkline(
-    timeSeries: Map<String, HistoricalData>,
-    modifier: Modifier = Modifier
-) {
-    val prices = timeSeries.values.toList().asReversed().map { it.close }
-    val isPositive = prices.lastOrNull()?.let { it > (prices.firstOrNull() ?: it) } != false
-    val color = if (isPositive) getPositiveTextColor() else getNegativeTextColor()
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .drawBehind {
-                if (prices.isEmpty()) return@drawBehind
-
-                val minPrice = prices.minOrNull() ?: return@drawBehind
-                val maxPrice = prices.maxOrNull() ?: return@drawBehind
-                val priceRange = maxPrice - minPrice
-
-                val path = Path()
-                prices.forEachIndexed { index, price ->
-                    val x = size.width * index / (prices.size - 1)
-                    val y = size.height - (size.height * (price - minPrice) / priceRange)
-
-                    if (index == 0) {
-                        path.moveTo(x, y)
-                    } else {
-                        path.lineTo(x, y)
-                    }
-                }
-
-                drawPath(
-                    path = path,
-                    color = color,
-                    style = Stroke(
-                        width = 2f,
-                        cap = StrokeCap.Round,
-                        join = StrokeJoin.Round
-                    )
-                )
-            }
-    )
 }
