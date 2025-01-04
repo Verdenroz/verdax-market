@@ -82,6 +82,34 @@ enum class RegionFilter(val exchanges: Set<String>) {
     GLOBAL((NA.exchanges + SA.exchanges + EU.exchanges + AS.exchanges + AF.exchanges + AU.exchanges + ME.exchanges).toSet())
 }
 
+fun RegionFilter.toSymbols(): Set<String> {
+    return when (this) {
+        RegionFilter.US -> setOf("^GSPC", "^DJI", "^IXIC", "^RUT", "^VIX")
+        RegionFilter.NA -> setOf("^GSPC", "^DJI", "^IXIC", "^RUT", "^VIX", "^GSPTSE")
+        RegionFilter.SA -> setOf("^BVSP", "^MXX")
+        RegionFilter.EU -> setOf(
+            "^GDAXI", "^FTSE", "^FCHI", "^STOXX50E", "^AEX", "^IBEX",
+            "^FTSEMIB", "^SSMI", "PSI20.LS", "^BFX", "^ATX", "^OMX", "^OMXC25",
+            "WIG20.WA", "^BUX.BD", "XU100.IS"
+        )
+        RegionFilter.AS -> setOf(
+            "^N225", "000001.SS", "399001.SZ", "XIN9.FGI", "^DJSH", "^HSI",
+            "^TWII", "^SET.BK", "^KS11", "^JKSE", "^NSEI", "^BSESN", "PSEI.PS"
+        )
+        RegionFilter.AF -> setOf("^990100-USD-STRD")
+        RegionFilter.AU -> setOf("^AXJO")
+        RegionFilter.ME -> setOf("TA35.TA", "^TASI.SR")
+        RegionFilter.GLOBAL -> setOf(
+            "^GSPC", "^DJI", "^IXIC", "^RUT", "^VIX", "^GSPTSE", "^BVSP", "^MXX",
+            "^GDAXI", "^FTSE", "^FCHI", "^STOXX50E", "^AEX", "^IBEX", "^FTSEMIB",
+            "^SSMI", "PSI20.LS", "^BFX", "^ATX", "^OMX", "^OMXC25", "WIG20.WA",
+            "^BUX.BD", "XU100.IS", "^N225", "000001.SS", "399001.SZ", "XIN9.FGI",
+            "^DJSH", "^HSI", "^TWII", "^SET.BK", "^KS11", "^JKSE", "^NSEI",
+            "^BSESN", "PSEI.PS", "^990100-USD-STRD", "^AXJO", "TA35.TA", "^TASI.SR"
+        )
+    }
+}
+
 /**
  * Filter for type of stock
  */
