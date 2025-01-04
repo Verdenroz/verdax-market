@@ -35,20 +35,21 @@ internal fun HomeRoute(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val indices by homeViewModel.indices.collectAsStateWithLifecycle()
+    val indexTimeSeries by homeViewModel.indexTimeSeries.collectAsStateWithLifecycle(emptyMap())
     val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
     val sectorTimeSeries by homeViewModel.sectorTimeSeries.collectAsStateWithLifecycle()
     val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
     val actives by homeViewModel.actives.collectAsStateWithLifecycle()
     val losers by homeViewModel.losers.collectAsStateWithLifecycle()
     val gainers by homeViewModel.gainers.collectAsStateWithLifecycle()
-
     HomeScreen(
         onNavigateToQuote = onNavigateToQuote,
         onShowSnackbar = onShowSnackbar,
+        indices = indices,
+        indexTimeSeries = indexTimeSeries,
         sectors = sectors,
         sectorTimeSeries = sectorTimeSeries,
         headlines = headlines,
-        indices = indices,
         actives = actives,
         losers = losers,
         gainers = gainers,
@@ -58,6 +59,7 @@ internal fun HomeRoute(
 @Composable
 internal fun HomeScreen(
     indices: Result<List<MarketIndex>, DataError.Network>,
+    indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError.Network>>,
     sectors: Result<List<MarketSector>, DataError.Network>,
     sectorTimeSeries: Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>,
     headlines: Result<List<News>, DataError.Network>,
@@ -80,6 +82,7 @@ internal fun HomeScreen(
         item {
             MarketIndices(
                 indices = indices,
+                indexTimeSeries = indexTimeSeries,
                 onShowSnackbar = onShowSnackbar,
             )
         }
@@ -205,10 +208,11 @@ private fun PreviewSuccessHomeScreen() {
         HomeScreen(
             onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
+            indices = Result.Success(indices),
+            indexTimeSeries = emptyMap(),
             sectors = Result.Success(sectors),
             sectorTimeSeries = emptyMap(),
             headlines = Result.Success(headlines),
-            indices = Result.Success(indices),
             actives = Result.Success(movers),
             losers = Result.Success(movers),
             gainers = Result.Success(movers),
@@ -223,12 +227,17 @@ private fun PreviewLoadingHomeScreen() {
         HomeScreen(
             onNavigateToQuote = {},
             onShowSnackbar = { _, _, _ -> true },
+            indices = Result.Loading(),
+            indexTimeSeries = mapOf(
+                "Dow Jones" to Result.Loading(),
+                "S&P 500" to Result.Loading(),
+                "NASDAQ" to Result.Loading()
+            ),
             sectors = Result.Loading(),
             sectorTimeSeries = mapOf(
                 Sector.TECHNOLOGY to Result.Loading(),
                 Sector.CONSUMER_CYCLICAL to Result.Loading()
             ),
-            indices = Result.Loading(),
             headlines = Result.Loading(),
             actives = Result.Loading(),
             losers = Result.Loading(),

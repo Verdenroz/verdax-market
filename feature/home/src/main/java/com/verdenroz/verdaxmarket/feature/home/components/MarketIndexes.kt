@@ -2,6 +2,7 @@ package com.verdenroz.verdaxmarket.feature.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SnackbarDuration
@@ -39,6 +41,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
+import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
@@ -46,8 +49,9 @@ import java.util.Locale
 
 @Composable
 internal fun MarketIndices(
-    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
     indices: Result<List<MarketIndex>, DataError>,
+    indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError>>,
+    onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
     Column(
@@ -55,7 +59,6 @@ internal fun MarketIndices(
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(id = R.string.feature_home_market_performance),
@@ -89,7 +92,10 @@ internal fun MarketIndices(
                         items = indices.data,
                         key = { index -> index.name }
                     ) { index ->
-                        MarketIndexCard(index = index)
+                        MarketIndexCard(
+                            index = index,
+                            timeSeries = indexTimeSeries[index.name]
+                        )
                     }
                 }
             }
@@ -99,7 +105,10 @@ internal fun MarketIndices(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarketIndexCard(index: MarketIndex) {
+fun MarketIndexCard(
+    index: MarketIndex,
+    timeSeries: Result<Map<String, HistoricalData>, DataError>?,
+) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
     TooltipBox(
@@ -113,7 +122,7 @@ fun MarketIndexCard(index: MarketIndex) {
     ) {
         Card(
             modifier = Modifier
-                .size(125.dp, 75.dp)
+                .size(225.dp, 150.dp)
                 .clickable { scope.launch { tooltipState.show() } },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -124,34 +133,51 @@ fun MarketIndexCard(index: MarketIndex) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(8.dp),
-                verticalArrangement = Arrangement.SpaceAround
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = index.name,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-                Text(
-                    text = String.format(Locale.US, "%.2f", index.value.toDouble()),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                )
+
+                if (timeSeries is Result.Success) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Sparkline(
+                            timeSeries = timeSeries.data,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
+                        text = String.format(Locale.US, "%.2f", index.value.toDouble()),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
                         text = index.change,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                     )
                     Text(
                         text = index.percentChange,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
                     )
@@ -172,6 +198,7 @@ private fun PreviewMarketIndexCard() {
                 change = "+100.0",
                 percentChange = "+100%"
             ),
+            timeSeries = null
         )
     }
 }
@@ -185,7 +212,7 @@ fun MarketIndexSkeleton(
         repeat(5) {
             item(key = it) {
                 Card(
-                    modifier = Modifier.size(125.dp, 75.dp),
+                    modifier = Modifier.size(225.dp, 150.dp),
                     colors = CardDefaults.cardColors(containerColor = color)
                 ) {
                     // Content of the card, leave it empty for skeleton
