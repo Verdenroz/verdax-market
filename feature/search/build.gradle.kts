@@ -18,6 +18,8 @@ secrets {
 
 dependencies {
     implementation(projects.core.data)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
 
     implementation(libs.instantsearch.android)
     implementation(libs.instantsearch.compose)

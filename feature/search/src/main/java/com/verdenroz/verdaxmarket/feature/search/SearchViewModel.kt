@@ -46,6 +46,7 @@ class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val watchlistRepository: WatchlistRepository,
     private val recentSearchRepository: RecentSearchRepository,
+    private val firebaseCrashlytics: FirebaseCrashlytics,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
