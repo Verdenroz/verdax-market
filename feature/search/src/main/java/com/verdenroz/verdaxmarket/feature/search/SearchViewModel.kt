@@ -13,6 +13,7 @@ import com.algolia.search.model.IndexName
 import com.algolia.search.model.ObjectID
 import com.algolia.search.model.indexing.Partial
 import com.algolia.search.model.search.Query
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
@@ -179,15 +180,21 @@ class SearchViewModel @Inject constructor(
 
     fun onClick(result: SearchResult) {
         viewModelScope.launch {
-            recentSearchRepository.upsertRecentQuery(query.value)
-            val viewCountAttribute = "views".toAttribute()
-            val partial = Partial.Increment(viewCountAttribute, 1)
-
-            // Update the object
-            index.partialUpdateObject(
-                objectID = ObjectID(result.objectID),
-                partial = partial
-            )
+            try {
+                recentSearchRepository.upsertRecentQuery(query.value)
+                val viewCountAttribute = "views".toAttribute()
+                val partial = Partial.Increment(viewCountAttribute, 1)
+                index.partialUpdateObject(
+                    objectID = ObjectID(result.objectID),
+                    partial = partial
+                )
+            } catch (e: Exception) {
+                // Silently fail
+                firebaseCrashlytics.apply {
+                    setCustomKey("objectID", result.objectID)
+                    recordException(e)
+                }
+            }
         }
     }
 
