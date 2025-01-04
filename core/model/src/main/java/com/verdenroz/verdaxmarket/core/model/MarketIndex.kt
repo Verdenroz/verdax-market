@@ -15,67 +15,19 @@ data class MarketIndex(
     val percentChange: String
 )
 
-private val unavailableIndices = setOf(
-    "MOEX Russia Index",
-    "RTSI",
-    "DJ New Zealand",
-    "China A50",
-    "DJ Shanghai",
-    "Karachi 100",
-    "VN 30"
-)
+//private val unavailableIndices = setOf(
+//    "MOEX Russia Index",
+//    "RTSI",
+//    "DJ New Zealand",
+//    "China A50",
+//    "DJ Shanghai",
+//    "Karachi 100",
+//    "VN 30"
+//)
 
-fun MarketIndex.toSymbol(): String =
-    when (name) {
-        "S&P 500" -> "^GSPC"
-        "Dow Jones" -> "^DJI"
-        "Nasdaq" -> "^IXIC"
-        "Small Cap 2000" -> "^RUT"
-        "S&P 500 VIX" -> "^VIX"
-        "S&P/TSX" -> "^GSPTSE"
-        "Bovespa" -> "^BVSP"
-        "S&P/BMV IPC" -> "^MXX"
-        "MSCI World" -> "^990100-USD-STRD"
-        "DAX" -> "^GDAXI"
-        "FTSE 100" -> "^FTSE"
-        "CAC 40" -> "^FCHI"
-        "Euro Stoxx 50" -> "^STOXX50E"
-        "AEX" -> "^AEX"
-        "IBEX 35" -> "^IBEX"
-        "FTSE MIB" -> "^FTSEMIB"
-        "SMI" -> "^SSMI"
-        "PSI" -> "PSI20.LS"
-        "BEL 20" -> "^BFX"
-        "ATX" -> "^ATX"
-        "OMXS30" -> "^OMX"
-        "OMXC25" -> "^OMXC25"
-        // "MOEX Russia Index" -> "IMOEX.ME"  (Cannot be provided by FinanceQuery)
-        // "RTSI" -> "RTSI.ME" (Cannot be provided by FinanceQuery)
-        "WIG20" -> "WIG20.WA"
-        "Budapest SE" -> "^BUX.BD"
-        "BIST 100" -> "XU100.IS"
-        "TA 35" -> "TA35.TA"
-        "Tadawul All Share" -> "^TASI.SR"
-        "Nikkei 225" -> "^N225"
-        "S&P/ASX 200" -> "^AXJO"
-        // "DJ New Zealand" -> "^NZ50" (Cannot be provided by FinanceQuery)
-        "Shanghai" -> "000001.SS"
-        "SZSE Component" -> "399001.SZ"
-        // "China A50" -> "XIN9.FGI" (Cannot be provided by FinanceQuery)
-        // "DJ Shanghai" -> "^DJSH" (Cannot be provided by FinanceQuery)
-        "Hang Seng" -> "^HSI"
-        "Taiwan Weighted" -> "^TWII"
-        "SET" -> "^SET.BK"
-        "KOSPI" -> "^KS11"
-        "IDX Composite" -> "^JKSE"
-        "Nifty 50" -> "^NSEI"
-        "BSE Sensex" -> "^BSESN"
-        "PSEi Composite" -> "PSEI.PS"
-        // "Karachi 100" -> "^KSE" (Cannot be provided by FinanceQuery)
-        // "VN 30" -> "^VNINDEX" (Cannot be provided by FinanceQuery)
-        else -> throw IllegalArgumentException("No symbol mapping for index: $name")
-    }
-
+/**
+ * Filters a list of market indices by [RegionFilter]
+ */
 fun List<MarketIndex>.filterByRegion(region: RegionFilter): List<MarketIndex> =
     filter { index ->
         when (region) {
@@ -97,5 +49,59 @@ fun List<MarketIndex>.filterByRegion(region: RegionFilter): List<MarketIndex> =
             RegionFilter.AU -> index.name in setOf("S&P/ASX 200", "DJ New Zealand")
             RegionFilter.ME -> index.name in setOf("TA 35", "Tadawul All Share")
             RegionFilter.GLOBAL -> true
-        } && index.name !in unavailableIndices
+        }
+    }
+
+/**
+ * Converts a symbol to a human-readable market index name
+ */
+fun String.toMarketIndexName(): String =
+    when (this) {
+        "^GSPC" -> "S&P 500"
+        "^DJI" -> "Dow Jones"
+        "^IXIC" -> "Nasdaq"
+        "^RUT" -> "Small Cap 2000"
+        "^VIX" -> "S&P 500 VIX"
+        "^GSPTSE" -> "S&P/TSX"
+        "^BVSP" -> "Bovespa"
+        "^MXX" -> "S&P/BMV IPC"
+        "^990100-USD-STRD" -> "MSCI World"
+        "^GDAXI" -> "DAX"
+        "^FTSE" -> "FTSE 100"
+        "^FCHI" -> "CAC 40"
+        "^STOXX50E" -> "Euro Stoxx 50"
+        "^AEX" -> "AEX"
+        "^IBEX" -> "IBEX 35"
+        "^FTSEMIB" -> "FTSE MIB"
+        "^SSMI" -> "SMI"
+        "PSI20.LS" -> "PSI"
+        "^BFX" -> "BEL 20"
+        "^ATX" -> "ATX"
+        "^OMX" -> "OMXS30"
+        "^OMXC25" -> "OMXC25"
+        "WIG20.WA" -> "WIG20"
+        "^BUX.BD" -> "Budapest SE"
+        "XU100.IS" -> "BIST 100"
+        "TA35.TA" -> "TA 35"
+        "^TASI.SR" -> "Tadawul All Share"
+        "^N225" -> "Nikkei 225"
+        "^AXJO" -> "S&P/ASX 200"
+        "000001.SS" -> "Shanghai"
+        "399001.SZ" -> "SZSE Component"
+        "^HSI" -> "Hang Seng"
+        "^TWII" -> "Taiwan Weighted"
+        "^SET.BK" -> "SET"
+        "^KS11" -> "KOSPI"
+        "^JKSE" -> "IDX Composite"
+        "^NSEI" -> "Nifty 50"
+        "^BSESN" -> "BSE Sensex"
+        "PSEI.PS" -> "PSEi Composite"
+        "IMOEX.ME" -> "MOEX Russia Index"
+        "RTSI.ME" -> "RTSI"
+        "^NZ50" -> "DJ New Zealand"
+        "XIN9.FGI" -> "China A50"
+        "^DJSH" -> "DJ Shanghai"
+        "^KSE" -> "Karachi 100"
+        "^VNINDEX" -> "VN 30"
+        else -> throw IllegalArgumentException("No market index name mapping for symbol: $this")
     }
