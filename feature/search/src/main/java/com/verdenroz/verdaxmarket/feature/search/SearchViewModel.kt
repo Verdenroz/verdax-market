@@ -16,6 +16,7 @@ import com.algolia.search.model.search.Query
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
+import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
@@ -28,6 +29,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -48,13 +50,16 @@ class SearchViewModel @Inject constructor(
     private val watchlistRepository: WatchlistRepository,
     private val recentSearchRepository: RecentSearchRepository,
     private val firebaseCrashlytics: FirebaseCrashlytics,
+    userDataRepository: UserDataRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val regionFilter = MutableStateFlow(RegionFilter.US)
+    private val _regionFilter = MutableStateFlow(RegionFilter.US)
+    val regionFilter = _regionFilter.asStateFlow()
 
-    val typeFilter: MutableStateFlow<List<TypeFilter>> =
+    private val _typeFilter: MutableStateFlow<List<TypeFilter>> =
         MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
+    val typeFilter = _typeFilter.asStateFlow()
 
     private val client = ClientSearch(
         applicationID = ApplicationID(BuildConfig.ALGOLIA_APP_ID),
@@ -76,9 +81,11 @@ class SearchViewModel @Inject constructor(
         query = searchQuery.value
     )
 
-    private val query: StateFlow<String> = savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
+    private val query: StateFlow<String> =
+        savedStateHandle.getStateFlow(key = SEARCH_QUERY, initialValue = "")
 
-    private val savedSearchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
+    private val savedSearchResults: MutableStateFlow<List<SearchResult>> =
+        MutableStateFlow(emptyList())
     val searchResults: MutableStateFlow<List<SearchResult>> = MutableStateFlow(emptyList())
 
     val recentQueries: StateFlow<List<String>> =
@@ -99,6 +106,7 @@ class SearchViewModel @Inject constructor(
                 errorChannel.send(errorMessage)
                 SearchState.Loading
             }
+
             is Result.Loading -> SearchState.Loading
         }
     }.stateIn(
@@ -107,11 +115,12 @@ class SearchViewModel @Inject constructor(
         SearchState.Loading
     )
 
-    val recentSymbolsNames: StateFlow<List<Triple<String, String, String?>>> = recentSearchRepository.recentSymbolsNames.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
-        emptyList()
-    )
+    val recentSymbolsNames: StateFlow<List<Triple<String, String, String?>>> =
+        recentSearchRepository.recentSymbolsNames.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000L),
+            emptyList()
+        )
 
     val resultsInWatchlist: StateFlow<Map<String, Boolean>> = combine(
         searchResults,
@@ -141,16 +150,23 @@ class SearchViewModel @Inject constructor(
         searcher.response.subscribe { response ->
             searchResults.value = response?.hits?.take(10)?.mapNotNull { hit ->
                 hit.deserialize(SearchResult.serializer()).takeIf { it.name.isNotBlank() }
-            }?.sortedWith(compareBy<SearchResult> { TypeFilter.entries.find { filter -> filter.type == it.type }?.ordinal }
-                .thenByDescending { it.views ?: 0 }
-            ) ?: emptyList()
+            }
+                ?.sortedWith(compareBy<SearchResult> { TypeFilter.entries.find { filter -> filter.type == it.type }?.ordinal }
+                    .thenByDescending { it.views ?: 0 }
+                ) ?: emptyList()
+        }
+
+        viewModelScope.launch {
+            userDataRepository.userSetting.collect { userSetting ->
+                _regionFilter.value = userSetting.regionPreference
+            }
         }
     }
+
     override fun onCleared() {
         super.onCleared()
         searcher.cancel()
     }
-
 
     fun search(query: String) {
         if (query.isEmpty() || this.query.value.isEmpty()) {
@@ -204,9 +220,9 @@ class SearchViewModel @Inject constructor(
 
     fun updateTypeFilter(type: TypeFilter) {
         if (!typeFilter.value.contains(type)) {
-            typeFilter.value += type
+            _typeFilter.value += type
         } else {
-            typeFilter.value -= type
+            _typeFilter.value -= type
         }
 
         searcher.query.facetFilters = (listOf(
@@ -218,7 +234,7 @@ class SearchViewModel @Inject constructor(
     }
 
     fun updateRegionFilter(region: RegionFilter) {
-        regionFilter.value = region
+        _regionFilter.value = region
 
         searcher.query.facetFilters = (listOf(
             regionFilter.value.exchanges.map { "exchangeShortName:$it" },
