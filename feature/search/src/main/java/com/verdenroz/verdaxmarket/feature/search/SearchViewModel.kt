@@ -57,8 +57,7 @@ class SearchViewModel @Inject constructor(
     private val _regionFilter = MutableStateFlow(RegionFilter.US)
     val regionFilter = _regionFilter.asStateFlow()
 
-    private val _typeFilter: MutableStateFlow<List<TypeFilter>> =
-        MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
+    private val _typeFilter: MutableStateFlow<List<TypeFilter>> = MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
     val typeFilter = _typeFilter.asStateFlow()
 
     private val client = ClientSearch(
@@ -145,14 +144,12 @@ class SearchViewModel @Inject constructor(
     )
 
     init {
-        // Sort the search results by type and then by views
-        // Prioritizing stocks, then ETFs, and finally trusts
+        // Sorts search results, prioritizing stocks, then ETFs, and finally trusts
         searcher.response.subscribe { response ->
             searchResults.value = response?.hits?.take(10)?.mapNotNull { hit ->
                 hit.deserialize(SearchResult.serializer()).takeIf { it.name.isNotBlank() }
             }
                 ?.sortedWith(compareBy<SearchResult> { TypeFilter.entries.find { filter -> filter.type == it.type }?.ordinal }
-                    .thenByDescending { it.views ?: 0 }
                 ) ?: emptyList()
         }
 

@@ -10,7 +10,6 @@ import kotlinx.serialization.Serializable
  * @param exchange the full name of the exchange
  * @param type the type of security (stock, etf, trust)
  * @param objectID the object ID of the security (used by Algolia)
- * @param views the number of views of the security by users
  */
 @Serializable
 data class SearchResult(
@@ -20,5 +19,4 @@ data class SearchResult(
     val exchange: String,
     val type: String,
     val objectID: String,
-    val views: Int? = null
 )
