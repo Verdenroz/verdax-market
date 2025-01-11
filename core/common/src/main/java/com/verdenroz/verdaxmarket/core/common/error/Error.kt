@@ -28,6 +28,7 @@ sealed interface DataError : Error {
         INVALID_EMAIL,
         BLANK_PASSWORD,
         INVALID_PASSWORD,
+        CONFIRM_PASSWORD_MISMATCH,
     }
 
 }

@@ -18,4 +18,5 @@
     <string name="core_designsystem_blank_email">Email cannot be blank</string>
     <string name="core_designsystem_blank_password">Password is empty</string>
     <string name="core_designsystem_back">Return to previous screen</string>
+    <string name="core_designsystem_confirm_password_mismatch">Passwords do not match</string>
 </resources>

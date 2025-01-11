@@ -37,6 +37,7 @@ fun DataError.asString(): UiText {
         DataError.Local.INVALID_PASSWORD -> UiText.StringResource(R.string.core_designsystem_invalid_password)
         DataError.Local.BLANK_EMAIL -> UiText.StringResource(R.string.core_designsystem_blank_email)
         DataError.Local.BLANK_PASSWORD -> UiText.StringResource(R.string.core_designsystem_blank_password)
+        DataError.Local.CONFIRM_PASSWORD_MISMATCH -> UiText.StringResource(R.string.core_designsystem_confirm_password_mismatch)
         DataError.Network.NO_INTERNET -> UiText.StringResource(R.string.core_designsystem_no_internet)
         DataError.Network.TIMEOUT -> UiText.StringResource(R.string.core_designsystem_timeout)
         DataError.Network.BAD_REQUEST -> UiText.StringResource(R.string.core_designsystem_bad_request)
