@@ -8,6 +8,8 @@ import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Schedule
@@ -55,4 +57,6 @@ object VxmIcons {
     val Search = Icons.Rounded.Search
     val Settings = Icons.Rounded.Settings
     val Sync = Icons.Outlined.Sync
+    val Visibility = Icons.Default.Visibility
+    val VisibilityOff = Icons.Default.VisibilityOff
 }

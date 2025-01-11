@@ -52,4 +52,6 @@
     <string name="feature_settings_region">Region</string>
     <string name="feature_settings_region_description">Choose your preferred region</string>
     <string name="feature_settings_location">Location</string>
+    <string name="feature_settings_confirm_password">Confirm password</string>
+    <string name="feature_settings_toggle_visibility">Toggle password visibility</string>
 </resources>

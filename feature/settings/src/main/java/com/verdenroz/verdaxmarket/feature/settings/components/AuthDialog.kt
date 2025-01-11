@@ -82,7 +82,7 @@ private fun validateEmail(email: String): ValidationState {
     }
 }
 
-private fun validatePassword(password: String): ValidationState {
+private fun validatePassword(password: String, confirmPassword: String): ValidationState {
     return when {
         password.isBlank() -> ValidationState(
             isValid = false,
@@ -92,6 +92,11 @@ private fun validatePassword(password: String): ValidationState {
         password.length < 6 -> ValidationState(
             isValid = false,
             error = DataError.Local.INVALID_PASSWORD
+        )
+
+        confirmPassword != password -> ValidationState(
+            isValid = false,
+            error = DataError.Local.CONFIRM_PASSWORD_MISMATCH
         )
 
         else -> ValidationState(isValid = true)
@@ -115,11 +120,16 @@ internal fun AuthDialog(
     var isPasswordResetEmailSent by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     var emailError by remember { mutableStateOf<DataError.Local?>(null) }
     var passwordError by remember { mutableStateOf<DataError.Local?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<DataError.Local?>(null) }
 
     val passwordFocusRequester = remember { FocusRequester() }
+    val confirmPasswordFocusRequester = remember { FocusRequester() }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -291,37 +301,28 @@ internal fun AuthDialog(
                                 ),
                                 keyBoardAction = KeyboardActions(
                                     onDone = {
-                                        val emailValidation = validateEmail(email)
-                                        val passwordValidation = validatePassword(password)
-
-                                        if (emailValidation.isValid && passwordValidation.isValid) {
-                                            onSignInWithEmail(email, password)
-                                            onSuccess()
-                                        } else {
-                                            emailError = emailValidation.error
-                                            passwordError = passwordValidation.error
-                                        }
+                                        onSignInWithEmail(email, password)
+                                        onSuccess()
                                     }
                                 ),
                                 isError = passwordError != null,
                                 errorText = passwordError?.asUiText()?.asString(),
-                                visualTransformation = PasswordVisualTransformation(),
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    val image =
+                                        if (passwordVisible) VxmIcons.Visibility else VxmIcons.VisibilityOff
+
+                                    IconButton(onClick = {
+                                        passwordVisible = !passwordVisible
+                                    }) {
+                                        Icon(imageVector = image, contentDescription = stringResource(R.string.feature_settings_toggle_visibility))
+                                    }
+                                },
                                 modifier = Modifier.focusRequester(passwordFocusRequester)
                             )
                             AuthButton(
                                 text = stringResource(R.string.feature_settings_sign_in),
-                                onClick = {
-                                    val emailValidation = validateEmail(email)
-                                    val passwordValidation = validatePassword(password)
-
-                                    if (emailValidation.isValid && passwordValidation.isValid) {
-                                        onSignInWithEmail(email, password)
-                                        onSuccess()
-                                    } else {
-                                        emailError = emailValidation.error
-                                        passwordError = passwordValidation.error
-                                    }
-                                },
+                                onClick = { onSignInWithEmail(email, password) },
                                 enabled = email.isNotBlank() && password.isNotBlank()
                             )
                             TextButton(onClick = { isForgotPassword = true }) {
@@ -364,12 +365,49 @@ internal fun AuthDialog(
                                 label = stringResource(R.string.feature_settings_password),
                                 keyBoardOptions = KeyboardOptions.Default.copy(
                                     keyboardType = KeyboardType.Password,
+                                    imeAction = ImeAction.Next
+                                ),
+                                keyBoardAction = KeyboardActions(
+                                    onNext = {
+                                        confirmPasswordFocusRequester.requestFocus()
+                                    }
+                                ),
+                                isError = passwordError != null,
+                                errorText = passwordError?.asUiText()?.asString(),
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    val image = if (passwordVisible)
+                                        VxmIcons.Visibility
+                                    else VxmIcons.VisibilityOff
+
+                                    IconButton(onClick = {
+                                        passwordVisible = !passwordVisible
+                                    }) {
+                                        Icon(
+                                            imageVector = image,
+                                            contentDescription = stringResource(R.string.feature_settings_toggle_visibility)
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.focusRequester(passwordFocusRequester)
+                            )
+
+                            AuthOutlinedTextField(
+                                value = confirmPassword,
+                                onValueChange = {
+                                    confirmPassword = it
+                                    confirmPasswordError = null
+                                },
+                                label = stringResource(R.string.feature_settings_confirm_password),
+                                keyBoardOptions = KeyboardOptions.Default.copy(
+                                    keyboardType = KeyboardType.Password,
                                     imeAction = ImeAction.Done
                                 ),
                                 keyBoardAction = KeyboardActions(
                                     onDone = {
                                         val emailValidation = validateEmail(email)
-                                        val passwordValidation = validatePassword(password)
+                                        val passwordValidation =
+                                            validatePassword(password, confirmPassword)
 
                                         if (emailValidation.isValid && passwordValidation.isValid) {
                                             onSignUpWithEmail(email, password)
@@ -377,20 +415,36 @@ internal fun AuthDialog(
                                         } else {
                                             emailError = emailValidation.error
                                             passwordError = passwordValidation.error
+                                            confirmPasswordError =
+                                                if (confirmPassword != password) DataError.Local.INVALID_PASSWORD else null
                                         }
                                     }
                                 ),
-                                isError = passwordError != null,
-                                errorText = passwordError?.asUiText()?.asString(),
-                                visualTransformation = PasswordVisualTransformation(),
-                                modifier = Modifier.focusRequester(passwordFocusRequester)
+                                isError = confirmPasswordError != null,
+                                errorText = confirmPasswordError?.asUiText()?.asString(),
+                                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    val image = if (confirmPasswordVisible)
+                                        VxmIcons.Visibility
+                                    else VxmIcons.VisibilityOff
+
+                                    IconButton(onClick = {
+                                        confirmPasswordVisible = !confirmPasswordVisible
+                                    }) {
+                                        Icon(
+                                            imageVector = image,
+                                            contentDescription = stringResource(R.string.feature_settings_toggle_visibility)
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.focusRequester(confirmPasswordFocusRequester)
                             )
 
                             AuthButton(
                                 text = stringResource(R.string.feature_settings_sign_up),
                                 onClick = {
                                     val emailValidation = validateEmail(email)
-                                    val passwordValidation = validatePassword(password)
+                                    val passwordValidation = validatePassword(password, confirmPassword)
 
                                     if (emailValidation.isValid && passwordValidation.isValid) {
                                         onSignUpWithEmail(email, password)
@@ -398,11 +452,12 @@ internal fun AuthDialog(
                                     } else {
                                         emailError = emailValidation.error
                                         passwordError = passwordValidation.error
+                                        confirmPasswordError = passwordValidation.error
                                     }
                                 },
                                 contentDescription = stringResource(id = R.string.feature_settings_sign_up),
                                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
-                                enabled = email.isNotBlank() && password.isNotBlank()
+                                enabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
                             )
                         }
 
@@ -498,6 +553,7 @@ fun AuthOutlinedTextField(
     isError: Boolean,
     errorText: String?,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
@@ -525,6 +581,7 @@ fun AuthOutlinedTextField(
             errorSupportingTextColor = MaterialTheme.colorScheme.error,
         ),
         visualTransformation = visualTransformation,
+        trailingIcon = trailingIcon,
         modifier = modifier.fillMaxWidth()
     )
 }
