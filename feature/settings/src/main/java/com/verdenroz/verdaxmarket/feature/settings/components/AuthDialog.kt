@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.feature.settings.components
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -487,8 +489,6 @@ internal fun AuthDialog(
                                 }
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
                             AuthButton(
                                 imageVector = VxmIcons.Email,
                                 contentDescription = stringResource(id = R.string.feature_settings_sign_in_with_email),
@@ -513,10 +513,21 @@ internal fun AuthDialog(
                                 ) {
                                     Text(
                                         text = stringResource(R.string.feature_settings_sign_up),
-                                        color = MaterialTheme.colorScheme.inverseSurface,
-                                        fontWeight = FontWeight.Bold
+                                        color = authActionColor,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
+                            }
+                            val context = LocalContext.current
+                            TextButton(onClick = {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Verdenroz/verdax-market/blob/main/PRIVACY_POLICY.md"))
+                                context.startActivity(intent)
+                            }) {
+                                Text(
+                                    text = stringResource(R.string.feature_settings_privacy_policy),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = authActionColor
+                                )
                             }
                         }
                     }

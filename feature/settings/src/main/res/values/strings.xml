@@ -48,4 +48,5 @@
     <string name="feature_settings_location">Location</string>
     <string name="feature_settings_confirm_password">Confirm password</string>
     <string name="feature_settings_toggle_visibility">Toggle password visibility</string>
+    <string name="feature_settings_privacy_policy">Privacy Policy</string>
 </resources>
