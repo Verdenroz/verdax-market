@@ -104,7 +104,7 @@ class AuthViewModel @Inject constructor(
             val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
 
             if (resultCode != ConnectionResult.SUCCESS) {
-                throw Exception("Google Play Services not available (code: $resultCode)")
+                handleSignInError(Exception("Google Play Services not available (code: $resultCode)"))
             }
 
             performGoogleSignIn(context)
