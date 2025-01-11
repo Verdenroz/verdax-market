@@ -49,4 +49,8 @@
     <string name="feature_settings_confirm_password">Confirm password</string>
     <string name="feature_settings_toggle_visibility">Toggle password visibility</string>
     <string name="feature_settings_privacy_policy">Privacy Policy</string>
+    <string name="feature_settings_delete_account_title">Delete Account</string>
+    <string name="feature_settings_delete_account_message">Are you sure you want to delete your account?</string>
+    <string name="feature_settings_delete">Delete</string>
+    <string name="feature_settings_delete_account">Delete you account</string>
 </resources>
