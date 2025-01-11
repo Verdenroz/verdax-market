@@ -95,6 +95,11 @@ fun SettingsRoute(
                 authViewModel.signOut()
             }
         },
+        onDeleteAccount = {
+            scope.launch {
+                authViewModel.deleteAccount()
+            }
+        },
         onThemePreferenceChange = settingsViewModel::updateThemePreference,
         onRegionPreferenceChange = settingsViewModel::updateRegionPreference,
         onHintsSettingChange = settingsViewModel::updateHintsSetting,
@@ -115,6 +120,7 @@ internal fun SettingsScreen(
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
+    onDeleteAccount: () -> Unit,
     onThemePreferenceChange: (ThemePreference) -> Unit,
     onRegionPreferenceChange: (RegionFilter) -> Unit,
     onHintsSettingChange: (Boolean) -> Unit,
@@ -153,6 +159,7 @@ internal fun SettingsScreen(
                         onSignInWithGithub = onSignInWithGithub,
                         onForgetPassword = onForgetPassword,
                         onSignOut = onSignOut,
+                        onDeleteAccount = onDeleteAccount,
                         onSyncChange = onSyncChange,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -256,6 +263,7 @@ private fun PreviewSettingsScreen() {
             onSignInWithGithub = { },
             onForgetPassword = { },
             onSignOut = { },
+            onDeleteAccount = { },
             onNavigateBack = { },
             onThemePreferenceChange = { },
             onRegionPreferenceChange = { },

@@ -31,6 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,6 +107,29 @@ private fun validatePassword(password: String, confirmPassword: String): Validat
     }
 }
 
+private val DataErrorLocalSaver = Saver<DataError.Local?, String>(
+    save = { error ->
+        when (error) {
+            DataError.Local.BLANK_EMAIL -> "BLANK_EMAIL"
+            DataError.Local.INVALID_EMAIL -> "INVALID_EMAIL"
+            DataError.Local.BLANK_PASSWORD -> "BLANK_PASSWORD"
+            DataError.Local.INVALID_PASSWORD -> "INVALID_PASSWORD"
+            DataError.Local.CONFIRM_PASSWORD_MISMATCH -> "CONFIRM_PASSWORD_MISMATCH"
+            null -> "null"
+        }
+    },
+    restore = { value ->
+        when (value) {
+            "BLANK_EMAIL" -> DataError.Local.BLANK_EMAIL
+            "INVALID_EMAIL" -> DataError.Local.INVALID_EMAIL
+            "BLANK_PASSWORD" -> DataError.Local.BLANK_PASSWORD
+            "INVALID_PASSWORD" -> DataError.Local.INVALID_PASSWORD
+            "CONFIRM_PASSWORD_MISMATCH" -> DataError.Local.CONFIRM_PASSWORD_MISMATCH
+            else -> null
+        }
+    }
+)
+
 
 @Composable
 internal fun AuthDialog(
@@ -116,19 +141,25 @@ internal fun AuthDialog(
     onDismiss: () -> Unit,
     onSuccess: () -> Unit
 ) {
-    var isSigningUp by remember { mutableStateOf(false) }
-    var isSigningIn by remember { mutableStateOf(false) }
-    var isForgotPassword by remember { mutableStateOf(false) }
-    var isPasswordResetEmailSent by remember { mutableStateOf(false) }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var isSigningUp by rememberSaveable { mutableStateOf(false) }
+    var isSigningIn by rememberSaveable { mutableStateOf(false) }
+    var isForgotPassword by rememberSaveable { mutableStateOf(false) }
+    var isPasswordResetEmailSent by rememberSaveable { mutableStateOf(false) }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var emailError by remember { mutableStateOf<DataError.Local?>(null) }
-    var passwordError by remember { mutableStateOf<DataError.Local?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<DataError.Local?>(null) }
+    var emailError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
+        mutableStateOf<DataError.Local?>(null)
+    }
+    var passwordError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
+        mutableStateOf<DataError.Local?>(null)
+    }
+    var confirmPasswordError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
+        mutableStateOf<DataError.Local?>(null)
+    }
 
     val passwordFocusRequester = remember { FocusRequester() }
     val confirmPasswordFocusRequester = remember { FocusRequester() }

@@ -14,7 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,12 +39,13 @@ fun AccountSection(
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
+    onDeleteAccount: () -> Unit,
     onSyncChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showAccountDialog by remember { mutableStateOf(false) }
-    var showAuthDialog by remember { mutableStateOf(false) }
-    var showSignOutDialog by remember { mutableStateOf(false) }
+    var showAccountDialog by rememberSaveable { mutableStateOf(false) }
+    var showAuthDialog by rememberSaveable { mutableStateOf(false) }
+    var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
 
     when (userState) {
         is UserAuthState.SignedIn -> {
@@ -168,6 +169,7 @@ fun AccountSection(
             isSynced = isSynced,
             onDismiss = { showAccountDialog = false },
             onSignOut = onSignOut,
+            onDeleteAccount = onDeleteAccount,
             onSyncChange = onSyncChange
         )
     }
@@ -215,6 +217,7 @@ fun PreviewAccountSection() {
                 onSignInWithGithub = {},
                 onForgetPassword = {},
                 onSignOut = {},
+                onDeleteAccount = {},
                 onSyncChange = {}
             )
             AccountSection(
@@ -226,6 +229,7 @@ fun PreviewAccountSection() {
                 onSignInWithGithub = {},
                 onForgetPassword = {},
                 onSignOut = {},
+                onDeleteAccount = {},
                 onSyncChange = {}
             )
             AccountSection(
@@ -237,6 +241,7 @@ fun PreviewAccountSection() {
                 onSignInWithGithub = {},
                 onForgetPassword = {},
                 onSignOut = {},
+                onDeleteAccount = {},
                 onSyncChange = {}
             )
         }
