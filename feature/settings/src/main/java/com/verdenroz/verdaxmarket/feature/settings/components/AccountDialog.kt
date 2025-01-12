@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -332,7 +333,16 @@ private fun EmailReauthDialog(
                                 contentDescription = stringResource(R.string.feature_settings_toggle_visibility)
                             )
                         }
-                    }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = MaterialTheme.colorScheme.inverseSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.inverseSurface,
+                        focusedTextColor = MaterialTheme.colorScheme.inverseSurface,
+                        cursorColor = MaterialTheme.colorScheme.inverseSurface,
+                        errorBorderColor = MaterialTheme.colorScheme.error,
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        errorSupportingTextColor = MaterialTheme.colorScheme.error,
+                    ),
                 )
             }
         },
