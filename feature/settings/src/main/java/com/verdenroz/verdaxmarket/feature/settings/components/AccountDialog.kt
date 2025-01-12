@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -23,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,8 +36,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.google.firebase.auth.EmailAuthProvider
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSwitch
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
@@ -50,11 +56,12 @@ internal fun AccountDialog(
     isSynced: Boolean,
     onDismiss: () -> Unit,
     onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit,
+    onDeleteAccount: (String?) -> Unit,
     onSyncChange: (Boolean) -> Unit
 ) {
     var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showEmailReauthDialog by rememberSaveable { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -224,7 +231,44 @@ internal fun AccountDialog(
     if (showDeleteDialog) {
         DeleteAccountDialog(
             onDismiss = { showDeleteDialog = false },
-            onConfirmDelete = onDeleteAccount
+            onConfirmDelete = {
+                if (user.providerId == EmailAuthProvider.PROVIDER_ID) {
+                    showEmailReauthDialog = true
+                } else {
+                    onDeleteAccount(null)
+                }
+            }
+        )
+    }
+
+    if (showEmailReauthDialog) {
+        EmailReauthDialog(
+            onDismiss = { showEmailReauthDialog = false },
+            onConfirm = {
+                password -> onDeleteAccount(password)
+                showEmailReauthDialog = false
+            }
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun PreviewAccountDialog() {
+    VxmTheme {
+        AccountDialog(
+            user = UserAuthState.SignedIn(
+                displayName = "John Doe",
+                email = "jojndoe@gmail.com",
+                photoUrl = "",
+                creationDate = "November 10, 2024",
+                providerId = "google.com"
+            ),
+            isSynced = true,
+            onDismiss = {},
+            onSignOut = {},
+            onDeleteAccount = {},
+            onSyncChange = {}
         )
     }
 }
@@ -260,22 +304,59 @@ private fun DeleteAccountDialog(
     )
 }
 
-@ThemePreviews
 @Composable
-private fun PreviewAccountDialog() {
-    VxmTheme {
-        AccountDialog(
-            user = UserAuthState.SignedIn(
-                displayName = "John Doe",
-                email = "jojndoe@gmail.com",
-                photoUrl = "",
-                creationDate = "November 10, 2024",
-            ),
-            isSynced = true,
-            onDismiss = {},
-            onSignOut = {},
-            onDeleteAccount = {},
-            onSyncChange = {}
-        )
-    }
+private fun EmailReauthDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (password: String) -> Unit
+) {
+    var password by rememberSaveable { mutableStateOf("") }
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.feature_settings_confirm_password)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(text = stringResource(R.string.feature_settings_reauth_message))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.feature_settings_password)) },
+                    singleLine = true,
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) VxmIcons.VisibilityOff else VxmIcons.Visibility,
+                                contentDescription = stringResource(R.string.feature_settings_toggle_visibility)
+                            )
+                        }
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(password)
+                    onDismiss()
+                },
+                enabled = password.isNotBlank()
+            ) {
+                Text(
+                    text = stringResource(R.string.feature_settings_confirm),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = stringResource(R.string.feature_settings_cancel),
+                    color = MaterialTheme.colorScheme.inverseSurface
+                )
+            }
+        }
+    )
 }

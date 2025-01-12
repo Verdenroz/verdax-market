@@ -39,7 +39,7 @@ fun AccountSection(
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit,
+    onDeleteAccount: (String?) -> Unit,
     onSyncChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -208,7 +208,8 @@ fun PreviewAccountSection() {
                     displayName = "John Doe",
                     email = "johndoe@gmail.com",
                     photoUrl = "",
-                    creationDate = "November 9, 2024"
+                    creationDate = "November 9, 2024",
+                    providerId = "google.com"
                 ),
                 isSynced = true,
                 onSignUpWithEmail = { _, _ -> },

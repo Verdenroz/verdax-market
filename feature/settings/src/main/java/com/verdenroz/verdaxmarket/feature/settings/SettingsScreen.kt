@@ -50,7 +50,7 @@ fun SettingsRoute(
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        authViewModel.authErrors.collect { errorMessage ->
+        authViewModel.authMessages.collect { errorMessage ->
             onShowSnackbar(
                 errorMessage,
                 null,
@@ -95,9 +95,9 @@ fun SettingsRoute(
                 authViewModel.signOut()
             }
         },
-        onDeleteAccount = {
+        onDeleteAccount = { password ->
             scope.launch {
-                authViewModel.deleteAccount()
+                authViewModel.deleteAccount(context, password)
             }
         },
         onThemePreferenceChange = settingsViewModel::updateThemePreference,
@@ -120,7 +120,7 @@ internal fun SettingsScreen(
     onSignInWithGithub: () -> Unit,
     onForgetPassword: (String) -> Unit,
     onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit,
+    onDeleteAccount: (String?) -> Unit,
     onThemePreferenceChange: (ThemePreference) -> Unit,
     onRegionPreferenceChange: (RegionFilter) -> Unit,
     onHintsSettingChange: (Boolean) -> Unit,
@@ -255,7 +255,8 @@ private fun PreviewSettingsScreen() {
                 displayName = "John Doe",
                 email = "john@gmail.com",
                 photoUrl = "https://example.com/profile.jpg",
-                creationDate = "November 16, 2021"
+                creationDate = "November 16, 2021",
+                providerId = "google.com",
             ),
             onSignUpWithEmail = { _, _ -> },
             onSignInWithEmail = { _, _ -> },
