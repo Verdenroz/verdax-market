@@ -132,13 +132,31 @@ The Company will take all steps reasonably necessary to ensure that Your data is
 
 ### Delete Your Personal Data
 
-You have the right to delete or request that We assist in deleting the Personal Data that We have collected about You.
+You have the right to delete or request that We assist in deleting the Personal Data that We have collected about You. There are two ways to manage your data deletion:
 
-Our Service may give You the ability to delete certain information about You from within the Service.
+#### Complete Account Deletion
+You can delete your account and all associated data directly through the Verdax Market app:
+1. Open the Verdax Market app
+2. Go to Settings
+3. Login with the account to be deleted
+4. Select your account
+5. Select "Delete Account"
+6. Follow the confirmation steps to permanently delete your account
 
-You may update, amend, or delete Your information at any time by signing in to Your Account, if you have one, and visiting the account settings section that allows you to manage Your personal information. You may also contact Us to request access to, correct, or delete any personal information that You have provided to Us.
+When you delete your account, we will remove:
+- Your account information
+- Email address
+- Authentication data (OAuth or email/password)
+- Usage data associated with your account
 
-Please note, however, that We may need to retain certain information when we have a legal obligation or lawful basis to do so.
+#### Partial Data Deletion
+To request deletion of specific data without deleting your entire account, please email us at harveytseng2@gmail.com with:
+- Your account email address
+- Specific data you want deleted
+- Any relevant details about your request
+
+Please note that we may need to retain certain information when we have a legal obligation or lawful basis to do so. Data deletion requests will be processed within 30 days of receipt.
+
 
 ### Disclosure of Your Personal Data
 
