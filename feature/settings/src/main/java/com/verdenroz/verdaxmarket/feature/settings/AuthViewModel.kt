@@ -1,12 +1,10 @@
 package com.verdenroz.verdaxmarket.feature.settings
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
@@ -15,11 +13,14 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GithubAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,82 +40,148 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val credentialManager: CredentialManager,
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<UserAuthState>(UserAuthState.Loading)
     val authState: StateFlow<UserAuthState> = _authState.asStateFlow()
 
-    private val errorChannel = Channel<String>()
-    val authErrors = errorChannel.receiveAsFlow()
+    private val messageChannel = Channel<String>()
+    val authMessages = messageChannel.receiveAsFlow()
 
     companion object {
         private const val WEB_CLIENT_ID =
             "164158213127-l8dqusc0au44n2ubcm2kfl2io67tn23c.apps.googleusercontent.com"
-        private const val TAG = "AuthViewModel"
     }
 
     init {
-        checkCurrentUser()
-    }
-
-    private fun checkCurrentUser() {
+        // Check if user is already signed in
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
+            val authProvider = currentUser.providerData
+                .firstOrNull { it.providerId != "firebase" }?.providerId
+                ?: EmailAuthProvider.PROVIDER_ID
             _authState.value = UserAuthState.SignedIn(
                 displayName = currentUser.displayName ?: "",
                 email = currentUser.email ?: "",
                 photoUrl = currentUser.photoUrl?.toString() ?: "",
-                creationDate = formatCreationDate(currentUser.metadata?.creationTimestamp ?: 0)
+                creationDate = formatCreationDate(currentUser.metadata?.creationTimestamp ?: 0),
+                providerId = authProvider
             )
         } else {
             _authState.value = UserAuthState.SignedOut
         }
     }
 
-    // Email/Password Authentication
-    suspend fun signInWithEmailPassword(email: String, password: String) {
+    /**
+     * Sign in with email and password
+     * @param email user's email
+     * @param password user's password
+     * @return AuthCredential if sign-in is successful, null otherwise
+     */
+    suspend fun signInWithEmailPassword(email: String, password: String): AuthCredential? {
         try {
             _authState.value = UserAuthState.Loading
 
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            handleSuccessfulSignIn(authResult.user)
-
+            if (authResult.user == null) throw Exception("Failed to sign in with email and password")
+            handleSuccessfulSignIn(authResult.user!!)
+            return authResult.credential
         } catch (e: Exception) {
             handleSignInError(e)
+            return null
         }
     }
 
+    /**
+     * Create account with email and password
+     * @param email user's email
+     * @param password user's password
+     */
     suspend fun createAccountWithEmailPassword(email: String, password: String) {
         try {
             _authState.value = UserAuthState.Loading
 
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            handleSuccessfulSignIn(authResult.user)
-
+            if (authResult.user == null) throw Exception("Failed to create account with email and password")
+            handleSuccessfulSignIn(authResult.user!!)
         } catch (e: Exception) {
             handleSignInError(e)
         }
     }
 
-    // Google Sign In
-    suspend fun signInWithGoogle(context: Context) {
+    /**
+     * Sign in with Google
+     * @param context application context
+     * @return AuthCredential if sign-in is successful, null otherwise
+     */
+    suspend fun signInWithGoogle(context: Context): AuthCredential? {
         try {
+            // Check Google Play Services availability
             val googleApiAvailability = GoogleApiAvailability.getInstance()
             val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
 
             if (resultCode != ConnectionResult.SUCCESS) {
                 handleSignInError(Exception("Google Play Services not available (code: $resultCode)"))
+                return null
+            }
+            _authState.value = UserAuthState.Loading
+
+            // Set up Google Sign-in
+            val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID)
+                .setNonce(generateNonce())
+                .build()
+
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(signInWithGoogleOption)
+                .build()
+
+            // Get Google credential
+            val result = credentialManager.getCredential(
+                request = request,
+                context = context
+            )
+
+            val credential = result.credential
+
+            // Validate credential type
+            if (credential !is CustomCredential ||
+                credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                handleSignInError(Exception("Invalid credential type received"))
+                return null
             }
 
-            performGoogleSignIn(context)
+            // Create Firebase credential
+            val googleIdTokenCredential = GoogleIdTokenCredential
+                .createFrom(credential.data)
+
+            val firebaseCredential = GoogleAuthProvider.getCredential(
+                googleIdTokenCredential.idToken, null
+            )
+
+            // Sign in to Firebase
+            val authResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            if (authResult.user == null) {
+                handleSignInError(Exception("Failed to sign in with Google"))
+                return null
+            }
+
+            handleSuccessfulSignIn(authResult.user!!)
+            return firebaseCredential
+
         } catch (e: Exception) {
             handleSignInError(e)
+            return null
         }
     }
 
-    // GitHub Authentication
-    suspend fun signInWithGitHub(context: Context) {
+    /**
+     * Sign in with GitHub
+     * @param context application context
+     * @return AuthCredential if sign-in is successful, null otherwise
+     */
+    suspend fun signInWithGitHub(context: Context): AuthCredential? {
         try {
             _authState.value = UserAuthState.Loading
 
@@ -122,70 +189,118 @@ class AuthViewModel @Inject constructor(
                 scopes = listOf("user:email")
             }.build()
 
-            val pendingAuthResult = firebaseAuth.pendingAuthResult
+            val pendingAuthResult = firebaseAuth.pendingAuthResult?.await()
             if (pendingAuthResult != null) {
-                handleSuccessfulSignIn(pendingAuthResult.await().user)
-                return
+                if (pendingAuthResult.user == null) throw Exception("Failed to sign in with GitHub")
+                handleSuccessfulSignIn(pendingAuthResult.user!!)
+                return pendingAuthResult.credential
             }
 
             val authResult = firebaseAuth.startActivityForSignInWithProvider(
                 context as android.app.Activity, provider
             ).await()
 
-            handleSuccessfulSignIn(authResult.user)
-
+            if (authResult.user == null) throw Exception("Failed to sign in with GitHub")
+            handleSuccessfulSignIn(authResult.user!!)
+            return authResult.credential
         } catch (e: Exception) {
             handleSignInError(e)
+            return null
         }
     }
 
-    private suspend fun performGoogleSignIn(context: Context) {
-        _authState.value = UserAuthState.Loading
-        val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID)
-            .setNonce(generateNonce())
-            .build()
-
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
-            .build()
-
-        val result = credentialManager.getCredential(
-            request = request,
-            context = context
-        )
-
-        handleGoogleSignInResult(result)
-    }
-
-    private suspend fun handleGoogleSignInResult(result: GetCredentialResponse) {
-        val credential = result.credential
-
-        if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            throw Exception("Invalid credential type received")
+    /**
+     * Reset user's password by sending a password reset email
+     * Note: This method does not require the user to be signed in and may be sent to any email address,
+     * even if it is not associated with an account
+     * @param email user's email
+     */
+    suspend fun resetPassword(email: String) {
+        try {
+            firebaseAuth.sendPasswordResetEmail(email).await()
+        } catch (e: Exception) {
+            messageChannel.send("Error sending password reset email: ${e.message}")
         }
-
-        val googleIdTokenCredential = GoogleIdTokenCredential
-            .createFrom(credential.data)
-
-        val firebaseCredential = GoogleAuthProvider.getCredential(
-            googleIdTokenCredential.idToken, null
-        )
-
-        val authResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
-        handleSuccessfulSignIn(authResult.user)
     }
 
-    private fun handleSuccessfulSignIn(user: FirebaseUser?) {
-        user ?: throw Exception("Firebase user is null after sign in")
+    /**
+     * Sign out the current user
+     */
+    suspend fun signOut() {
+        try {
+            firebaseAuth.signOut()
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            _authState.value = UserAuthState.SignedOut
 
+        } catch (e: Exception) {
+            messageChannel.send("Error signing out: ${e.message}")
+        }
+    }
+
+    /**
+     * Delete the current user's account
+     * @param context application context
+     *
+     * Note: This method requires the user to re-authenticate before deleting the account
+     * if the last sign-in was not within 5 minutes
+     */
+    suspend fun deleteAccount(context: Context, password: String? = null) {
+        try {
+            val authProvider = (_authState.value as UserAuthState.SignedIn).providerId
+            _authState.value = UserAuthState.Loading
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                handleSignInError(Exception("No user found"))
+                return
+            }
+            val lastSignIn = user.metadata?.lastSignInTimestamp!!
+            val fiveMinutesInMillis = 5 * 60 * 1000
+            val currentTime = System.currentTimeMillis()
+            // Re-authenticate user if last sign-in was not within 5 minutes
+            if (currentTime - lastSignIn > fiveMinutesInMillis) {
+
+                when (authProvider) {
+                    GoogleAuthProvider.PROVIDER_ID -> {
+                        val credential = signInWithGoogle(context)
+                        if (credential == null) throw Exception("Failed to obtain Google credential")
+                        user.reauthenticate(credential).await()
+                    }
+
+                    GithubAuthProvider.PROVIDER_ID -> {
+                        val credential = signInWithGitHub(context)
+                        if (credential == null) throw Exception("Failed to obtain GitHub credential")
+                        user.reauthenticate(credential).await()
+                    }
+
+                    EmailAuthProvider.PROVIDER_ID -> {
+                        if (password == null) throw Exception("Password required for reauthentication")
+                        val credential = EmailAuthProvider.getCredential(user.email!!, password)
+                        user.reauthenticate(credential).await()
+                    }
+                }
+            }
+
+            user.delete().await()
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            _authState.value = UserAuthState.SignedOut
+
+            messageChannel.send("Account deleted successfully")
+        } catch (e: Exception) {
+            messageChannel.send("Error deleting account: ${e.message}")
+            _authState.value = UserAuthState.SignedOut
+        }
+    }
+
+    private fun handleSuccessfulSignIn(user: FirebaseUser) {
         _authState.value = UserAuthState.SignedIn(
             displayName = user.displayName ?: "",
             email = user.email ?: "",
             photoUrl = user.photoUrl?.toString() ?: "",
-            creationDate = formatCreationDate(user.metadata?.creationTimestamp ?: 0)
+            creationDate = formatCreationDate(user.metadata?.creationTimestamp ?: 0),
+            providerId = user.providerData
+                .firstOrNull { it.providerId != "firebase" }?.providerId
+                ?: EmailAuthProvider.PROVIDER_ID
         )
-
-        Log.d(TAG, "Successfully signed in user: ${user.email}")
     }
 
     private suspend fun handleSignInError(e: Exception) {
@@ -204,32 +319,8 @@ class AuthViewModel @Inject constructor(
             else -> "Sign-in failed: ${e.message}"
         }
 
-        Log.e(TAG, "Sign-in error: $errorMessage", e)
-        errorChannel.send(errorMessage)
+        messageChannel.send(errorMessage)
         _authState.value = UserAuthState.SignedOut
-    }
-
-    suspend fun resetPassword(email: String) {
-        try {
-            firebaseAuth.sendPasswordResetEmail(email).await()
-            Log.d(TAG, "Password reset email sent to $email")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sending password reset email: ${e.message}", e)
-            errorChannel.send("Error sending password reset email: ${e.message}")
-        }
-    }
-
-    suspend fun signOut() {
-        try {
-            firebaseAuth.signOut()
-            credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            _authState.value = UserAuthState.SignedOut
-            Log.d(TAG, "Successfully signed out")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error signing out: ${e.message}", e)
-            errorChannel.send("Error signing out: ${e.message}")
-        }
     }
 
     private fun generateNonce(): String {
@@ -254,6 +345,7 @@ sealed interface UserAuthState {
         val displayName: String,
         val email: String,
         val photoUrl: String,
-        val creationDate: String
+        val creationDate: String,
+        val providerId: String
     ) : UserAuthState
 }
