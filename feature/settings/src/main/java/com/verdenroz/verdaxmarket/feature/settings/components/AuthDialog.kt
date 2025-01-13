@@ -526,7 +526,6 @@ internal fun AuthDialog(
                                 onClick = { isSigningIn = true }
                             )
 
-
                             HorizontalDivider()
 
                             Row(
@@ -586,7 +585,7 @@ private fun PreviewAuthDialog() {
 }
 
 @Composable
-fun AuthOutlinedTextField(
+internal fun AuthOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
