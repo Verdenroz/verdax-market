@@ -2,6 +2,7 @@ package com.verdenroz.verdaxmarket.core.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -47,34 +48,32 @@ fun VxmSnackbar(
     data: SnackbarData
 ) {
     Snackbar(
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(vertical = 32.dp)
     ) {
         Row(
-            horizontalArrangement = if (data.visuals.actionLabel != null) Arrangement.SpaceEvenly else Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = data.visuals.message,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(.6f)
+                modifier = Modifier.weight(1f)
             )
 
             data.visuals.actionLabel?.let { actionLabel ->
-                TextButton(
-                    onClick = { data.performAction() },
-                    modifier = Modifier.weight(.4f),
-                ) {
+                TextButton(onClick = data::performAction) {
                     Text(
                         text = actionLabel,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.tertiary,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
