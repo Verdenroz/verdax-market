@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.verdenroz.verdaxmarket.core.common.error.DataError
@@ -35,7 +36,7 @@ internal fun HomeRoute(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val indices by homeViewModel.indices.collectAsStateWithLifecycle()
-    val indexTimeSeries by homeViewModel.indexTimeSeries.collectAsStateWithLifecycle(emptyMap())
+    val indexTimeSeries by homeViewModel.indexTimeSeries.collectAsStateWithLifecycle()
     val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
     val sectorTimeSeries by homeViewModel.sectorTimeSeries.collectAsStateWithLifecycle()
     val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
@@ -76,30 +77,30 @@ internal fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
-        verticalArrangement = Arrangement.SpaceAround,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item {
+        item(key = "MarketIndices") {
             MarketIndices(
                 indices = indices,
                 indexTimeSeries = indexTimeSeries,
                 onShowSnackbar = onShowSnackbar,
             )
         }
-        item {
+        item(key = "MarketSectors") {
             MarketSectors(
                 sectors = sectors,
                 sectorTimeSeries = sectorTimeSeries,
                 onShowSnackbar = onShowSnackbar,
             )
         }
-        item {
+        item(key = "NewsFeed") {
             NewsFeed(
                 headlines = headlines,
                 onShowSnackbar = onShowSnackbar,
             )
         }
-        item {
+        item(key = "MarketMovers") {
             MarketMovers(
                 listState = listState,
                 onNavigateToQuote = onNavigateToQuote,
@@ -110,7 +111,6 @@ internal fun HomeScreen(
             )
         }
     }
-
 }
 
 @ThemePreviews

@@ -20,10 +20,12 @@ import com.verdenroz.verdaxmarket.core.model.toMarketIndexName
 import com.verdenroz.verdaxmarket.core.model.toSymbol
 import com.verdenroz.verdaxmarket.core.model.toSymbols
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
@@ -39,13 +41,20 @@ class HomeViewModel @Inject constructor(
     private val quoteRepository: QuoteRepository,
 ) : ViewModel() {
 
-    val headlines: StateFlow<Result<List<News>, DataError.Network>> =
-        marketInfoRepository.headlines.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            Result.Loading(true)
-        )
+    private fun <T> stateFlowFromRepository(
+        repositoryFlow: Flow<Result<T, DataError.Network>>
+    ): StateFlow<Result<T, DataError.Network>> {
+        return repositoryFlow
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                Result.Loading(true)
+            )
+    }
 
+    val headlines: StateFlow<Result<List<News>, DataError.Network>> =
+        stateFlowFromRepository(marketInfoRepository.headlines)
 
     val indices: StateFlow<Result<List<MarketIndex>, DataError.Network>> = combine(
         marketInfoRepository.indices,
@@ -58,7 +67,7 @@ class HomeViewModel @Inject constructor(
             is Result.Loading -> Result.Loading(indicesResult.isLoading)
             is Result.Error -> Result.Error(indicesResult.error)
         }
-    }.stateIn(
+    }.distinctUntilChanged().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         Result.Loading(true)
@@ -76,23 +85,19 @@ class HomeViewModel @Inject constructor(
                     ).map { result -> symbol.toMarketIndexName() to result }
                 }
             ) { results -> results.toMap() }
-        }.stateIn(
+        }.distinctUntilChanged().stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             emptyMap()
         )
 
     val sectors: StateFlow<Result<List<MarketSector>, DataError.Network>> =
-        marketInfoRepository.sectors.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            Result.Loading(true)
-        )
+        stateFlowFromRepository(marketInfoRepository.sectors)
 
     val sectorTimeSeries: StateFlow<Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>> =
         flow {
             val results = Sector.entries.asFlow()
-                .flatMapMerge(concurrency = Sector.entries.size){ sector ->
+                .flatMapMerge(concurrency = Sector.entries.size) { sector ->
                     val symbol = sector.toSymbol()
                     quoteRepository.getTimeSeries(
                         symbol = symbol,
@@ -103,30 +108,18 @@ class HomeViewModel @Inject constructor(
                 .toList()
                 .toMap()
             emit(results)
-        }.stateIn(
+        }.distinctUntilChanged().stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             Sector.entries.associateWith { Result.Loading(true) }
         )
 
     val actives: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        marketInfoRepository.actives.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            Result.Loading(true)
-        )
+        stateFlowFromRepository(marketInfoRepository.actives)
 
     val losers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        marketInfoRepository.losers.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            Result.Loading(true)
-        )
+        stateFlowFromRepository(marketInfoRepository.losers)
 
     val gainers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        marketInfoRepository.gainers.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            Result.Loading(true)
-        )
+        stateFlowFromRepository(marketInfoRepository.gainers)
 }
