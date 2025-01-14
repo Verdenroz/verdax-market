@@ -3,7 +3,9 @@
     <style name="Theme.AnimatedSplash" parent="android:Theme.Material.Light.NoActionBar"/>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="android:windowBackground">@color/ic_launcher_background</item>
+        <!-- This will be used for pre-Android 12 devices -->
+        <item name="android:windowBackground">@drawable/splash_sceen_background</item>
+        <!-- This will be used for Android 12+ devices -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/Theme.AnimatedSplash</item>
