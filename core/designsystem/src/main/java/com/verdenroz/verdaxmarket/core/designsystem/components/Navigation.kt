@@ -22,12 +22,14 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowHeightSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 
@@ -206,8 +208,18 @@ fun VxmNavigationSuiteScaffold(
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
     content: @Composable () -> Unit,
 ) {
-    val layoutType = NavigationSuiteScaffoldDefaults
-        .calculateFromAdaptiveInfo(windowAdaptiveInfo)
+    val windowClass = windowAdaptiveInfo.windowSizeClass
+    val layoutType = when {
+        // Show rail if height is compact (landscape) or width is medium/expanded
+        windowClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT
+                || windowClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
+                || windowClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED -> {
+
+            NavigationSuiteType.NavigationRail
+        }
+        // For all other cases (portrait phones), use bottom navigation
+        else -> NavigationSuiteType.NavigationBar
+    }
     val navigationSuiteItemColors = NavigationSuiteItemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
             selectedIconColor = VxmNavigationDefaults.navigationContentColor(),
