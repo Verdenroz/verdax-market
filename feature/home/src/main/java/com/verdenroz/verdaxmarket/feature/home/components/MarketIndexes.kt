@@ -153,6 +153,7 @@ fun MarketIndexCard(
                     ) {
                         Sparkline(
                             timeSeries = timeSeries.data,
+                            color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor(),
                             modifier = Modifier.fillMaxSize()
                         )
                     }

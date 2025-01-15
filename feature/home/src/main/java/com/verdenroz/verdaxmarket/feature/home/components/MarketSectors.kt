@@ -159,6 +159,7 @@ fun MarketSectorCard(
                         is Result.Success -> {
                             Sparkline(
                                 timeSeries = timeSeries.data,
+                                color = if (sector.yearReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor(),
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
