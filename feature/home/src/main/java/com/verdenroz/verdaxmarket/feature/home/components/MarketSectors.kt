@@ -164,11 +164,11 @@ fun MarketSectorCard(
                             )
                         }
 
-                        is Result.Loading -> {
+                        is Result.Loading, null -> {
                             LinearProgressIndicator()
                         }
 
-                        is Result.Error, null -> {
+                        is Result.Error -> {
                             // no sparkline
                         }
                     }

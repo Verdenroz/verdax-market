@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SnackbarDuration
@@ -144,18 +145,27 @@ fun MarketIndexCard(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
 
-                if (timeSeries is Result.Success) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Sparkline(
-                            timeSeries = timeSeries.data,
-                            color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor(),
-                            modifier = Modifier.fillMaxSize()
-                        )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = if (timeSeries is Result.Success) Alignment.TopStart else Alignment.Center
+                ) {
+                    when (timeSeries) {
+                        is Result.Success -> {
+                            Sparkline(
+                                timeSeries = timeSeries.data,
+                                color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor(),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        is Result.Loading, null -> {
+                            LinearProgressIndicator()
+                        }
+                        is Result.Error -> {
+                            // No data
+                        }
                     }
                 }
 

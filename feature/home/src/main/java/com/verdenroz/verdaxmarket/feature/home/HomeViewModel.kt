@@ -111,7 +111,7 @@ class HomeViewModel @Inject constructor(
         }.distinctUntilChanged().stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            Sector.entries.associateWith { Result.Loading(true) }
+            emptyMap()
         )
 
     val actives: StateFlow<Result<List<MarketMover>, DataError.Network>> =
