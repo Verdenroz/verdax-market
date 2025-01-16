@@ -345,7 +345,7 @@ private fun Profile(quote: FullQuoteData) {
         ) {
             quote.sector?.let {
                 OutlinedButton(
-                    onClick = { TODO("Navigate to sector") },
+                    onClick = { },
                     shape = CircleShape
                 ) {
                     Text(
@@ -357,7 +357,7 @@ private fun Profile(quote: FullQuoteData) {
             }
             quote.industry?.let {
                 OutlinedButton(
-                    onClick = { TODO("Navigate to industry") },
+                    onClick = { },
                     shape = CircleShape,
                 ) {
                     Text(
