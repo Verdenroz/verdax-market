@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -99,7 +100,10 @@ internal fun WatchlistScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false,
+        )
     )
     var quote by rememberSaveable(stateSaver = WatchlistQuoteSaver) {
         mutableStateOf(null)
@@ -110,10 +114,15 @@ internal fun WatchlistScreen(
     var isBottomSheetExpanded by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(bottomSheetScaffoldState.bottomSheetState) {
-        snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue.ordinal }
-            .collect { state ->
-                isBottomSheetExpanded = (state != 2)
+        snapshotFlow { bottomSheetScaffoldState.bottomSheetState.targetValue }.collect { state ->
+            isBottomSheetExpanded = (state != SheetValue.Hidden)
+
+            if (state == SheetValue.PartiallyExpanded) {
+                scope.launch {
+                    bottomSheetScaffoldState.bottomSheetState.hide()
+                }
             }
+        }
     }
 
     var showClearDialog by remember { mutableStateOf(false) }
