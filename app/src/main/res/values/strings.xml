@@ -16,4 +16,5 @@
     <string name="market_status_reason_outside_hours">The market is currently outside of regular trading hours.</string>
     <string name="sync_error">Unable to sync with cloud</string>
     <string name="retry">Retry</string>
+    <string name="exit_toast">Press back again to exit</string>
 </resources>

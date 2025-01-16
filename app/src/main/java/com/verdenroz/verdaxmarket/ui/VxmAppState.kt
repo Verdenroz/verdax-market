@@ -18,10 +18,8 @@ import com.verdenroz.verdaxmarket.core.model.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.navigateToHome
-import com.verdenroz.verdaxmarket.feature.quotes.navigation.QUOTES_ROUTE
 import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE
 import com.verdenroz.verdaxmarket.feature.search.navigation.navigateToSearch
-import com.verdenroz.verdaxmarket.feature.settings.navigation.SETTINGS_ROUTE
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.WATCHLIST_ROUTE
 import com.verdenroz.verdaxmarket.feature.watchlist.navigation.navigateToWatchlist
 import com.verdenroz.verdaxmarket.navigation.TopLevelDestination
@@ -115,16 +113,6 @@ class VxmAppState(
      * @see <a href="https://github.com/android/nowinandroid/blob/main/app/src/main/kotlin/com/google/samples/apps/nowinandroid/ui/NiaAppState.kt">NiaAppState.kt</a>
      */
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
-        // Pop back to the top-level destination if currently on a QuoteScreen
-        while (navController.currentDestination?.route?.startsWith(QUOTES_ROUTE) == true) {
-            navController.popBackStack()
-        }
-
-        // Pop back to the top-level destination if currently on a SettingsScreen
-        while (navController.currentDestination?.route?.startsWith(SETTINGS_ROUTE) == true) {
-            navController.popBackStack()
-        }
-
         val topLevelNavOptions = navOptions {
             // Pop up to the start destination of the graph to
             // avoid building up a large stack of destinations

@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.ui
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -25,11 +27,13 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +45,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmTopAppBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.feature.settings.navigation.navigateToSettings
 import com.verdenroz.verdaxmarket.navigation.VxmNavHost
+import kotlin.system.exitProcess
 
 @Composable
 fun VxmApp(
@@ -50,6 +55,7 @@ fun VxmApp(
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     val syncState by appState.syncState.collectAsStateWithLifecycle()
     val isOffline by appState.isOffline.collectAsStateWithLifecycle()
@@ -57,6 +63,43 @@ fun VxmApp(
     val notConnectedMessage = stringResource(R.string.not_connected)
     val syncError = stringResource(R.string.sync_error)
     val syncRetry = stringResource(R.string.retry)
+    val exitToast = stringResource(R.string.exit_toast)
+
+    var showExitToast by remember { mutableStateOf(false) }
+    var lastBackPressTime by remember { mutableLongStateOf(0L) }
+
+    // Don't enable the BackHandler for the search route since it has its own back handling
+    BackHandler {
+        val currentTime = System.currentTimeMillis()
+
+        when {
+            // If we have a previous destination in the back stack
+            appState.navController.previousBackStackEntry != null -> {
+                appState.navController.popBackStack()
+            }
+            // If we are at the top level destination
+            else -> {
+                if (currentTime - lastBackPressTime < 2000) {
+                    exitProcess(0)
+                } else {
+                    showExitToast = true
+                    lastBackPressTime = currentTime
+                }
+            }
+        }
+    }
+
+    // Show toast when needed
+    LaunchedEffect(showExitToast) {
+        if (showExitToast) {
+            Toast.makeText(
+                context,
+                exitToast,
+                Toast.LENGTH_SHORT
+            ).show()
+            showExitToast = false
+        }
+    }
 
     // If user is not connected to the internet show a snack bar to inform them.
     LaunchedEffect(isOffline) {
