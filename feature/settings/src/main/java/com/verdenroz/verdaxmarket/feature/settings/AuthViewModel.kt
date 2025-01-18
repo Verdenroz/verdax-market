@@ -10,7 +10,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.AuthCredential
@@ -128,12 +128,14 @@ class AuthViewModel @Inject constructor(
             _authState.value = UserAuthState.Loading
 
             // Set up Google Sign-in
-            val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID)
+            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                .setServerClientId(WEB_CLIENT_ID)
+                .setFilterByAuthorizedAccounts(false)
                 .setNonce(generateNonce())
                 .build()
 
             val request = GetCredentialRequest.Builder()
-                .addCredentialOption(signInWithGoogleOption)
+                .addCredentialOption(googleIdOption)
                 .build()
 
             // Get Google credential
