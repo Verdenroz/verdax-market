@@ -22,16 +22,17 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowHeightSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.designsystem.util.isLandscape
+import com.verdenroz.verdaxmarket.core.designsystem.util.isPortrait
 
 /**
  * VerdaxMarket wrapper for [NavigationBar].
@@ -208,17 +209,14 @@ fun VxmNavigationSuiteScaffold(
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
     content: @Composable () -> Unit,
 ) {
-    val windowClass = windowAdaptiveInfo.windowSizeClass
     val layoutType = when {
         // Show rail if height is compact (landscape) or width is medium/expanded
-        windowClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT
-                || windowClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
-                || windowClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED -> {
+        isLandscape() -> NavigationSuiteType.NavigationRail
 
-            NavigationSuiteType.NavigationRail
-        }
         // For all other cases (portrait phones), use bottom navigation
-        else -> NavigationSuiteType.NavigationBar
+        isPortrait() -> NavigationSuiteType.NavigationBar
+        
+        else -> NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
     }
     val navigationSuiteItemColors = NavigationSuiteItemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
