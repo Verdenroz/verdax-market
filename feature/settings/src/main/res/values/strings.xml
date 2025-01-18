@@ -42,7 +42,7 @@
     <string name="feature_settings_back_to_sign_in">Return to Sign In</string>
     <string name="feature_settings_sync">Cloud Sync</string>
     <string name="feature_settings_sync_title">Activate Cloud Sync</string>
-    <string name="feature_settings_sync_description">Keep your watchlist and settings synchronized with the cloud</string>
+    <string name="feature_settings_sync_description">Sync your watchlist and settings with the cloud</string>
     <string name="feature_settings_region">Region</string>
     <string name="feature_settings_region_description">Choose your preferred region</string>
     <string name="feature_settings_location">Location</string>
@@ -52,6 +52,6 @@
     <string name="feature_settings_delete_account_title">Delete Account</string>
     <string name="feature_settings_delete_account_message">Are you sure you want to delete your account?</string>
     <string name="feature_settings_delete">Delete</string>
-    <string name="feature_settings_delete_account">Delete you account</string>
+    <string name="feature_settings_delete_account">Delete your account</string>
     <string name="feature_settings_reauth_message">Please enter your password to confirm account deletion</string>
 </resources>
