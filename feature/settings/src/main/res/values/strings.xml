@@ -54,4 +54,5 @@
     <string name="feature_settings_delete">Delete</string>
     <string name="feature_settings_delete_account">Delete your account</string>
     <string name="feature_settings_reauth_message">Please enter your password to confirm account deletion</string>
+    <string name="feature_settings_account_deleted">Account deleted</string>
 </resources>

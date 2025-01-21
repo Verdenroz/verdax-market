@@ -121,7 +121,7 @@ private val DataErrorLocalSaver = Saver<DataError.Local?, String>(
             DataError.Local.BLANK_PASSWORD -> "BLANK_PASSWORD"
             DataError.Local.INVALID_PASSWORD -> "INVALID_PASSWORD"
             DataError.Local.CONFIRM_PASSWORD_MISMATCH -> "CONFIRM_PASSWORD_MISMATCH"
-            null -> "null"
+            else -> "null"
         }
     },
     restore = { value ->

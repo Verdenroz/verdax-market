@@ -1,5 +1,6 @@
 package com.verdenroz.verdaxmarket.feature.settings
 
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmCenterTopBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
+import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.ThemePreference
 import com.verdenroz.verdaxmarket.feature.settings.components.AccountSection
@@ -48,19 +50,20 @@ fun SettingsRoute(
 ) {
     val settingsUiState by settingsViewModel.settingsUiState.collectAsStateWithLifecycle()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current as ComponentActivity
+    val accountDeletedMessage = stringResource(id = R.string.feature_settings_account_deleted)
 
     LaunchedEffect(Unit) {
-        authViewModel.authMessages.collect { errorMessage ->
+        authViewModel.authErrors.collect { errorMessage ->
             onShowSnackbar(
-                errorMessage,
+                errorMessage.asUiText().asString(context),
                 null,
                 SnackbarDuration.Short
             )
         }
     }
 
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current as ComponentActivity
     SettingsScreen(
         settingsUiState = settingsUiState,
         authState = authState,
@@ -97,7 +100,10 @@ fun SettingsRoute(
         },
         onDeleteAccount = { password ->
             scope.launch {
-                authViewModel.deleteAccount(context, password)
+                val isSuccess = authViewModel.deleteAccount(context, password)
+                if (isSuccess) {
+                    Toast.makeText(context, accountDeletedMessage, Toast.LENGTH_SHORT).show()
+                }
             }
         },
         onThemePreferenceChange = settingsViewModel::updateThemePreference,

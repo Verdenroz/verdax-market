@@ -33,11 +33,26 @@ sealed class UiText {
 
 fun DataError.asString(): UiText {
     return when (this) {
+        // Input error mappings
         DataError.Local.INVALID_EMAIL -> UiText.StringResource(R.string.core_designsystem_invalid_email)
         DataError.Local.INVALID_PASSWORD -> UiText.StringResource(R.string.core_designsystem_invalid_password)
         DataError.Local.BLANK_EMAIL -> UiText.StringResource(R.string.core_designsystem_blank_email)
         DataError.Local.BLANK_PASSWORD -> UiText.StringResource(R.string.core_designsystem_blank_password)
         DataError.Local.CONFIRM_PASSWORD_MISMATCH -> UiText.StringResource(R.string.core_designsystem_confirm_password_mismatch)
+        // Auth error mappings
+        DataError.Local.INVALID_CREDENTIALS -> UiText.StringResource(R.string.core_designsystem_invalid_credentials)
+        DataError.Local.USER_NOT_FOUND -> UiText.StringResource(R.string.core_designsystem_user_not_found)
+        DataError.Local.EMAIL_ALREADY_EXISTS -> UiText.StringResource(R.string.core_designsystem_email_exists)
+        DataError.Local.NO_SAVED_CREDENTIALS -> UiText.StringResource(R.string.core_designsystem_no_saved_credentials)
+        DataError.Local.GOOGLE_SIGN_IN_FAILED -> UiText.StringResource(R.string.core_designsystem_google_sign_in_failed)
+        DataError.Local.GITHUB_SIGN_IN_FAILED -> UiText.StringResource(R.string.core_designsystem_github_sign_in_failed)
+        DataError.Local.PASSWORD_RESET_FAILED -> UiText.StringResource(R.string.core_designsystem_password_reset_failed)
+        DataError.Local.SIGN_OUT_FAILED -> UiText.StringResource(R.string.core_designsystem_sign_out_failed)
+        DataError.Local.ACCOUNT_DELETE_FAILED -> UiText.StringResource(R.string.core_designsystem_account_delete_failed)
+        DataError.Local.GOOGLE_PLAY_SERVICES_UNAVAILABLE -> UiText.StringResource(R.string.core_designsystem_google_play_unavailable)
+        DataError.Local.REAUTH_REQUIRED -> UiText.StringResource(R.string.core_designsystem_reauth_required)
+        DataError.Local.AUTH_UNKNOWN_ERROR -> UiText.StringResource(R.string.core_designsystem_auth_unknown_error)
+        // Network errors
         DataError.Network.NO_INTERNET -> UiText.StringResource(R.string.core_designsystem_no_internet)
         DataError.Network.TIMEOUT -> UiText.StringResource(R.string.core_designsystem_timeout)
         DataError.Network.BAD_REQUEST -> UiText.StringResource(R.string.core_designsystem_bad_request)

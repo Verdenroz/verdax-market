@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GithubAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
+import com.verdenroz.verdaxmarket.core.common.error.DataError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,8 +47,8 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<UserAuthState>(UserAuthState.Loading)
     val authState: StateFlow<UserAuthState> = _authState.asStateFlow()
 
-    private val messageChannel = Channel<String>()
-    val authMessages = messageChannel.receiveAsFlow()
+    private val errorChannel = Channel<DataError.Local>()
+    val authErrors = errorChannel.receiveAsFlow()
 
     companion object {
         private const val WEB_CLIENT_ID =
@@ -220,8 +221,8 @@ class AuthViewModel @Inject constructor(
     suspend fun resetPassword(email: String) {
         try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-        } catch (e: Exception) {
-            messageChannel.send("Error sending password reset email: ${e.message}")
+        } catch (_: Exception) {
+            errorChannel.send(DataError.Local.PASSWORD_RESET_FAILED)
         }
     }
 
@@ -234,8 +235,8 @@ class AuthViewModel @Inject constructor(
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
             _authState.value = UserAuthState.SignedOut
 
-        } catch (e: Exception) {
-            messageChannel.send("Error signing out: ${e.message}")
+        } catch (_: Exception) {
+            errorChannel.send(DataError.Local.SIGN_OUT_FAILED)
         }
     }
 
@@ -246,14 +247,14 @@ class AuthViewModel @Inject constructor(
      * Note: This method requires the user to re-authenticate before deleting the account
      * if the last sign-in was not within 5 minutes
      */
-    suspend fun deleteAccount(context: Context, password: String? = null) {
+    suspend fun deleteAccount(context: Context, password: String? = null): Boolean {
         try {
             val authProvider = (_authState.value as UserAuthState.SignedIn).providerId
             _authState.value = UserAuthState.Loading
             val user = firebaseAuth.currentUser
             if (user == null) {
-                handleSignInError(Exception("No user found"))
-                return
+                errorChannel.send(DataError.Local.ACCOUNT_DELETE_FAILED)
+                return false
             }
             val lastSignIn = user.metadata?.lastSignInTimestamp!!
             val fiveMinutesInMillis = 5 * 60 * 1000
@@ -285,11 +286,11 @@ class AuthViewModel @Inject constructor(
             user.delete().await()
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
             _authState.value = UserAuthState.SignedOut
-
-            messageChannel.send("Account deleted successfully")
-        } catch (e: Exception) {
-            messageChannel.send("Error deleting account: ${e.message}")
+            return true
+        } catch (_: Exception) {
+            errorChannel.send(DataError.Local.ACCOUNT_DELETE_FAILED)
             _authState.value = UserAuthState.SignedOut
+            return false
         }
     }
 
@@ -307,23 +308,23 @@ class AuthViewModel @Inject constructor(
 
     private suspend fun handleSignInError(e: Exception) {
         if (e is GetCredentialCancellationException) {
-            // do nothing if user cancels sign-in
             _authState.value = UserAuthState.SignedOut
             return
         }
 
-        val errorMessage = when (e) {
-            is FirebaseAuthInvalidCredentialsException -> "Invalid credentials. Please check your email and password."
-            is FirebaseAuthInvalidUserException -> "No user found with this email."
-            is FirebaseAuthUserCollisionException -> "An account already exists with this email."
-            is NoCredentialException -> "No saved credentials found."
-            is GoogleIdTokenParsingException -> "Failed to parse Google Sign-In token."
-            else -> "Sign-in failed: ${e.message}"
+        val error = when (e) {
+            is FirebaseAuthInvalidCredentialsException -> DataError.Local.INVALID_CREDENTIALS
+            is FirebaseAuthInvalidUserException -> DataError.Local.USER_NOT_FOUND
+            is FirebaseAuthUserCollisionException -> DataError.Local.EMAIL_ALREADY_EXISTS
+            is NoCredentialException -> DataError.Local.NO_SAVED_CREDENTIALS
+            is GoogleIdTokenParsingException -> DataError.Local.GOOGLE_SIGN_IN_FAILED
+            else -> DataError.Local.AUTH_UNKNOWN_ERROR
         }
 
-        messageChannel.send(errorMessage)
+        errorChannel.send(error)
         _authState.value = UserAuthState.SignedOut
     }
+
 
     private fun generateNonce(): String {
         val ranNonce = randomUUID().toString()
