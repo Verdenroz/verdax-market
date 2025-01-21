@@ -1,7 +1,8 @@
 package com.verdenroz.verdaxmarket.feature.watchlist.components
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -22,18 +24,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
@@ -47,8 +49,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveBackgroundC
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.feature.watchlist.R
-import kotlin.math.abs
-import kotlin.math.pow
+import kotlin.math.roundToInt
 
 @Composable
 internal fun WatchlistedQuote(
@@ -185,78 +186,95 @@ internal fun EditableWatchlistQuote(
     modifier: Modifier = Modifier
 ) {
     var offsetX by remember { mutableFloatStateOf(0f) }
-    var isDragging by remember { mutableStateOf(false) }
-    val maxDragDistance = 500f
-    val dragProportion = abs(offsetX) / maxDragDistance
-    val weight by animateFloatAsState(
-        targetValue = (dragProportion.pow(2)).coerceIn(0.00001f, 1f),
-        label = "weight"
+    val deleteButtonWidth = 72.dp
+    val deleteButtonWidthPx = with(LocalDensity.current) { deleteButtonWidth.toPx() }
+
+    val offsetXAnimated by animateFloatAsState(
+        targetValue = offsetX,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "offsetXAnimated"
     )
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isDragging) MaterialTheme.colorScheme.surface.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
-        label = "backgroundColor"
-    )
-    Row(
+
+    Box(
         modifier = modifier
-            .background(backgroundColor)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onHorizontalDrag = { _, dragAmount ->
-                        if (dragAmount > 0 || offsetX != 0f) {
-                            offsetX += dragAmount
-                            offsetX = offsetX.coerceIn(-maxDragDistance, maxDragDistance)
-                        }
-                    },
-                    onDragEnd = {
-                        if (abs(offsetX) > maxDragDistance * 0.75) {
-                            onDelete(quote)
-                        }
-                        offsetX = 0f
-                    }
-                )
-            },
-        verticalAlignment = Alignment.CenterVertically
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Box(
-            modifier = Modifier
-                .weight(weight)
-                .padding(vertical = 4.dp)
-                .clip(RoundedCornerShape(25))
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = VxmIcons.DeleteSweep,
-                contentDescription = stringResource(id = R.string.feature_watchlist_delete),
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.alpha(1f - weight)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .weight((1f - weight).coerceAtLeast(0.01f))
-                .padding(8.dp)
-                .clip(RoundedCornerShape(25)),
-            contentAlignment = Alignment.Center
-        ) {
-            WatchlistedQuote(
-                quote = quote,
-                onClick = onClick,
-                onMoreClick = onMoreClick,
-                onNavigateToQuote = onNavigateToQuote
-            )
-        }
+
+        // Delete button that gets revealed
         IconButton(
-            modifier = dragModifier,
+            onClick = { onDelete(quote) },
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .size(deleteButtonWidth)
+                .padding(12.dp),
             colors = IconButtonDefaults.iconButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            onClick = { },
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.error
+            )
         ) {
             Icon(
-                imageVector = VxmIcons.DragHandle,
-                contentDescription = "Reorder"
+                imageVector = VxmIcons.Delete,
+                contentDescription = stringResource(id = R.string.feature_watchlist_delete)
             )
+        }
+
+        Row(
+            modifier = Modifier
+                .offset { IntOffset(offsetXAnimated.roundToInt(), 0) }
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { },
+                        onHorizontalDrag = { change, dragAmount ->
+                            change.consume()
+                            val newOffset = (offsetX + dragAmount).coerceIn(0f, deleteButtonWidthPx)
+                            offsetX = newOffset
+                        },
+                        onDragEnd = {
+                            // Snap to either fully closed or fully open
+                            offsetX = if (offsetX > deleteButtonWidthPx / 2) {
+                                deleteButtonWidthPx
+                            } else {
+                                0f
+                            }
+                        },
+                        onDragCancel = {
+                            offsetX = 0f
+                        }
+                    )
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(25)),
+                contentAlignment = Alignment.Center
+            ) {
+                WatchlistedQuote(
+                    quote = quote,
+                    onClick = onClick,
+                    onMoreClick = onMoreClick,
+                    onNavigateToQuote = onNavigateToQuote
+                )
+            }
+
+            IconButton(
+                modifier = dragModifier,
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                onClick = { },
+            ) {
+                Icon(
+                    imageVector = VxmIcons.DragHandle,
+                    contentDescription = stringResource(id = R.string.feature_watchlist_reorder)
+                )
+            }
         }
     }
 }

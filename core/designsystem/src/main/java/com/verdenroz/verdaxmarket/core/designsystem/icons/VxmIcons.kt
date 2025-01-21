@@ -17,7 +17,6 @@ import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Email
@@ -37,7 +36,6 @@ object VxmIcons {
     val CheckCircle = Icons.Rounded.CheckCircle
     val Close = Icons.Rounded.Clear
     val Delete = Icons.Outlined.DeleteOutline
-    val DeleteSweep = Icons.Rounded.DeleteSweep
     val DragHandle = Icons.Rounded.DragHandle
     val Edit = Icons.Rounded.Edit
     val Email = Icons.Rounded.Email
