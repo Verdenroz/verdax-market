@@ -36,7 +36,8 @@ import com.verdenroz.verdaxmarket.core.model.MarketHours
 import com.verdenroz.verdaxmarket.core.model.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
 import kotlinx.coroutines.android.awaitFrame
-import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -121,8 +122,9 @@ private fun MarketStatusDot(
 }
 
 private fun formatNYTime(): String {
-    return LocalTime.now()
-        .format(DateTimeFormatter.ofPattern("HH:mm"))
+    val nyZoneId = ZoneId.of("America/New_York")
+    val nyTime = ZonedDateTime.now(nyZoneId)
+    return nyTime.format(DateTimeFormatter.ofPattern("HH:mm 'ET'"))
 }
 
 @Composable
