@@ -73,19 +73,19 @@ import com.verdenroz.verdaxmarket.feature.settings.R
 
 private data class ValidationState(
     val isValid: Boolean,
-    val error: DataError.Local? = null
+    val error: DataError.Input? = null
 )
 
 private fun validateEmail(email: String): ValidationState {
     return when {
         email.isBlank() -> ValidationState(
             isValid = false,
-            error = DataError.Local.BLANK_EMAIL
+            error = DataError.Input.BLANK_EMAIL
         )
 
         !email.matches(Regex("[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) -> ValidationState(
             isValid = false,
-            error = DataError.Local.INVALID_EMAIL
+            error = DataError.Input.INVALID_EMAIL
         )
 
         else -> ValidationState(isValid = true)
@@ -96,41 +96,41 @@ private fun validatePassword(password: String, confirmPassword: String): Validat
     return when {
         password.isBlank() -> ValidationState(
             isValid = false,
-            error = DataError.Local.BLANK_PASSWORD
+            error = DataError.Input.BLANK_PASSWORD
         )
 
         password.length < 6 -> ValidationState(
             isValid = false,
-            error = DataError.Local.INVALID_PASSWORD
+            error = DataError.Input.INVALID_PASSWORD
         )
 
         confirmPassword != password -> ValidationState(
             isValid = false,
-            error = DataError.Local.CONFIRM_PASSWORD_MISMATCH
+            error = DataError.Input.CONFIRM_PASSWORD_MISMATCH
         )
 
         else -> ValidationState(isValid = true)
     }
 }
 
-private val DataErrorLocalSaver = Saver<DataError.Local?, String>(
+private val DataErrorLocalSaver = Saver<DataError.Input?, String>(
     save = { error ->
         when (error) {
-            DataError.Local.BLANK_EMAIL -> "BLANK_EMAIL"
-            DataError.Local.INVALID_EMAIL -> "INVALID_EMAIL"
-            DataError.Local.BLANK_PASSWORD -> "BLANK_PASSWORD"
-            DataError.Local.INVALID_PASSWORD -> "INVALID_PASSWORD"
-            DataError.Local.CONFIRM_PASSWORD_MISMATCH -> "CONFIRM_PASSWORD_MISMATCH"
+            DataError.Input.BLANK_EMAIL -> "BLANK_EMAIL"
+            DataError.Input.INVALID_EMAIL -> "INVALID_EMAIL"
+            DataError.Input.BLANK_PASSWORD -> "BLANK_PASSWORD"
+            DataError.Input.INVALID_PASSWORD -> "INVALID_PASSWORD"
+            DataError.Input.CONFIRM_PASSWORD_MISMATCH -> "CONFIRM_PASSWORD_MISMATCH"
             else -> "null"
         }
     },
     restore = { value ->
         when (value) {
-            "BLANK_EMAIL" -> DataError.Local.BLANK_EMAIL
-            "INVALID_EMAIL" -> DataError.Local.INVALID_EMAIL
-            "BLANK_PASSWORD" -> DataError.Local.BLANK_PASSWORD
-            "INVALID_PASSWORD" -> DataError.Local.INVALID_PASSWORD
-            "CONFIRM_PASSWORD_MISMATCH" -> DataError.Local.CONFIRM_PASSWORD_MISMATCH
+            "BLANK_EMAIL" -> DataError.Input.BLANK_EMAIL
+            "INVALID_EMAIL" -> DataError.Input.INVALID_EMAIL
+            "BLANK_PASSWORD" -> DataError.Input.BLANK_PASSWORD
+            "INVALID_PASSWORD" -> DataError.Input.INVALID_PASSWORD
+            "CONFIRM_PASSWORD_MISMATCH" -> DataError.Input.CONFIRM_PASSWORD_MISMATCH
             else -> null
         }
     }
@@ -158,13 +158,13 @@ internal fun AuthDialog(
     var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     var emailError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
-        mutableStateOf<DataError.Local?>(null)
+        mutableStateOf<DataError.Input?>(null)
     }
     var passwordError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
-        mutableStateOf<DataError.Local?>(null)
+        mutableStateOf<DataError.Input?>(null)
     }
     var confirmPasswordError by rememberSaveable(stateSaver = DataErrorLocalSaver) {
-        mutableStateOf<DataError.Local?>(null)
+        mutableStateOf<DataError.Input?>(null)
     }
 
     val passwordFocusRequester = remember { FocusRequester() }
@@ -307,9 +307,9 @@ private fun AuthDialogContent(
     email: String,
     password: String,
     confirmPassword: String,
-    emailError: DataError.Local?,
-    passwordError: DataError.Local?,
-    confirmPasswordError: DataError.Local?,
+    emailError: DataError.Input?,
+    passwordError: DataError.Input?,
+    confirmPasswordError: DataError.Input?,
     passwordVisible: Boolean,
     confirmPasswordVisible: Boolean,
     onEmailChange: (String) -> Unit,
@@ -480,8 +480,8 @@ private fun WelcomeContent(
 private fun SignInContent(
     email: String,
     password: String,
-    emailError: DataError.Local?,
-    passwordError: DataError.Local?,
+    emailError: DataError.Input?,
+    passwordError: DataError.Input?,
     passwordVisible: Boolean,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -569,9 +569,9 @@ private fun SignUpContent(
     email: String,
     password: String,
     confirmPassword: String,
-    emailError: DataError.Local?,
-    passwordError: DataError.Local?,
-    confirmPasswordError: DataError.Local?,
+    emailError: DataError.Input?,
+    passwordError: DataError.Input?,
+    confirmPasswordError: DataError.Input?,
     passwordVisible: Boolean,
     confirmPasswordVisible: Boolean,
     onEmailChange: (String) -> Unit,
@@ -686,7 +686,7 @@ private fun SignUpContent(
 private fun ForgotPasswordContent(
     isPasswordResetEmailSent: Boolean,
     email: String,
-    emailError: DataError.Local?,
+    emailError: DataError.Input?,
     onEmailChange: (String) -> Unit,
     onForgotPassword: () -> Unit,
     onBackToSignIn: () -> Unit
