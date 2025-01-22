@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(projects.core.data)
+    implementation(projects.core.logging)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)

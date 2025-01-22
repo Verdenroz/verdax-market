@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GithubAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
+import com.verdenroz.core.logging.ErrorReporter
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -42,12 +43,13 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val credentialManager: CredentialManager,
     private val firebaseAuth: FirebaseAuth,
+    private val errorReporter: ErrorReporter
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<UserAuthState>(UserAuthState.Loading)
     val authState: StateFlow<UserAuthState> = _authState.asStateFlow()
 
-    private val errorChannel = Channel<DataError.Local>()
+    private val errorChannel = Channel<DataError.Auth>()
     val authErrors = errorChannel.receiveAsFlow()
 
     companion object {
@@ -67,7 +69,8 @@ class AuthViewModel @Inject constructor(
                 email = currentUser.email ?: "",
                 photoUrl = currentUser.photoUrl?.toString() ?: "",
                 creationDate = formatCreationDate(currentUser.metadata?.creationTimestamp ?: 0),
-                providerId = authProvider
+                providerId = authProvider,
+                lastSignIn = currentUser.metadata?.lastSignInTimestamp ?: 0
             )
         } else {
             _authState.value = UserAuthState.SignedOut
@@ -221,8 +224,12 @@ class AuthViewModel @Inject constructor(
     suspend fun resetPassword(email: String) {
         try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-        } catch (_: Exception) {
-            errorChannel.send(DataError.Local.PASSWORD_RESET_FAILED)
+        } catch (e: Exception) {
+            errorChannel.send(DataError.Auth.PASSWORD_RESET_FAILED)
+            errorReporter.logError(
+                error = DataError.Auth.PASSWORD_RESET_FAILED,
+                exception = e
+            )
         }
     }
 
@@ -235,8 +242,15 @@ class AuthViewModel @Inject constructor(
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
             _authState.value = UserAuthState.SignedOut
 
-        } catch (_: Exception) {
-            errorChannel.send(DataError.Local.SIGN_OUT_FAILED)
+        } catch (e: Exception) {
+            errorChannel.send(DataError.Auth.SIGN_OUT_FAILED)
+            errorReporter.logError(
+                error = DataError.Auth.SIGN_OUT_FAILED,
+                exception = e,
+                metadata = buildMap {
+                    put("userId", firebaseAuth.currentUser?.uid ?: "unknown")
+                }
+            )
         }
     }
 
@@ -253,7 +267,7 @@ class AuthViewModel @Inject constructor(
             _authState.value = UserAuthState.Loading
             val user = firebaseAuth.currentUser
             if (user == null) {
-                errorChannel.send(DataError.Local.ACCOUNT_DELETE_FAILED)
+                errorChannel.send(DataError.Auth.ACCOUNT_DELETE_FAILED)
                 return false
             }
             val lastSignIn = user.metadata?.lastSignInTimestamp!!
@@ -287,9 +301,19 @@ class AuthViewModel @Inject constructor(
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
             _authState.value = UserAuthState.SignedOut
             return true
-        } catch (_: Exception) {
-            errorChannel.send(DataError.Local.ACCOUNT_DELETE_FAILED)
+        } catch (e: Exception) {
+            errorChannel.send(DataError.Auth.ACCOUNT_DELETE_FAILED)
             _authState.value = UserAuthState.SignedOut
+
+            if (e !is FirebaseAuthInvalidCredentialsException) {
+                errorReporter.logError(
+                    error = DataError.Auth.ACCOUNT_DELETE_FAILED,
+                    exception = e,
+                    metadata = buildMap {
+                        put("userId", firebaseAuth.currentUser?.uid ?: "unknown")
+                    }
+                )
+            }
             return false
         }
     }
@@ -302,7 +326,8 @@ class AuthViewModel @Inject constructor(
             creationDate = formatCreationDate(user.metadata?.creationTimestamp ?: 0),
             providerId = user.providerData
                 .firstOrNull { it.providerId != "firebase" }?.providerId
-                ?: EmailAuthProvider.PROVIDER_ID
+                ?: EmailAuthProvider.PROVIDER_ID,
+            lastSignIn = user.metadata?.lastSignInTimestamp ?: 0
         )
     }
 
@@ -313,18 +338,21 @@ class AuthViewModel @Inject constructor(
         }
 
         val error = when (e) {
-            is FirebaseAuthInvalidCredentialsException -> DataError.Local.INVALID_CREDENTIALS
-            is FirebaseAuthInvalidUserException -> DataError.Local.USER_NOT_FOUND
-            is FirebaseAuthUserCollisionException -> DataError.Local.EMAIL_ALREADY_EXISTS
-            is NoCredentialException -> DataError.Local.NO_SAVED_CREDENTIALS
-            is GoogleIdTokenParsingException -> DataError.Local.GOOGLE_SIGN_IN_FAILED
-            else -> DataError.Local.AUTH_UNKNOWN_ERROR
+            is FirebaseAuthInvalidCredentialsException -> DataError.Auth.INVALID_CREDENTIALS
+            is FirebaseAuthInvalidUserException -> DataError.Auth.USER_NOT_FOUND
+            is FirebaseAuthUserCollisionException -> DataError.Auth.EMAIL_ALREADY_EXISTS
+            is NoCredentialException -> DataError.Auth.NO_SAVED_CREDENTIALS
+            is GoogleIdTokenParsingException -> DataError.Auth.GOOGLE_SIGN_IN_FAILED
+            else -> DataError.Auth.AUTH_UNKNOWN_ERROR
         }
 
         errorChannel.send(error)
         _authState.value = UserAuthState.SignedOut
+        errorReporter.logError(
+            error = error,
+            exception = e
+        )
     }
-
 
     private fun generateNonce(): String {
         val ranNonce = randomUUID().toString()
@@ -349,6 +377,7 @@ sealed interface UserAuthState {
         val email: String,
         val photoUrl: String,
         val creationDate: String,
-        val providerId: String
+        val providerId: String,
+        val lastSignIn: Long
     ) : UserAuthState
 }
