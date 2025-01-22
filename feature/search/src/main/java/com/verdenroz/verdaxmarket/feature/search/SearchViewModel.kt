@@ -13,7 +13,8 @@ import com.algolia.search.model.IndexName
 import com.algolia.search.model.ObjectID
 import com.algolia.search.model.indexing.Partial
 import com.algolia.search.model.search.Query
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.verdenroz.core.logging.ErrorReporter
+import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
@@ -49,7 +50,7 @@ class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val watchlistRepository: WatchlistRepository,
     private val recentSearchRepository: RecentSearchRepository,
-    private val firebaseCrashlytics: FirebaseCrashlytics,
+    private val errorReporter: ErrorReporter,
     userDataRepository: UserDataRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -57,7 +58,8 @@ class SearchViewModel @Inject constructor(
     private val _regionFilter = MutableStateFlow(RegionFilter.US)
     val regionFilter = _regionFilter.asStateFlow()
 
-    private val _typeFilter: MutableStateFlow<List<TypeFilter>> = MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
+    private val _typeFilter: MutableStateFlow<List<TypeFilter>> =
+        MutableStateFlow(listOf(TypeFilter.STOCK, TypeFilter.ETF, TypeFilter.TRUST))
     val typeFilter = _typeFilter.asStateFlow()
 
     private val client = ClientSearch(
@@ -169,8 +171,22 @@ class SearchViewModel @Inject constructor(
         if (query.isEmpty() || this.query.value.isEmpty()) {
             searchResults.value = emptyList()
         } else {
-            searcher.setQuery(query)
-            searcher.searchAsync()
+            viewModelScope.launch {
+                try {
+                    searcher.setQuery(query)
+                    searcher.searchAsync()
+                } catch (e: Exception) {
+                    errorReporter.logError(
+                        error = DataError.Search.SEARCH_FAILED,
+                        exception = e,
+                        metadata = buildMap {
+                            put("query", query)
+                        }
+                    )
+                    searchResults.value = emptyList()
+                    errorChannel.send(DataError.Search.SEARCH_FAILED.asUiText().asString(context))
+                }
+            }
         }
     }
 
@@ -182,11 +198,22 @@ class SearchViewModel @Inject constructor(
         if (query.isBlank() || this.query.value.isBlank()) {
             searchResults.value = emptyList()
         } else {
-            searcher.setQuery(query)
-            searcher.searchAsync()
-
             viewModelScope.launch {
-                recentSearchRepository.upsertRecentQuery(query)
+                try {
+                    searcher.setQuery(query)
+                    searcher.searchAsync()
+                    recentSearchRepository.upsertRecentQuery(query)
+                } catch (e: Exception) {
+                    errorReporter.logError(
+                        error = DataError.Search.SEARCH_FAILED,
+                        exception = e,
+                        metadata = buildMap {
+                            put("query", query)
+                        }
+                    )
+                    searchResults.value = emptyList()
+                    errorChannel.send(DataError.Search.SEARCH_FAILED.asUiText().asString(context))
+                }
             }
         }
     }
@@ -203,10 +230,15 @@ class SearchViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 // Silently fail
-                firebaseCrashlytics.apply {
-                    setCustomKey("objectID", result.objectID)
-                    recordException(e)
-                }
+                errorReporter.logError(
+                    error = DataError.Search.FAILED_UPDATE_VIEWS,
+                    exception = e,
+                    metadata = buildMap {
+                        put("objectID", result.objectID)
+                        put("symbol", result.symbol)
+                        put("message", DataError.Search.FAILED_UPDATE_VIEWS.asUiText().asString(context))
+                    }
+                )
             }
         }
     }
