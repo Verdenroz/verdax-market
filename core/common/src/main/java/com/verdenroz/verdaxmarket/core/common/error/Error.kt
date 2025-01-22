@@ -23,15 +23,15 @@ sealed interface DataError : Error {
         UNKNOWN,
     }
 
-    enum class Local : DataError {
-        //Input errors
+    enum class Input : DataError {
         BLANK_EMAIL,
         INVALID_EMAIL,
         BLANK_PASSWORD,
         INVALID_PASSWORD,
         CONFIRM_PASSWORD_MISMATCH,
+    }
 
-        // Auth errors
+    enum class Auth : DataError {
         INVALID_CREDENTIALS,
         USER_NOT_FOUND,
         EMAIL_ALREADY_EXISTS,
@@ -42,10 +42,13 @@ sealed interface DataError : Error {
         SIGN_OUT_FAILED,
         ACCOUNT_DELETE_FAILED,
         GOOGLE_PLAY_SERVICES_UNAVAILABLE,
-        REAUTH_REQUIRED,
         AUTH_UNKNOWN_ERROR
     }
 
+    enum class Search : DataError {
+        SEARCH_FAILED,
+        FAILED_UPDATE_VIEWS
+    }
 }
 
 
