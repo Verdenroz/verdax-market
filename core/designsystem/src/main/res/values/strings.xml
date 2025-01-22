@@ -29,6 +29,7 @@
     <string name="core_designsystem_sign_out_failed">Failed to sign out. Please try again.</string>
     <string name="core_designsystem_account_delete_failed">Failed to delete account. Please try again.</string>
     <string name="core_designsystem_google_play_unavailable">Google Play Services is not available on this device.</string>
-    <string name="core_designsystem_reauth_required">Please sign in again to continue.</string>
     <string name="core_designsystem_auth_unknown_error">An unknown error occurred. Please try again.</string>
+    <string name="core_designsystem_search_failed">Failed to retrieve search results</string>
+    <string name="core_designsystem_failed_update_views">Failed to increment view counter</string>
 </resources>
