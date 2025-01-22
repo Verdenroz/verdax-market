@@ -209,7 +209,8 @@ fun PreviewAccountSection() {
                     email = "johndoe@gmail.com",
                     photoUrl = "",
                     creationDate = "November 9, 2024",
-                    providerId = "google.com"
+                    providerId = "google.com",
+                    lastSignIn = System.currentTimeMillis()
                 ),
                 isSynced = true,
                 onSignUpWithEmail = { _, _ -> },

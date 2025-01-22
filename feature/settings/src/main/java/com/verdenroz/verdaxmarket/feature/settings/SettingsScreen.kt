@@ -263,6 +263,7 @@ private fun PreviewSettingsScreen() {
                 photoUrl = "https://example.com/profile.jpg",
                 creationDate = "November 16, 2021",
                 providerId = "google.com",
+                lastSignIn = System.currentTimeMillis(),
             ),
             onSignUpWithEmail = { _, _ -> },
             onSignInWithEmail = { _, _ -> },

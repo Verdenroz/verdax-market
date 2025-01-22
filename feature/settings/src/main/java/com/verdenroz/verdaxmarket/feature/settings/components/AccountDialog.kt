@@ -144,7 +144,11 @@ internal fun AccountDialog(
         DeleteAccountDialog(
             onDismiss = { showDeleteDialog = false },
             onConfirmDelete = {
-                if (user.providerId == EmailAuthProvider.PROVIDER_ID) {
+                val fiveMinutesInMillis = 5 * 60 * 1000
+                val currentTime = System.currentTimeMillis()
+
+                // Show reauth dialog only if it has been more than five minutes since last sign in
+                if (user.providerId == EmailAuthProvider.PROVIDER_ID && (currentTime - user.lastSignIn > fiveMinutesInMillis)) {
                     showEmailReauthDialog = true
                 } else {
                     onDeleteAccount(null)
@@ -554,7 +558,8 @@ private fun PreviewAccountDialog() {
                 email = "jojndoe@gmail.com",
                 photoUrl = "",
                 creationDate = "November 10, 2024",
-                providerId = "google.com"
+                providerId = "google.com",
+                lastSignIn = System.currentTimeMillis()
             ),
             isSynced = true,
             onDismiss = {},
