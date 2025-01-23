@@ -7,11 +7,11 @@ import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
+import com.verdenroz.verdaxmarket.core.data.repository.SocketRepository
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.domain.GetAnalysisSignalSummaryUseCase
 import com.verdenroz.verdaxmarket.core.domain.GetAnalysisSignalsUseCase
-import com.verdenroz.verdaxmarket.core.domain.GetSubscribedProfileUseCase
 import com.verdenroz.verdaxmarket.core.domain.GetTimeSeriesMapUseCase
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
@@ -34,8 +34,8 @@ class QuotesViewModel @AssistedInject constructor(
     @Assisted private val symbol: String,
     private val recentSearchRepository: RecentSearchRepository,
     private val watchlistRepository: WatchlistRepository,
+    socketRepository: SocketRepository,
     userDataRepository: UserDataRepository,
-    getSubscribedProfileUseCase: GetSubscribedProfileUseCase,
     getTimeSeriesMapUseCase: GetTimeSeriesMapUseCase,
     getAnalysisSignalsUseCase: GetAnalysisSignalsUseCase,
     getAnalysisSignalSummaryUseCase: GetAnalysisSignalSummaryUseCase,
@@ -52,7 +52,7 @@ class QuotesViewModel @AssistedInject constructor(
      * If profile is an error, data must be retrieved from the API instead
      */
     val profile: StateFlow<Result<Profile, DataError.Network>> =
-        getSubscribedProfileUseCase(symbol).stateIn(
+        socketRepository.getProfile(symbol).stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
             Result.Loading(true)
