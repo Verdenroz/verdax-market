@@ -42,7 +42,7 @@ internal fun isMarketHoliday(date: LocalDate): Boolean {
     }
 }
 
-fun isEarlyCloseDay(date: LocalDate): Boolean {
+internal fun isEarlyCloseDay(date: LocalDate): Boolean {
     return when {
         // Day before Independence Day (July 3rd, unless it's a weekend)
         date.isDayBeforeIndependenceDay() -> true
