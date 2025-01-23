@@ -5,6 +5,9 @@ plugins {
 
 android {
     namespace = "com.verdenroz.core.logging"
+    buildFeatures {
+        buildConfig = true
+    }
 
     buildTypes {
         release {
