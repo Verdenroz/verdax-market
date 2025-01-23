@@ -5,7 +5,8 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
+import com.verdenroz.verdaxmarket.core.data.utils.ExceptionHandler
+import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.database.dao.RecentQuoteDao
 import com.verdenroz.verdaxmarket.core.database.dao.RecentSearchDao
 import com.verdenroz.verdaxmarket.core.database.model.RecentQuoteEntity
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -38,6 +38,7 @@ class ImplRecentSearchRepository @Inject constructor(
     private val recentQuoteDao: RecentQuoteDao,
     private val socketRepository: SocketRepository,
     private val financeQueryDataSource: FinanceQueryDataSource,
+    private val exceptionHandler: ExceptionHandler,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : RecentSearchRepository {
 
@@ -114,7 +115,7 @@ class ImplRecentSearchRepository @Inject constructor(
                         }
                     }
                 }
-                .catch { e -> emit(Result.Error(handleNetworkException(e))) }
+                .catchAndEmitError(exceptionHandler)
                 .collect { result ->
                     _recentQuotes.emit(result)
                 }

@@ -6,7 +6,7 @@ import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
-import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
+import com.verdenroz.verdaxmarket.core.data.utils.ExceptionHandler
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.QuoteAnalysis
 import com.verdenroz.verdaxmarket.core.model.indicators.AnalysisIndicator
@@ -27,6 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class ImplSignalRepository @Inject constructor(
     private val api: FinanceQueryDataSource,
+    private val exceptionHandler: ExceptionHandler,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : SignalRepository {
 
@@ -43,7 +44,7 @@ class ImplSignalRepository @Inject constructor(
                                 api.getSummaryAnalysis(symbol, interval).asExternalModel()
                             analysisMap[interval] = Result.Success(quoteAnalysis)
                         } catch (e: Exception) {
-                            analysisMap[interval] = Result.Error(handleNetworkException(e))
+                            analysisMap[interval] = Result.Error(exceptionHandler.handleNetworkException(e))
                         }
                     }
                 }

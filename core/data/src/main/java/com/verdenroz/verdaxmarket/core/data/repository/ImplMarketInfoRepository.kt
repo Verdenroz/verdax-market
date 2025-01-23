@@ -1,6 +1,5 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
-import com.verdenroz.core.logging.ErrorReporter
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.core.common.error.DataError
@@ -11,8 +10,9 @@ import com.verdenroz.verdaxmarket.core.data.repository.MarketInfoRepository.Comp
 import com.verdenroz.verdaxmarket.core.data.repository.MarketInfoRepository.Companion.NEVER_REFRESH_INTERVAL
 import com.verdenroz.verdaxmarket.core.data.repository.MarketInfoRepository.Companion.SLOW_REFRESH_INTERVAL_CLOSED
 import com.verdenroz.verdaxmarket.core.data.repository.MarketInfoRepository.Companion.SLOW_REFRESH_INTERVAL_OPEN
+import com.verdenroz.verdaxmarket.core.data.utils.ExceptionHandler
 import com.verdenroz.verdaxmarket.core.data.utils.MarketStatusMonitor
-import com.verdenroz.verdaxmarket.core.data.utils.handleNetworkException
+import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
@@ -25,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
@@ -39,7 +38,7 @@ import javax.inject.Singleton
 @Singleton
 class ImplMarketInfoRepository @Inject constructor(
     private val api: FinanceQueryDataSource,
-    private val errorReporter: ErrorReporter,
+    private val exceptionHandler: ExceptionHandler,
     socket: SocketRepository,
     marketStatusMonitor: MarketStatusMonitor,
     @Dispatcher(FinanceQueryDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
@@ -147,12 +146,5 @@ class ImplMarketInfoRepository @Inject constructor(
                 }
             }
         }
-    }.flowOn(ioDispatcher).catch { e ->
-        val error = handleNetworkException(e)
-        emit(Result.Error(error))
-        errorReporter.logError(
-            error = error,
-            exception = e,
-        )
-    }
+    }.flowOn(ioDispatcher).catchAndEmitError(exceptionHandler)
 }
