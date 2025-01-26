@@ -79,7 +79,7 @@ internal fun QuoteChart(
     val negativeTextColor = getNegativeTextColor()
     val positiveBackgroundColor = getPositiveBackgroundColor()
     val negativeBackgroundColor = getNegativeBackgroundColor()
-    var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.SIX_MONTH) }
+    var timePeriod by rememberSaveable { mutableStateOf(TimePeriod.ONE_DAY) }
 
     when (val currentTimeSeries = timeSeries[timePeriod]) {
         is Result.Loading, null -> {
