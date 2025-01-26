@@ -416,9 +416,17 @@ private fun drawXAxis(
 ) {
     val stepSize = maxOf((data.size / 4.5).toInt(), 1)
     for (i in data.entries.indices step stepSize) {
-        val date = data.entries.elementAt(i).key
+        var date = data.entries.elementAt(i).key
+        var dateIndex = i
+        // Adjust the date for one day time period to show time that is a multiple of 15 minutes
+        if (timePeriod == TimePeriod.ONE_DAY) {
+            val result  = findNextClosestTime(date, data, i)
+            date = result.first
+            dateIndex = result.second
+        }
+
         val formattedDate = formatDate(date, timePeriod)
-        val x = SPACING + i * spacePerHour
+        val x = SPACING + dateIndex * spacePerHour
 
         drawScope.drawContext.canvas.nativeCanvas.drawText(
             formattedDate,
@@ -620,4 +628,35 @@ private fun formatDateForYTD(date: String): String {
         diffInDays <= 30 -> formatDateForMonth(date)
         else -> formatDateForYear(date)
     }
+}
+
+/**
+ * Helper function to find the next closest time in the data that is a multiple of 15 minutes
+ * Ex. "Jul 1, 2021 9:31 AM" -> "Jul 1, 2021 9:45 AM"
+ * @param date the date to find the next closest time for
+ * @param data the historical data to search for the next closest time
+ */
+private fun findNextClosestTime(date: String, data: Map<String, HistoricalData>, startIndex: Int): Pair<String, Int> {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date) ?: return Pair(date, startIndex)
+
+    val calendar = Calendar.getInstance().apply { time = parsedDate }
+    val minutes = calendar.get(Calendar.MINUTE)
+
+    if (minutes % 15 == 0) {
+        return Pair(date, startIndex)
+    }
+
+    for (i in startIndex until data.entries.size) {
+        val entry = data.entries.elementAt(i)
+        val entryDate = formatter.parse(entry.key) ?: continue
+        val entryCalendar = Calendar.getInstance().apply { time = entryDate }
+        val entryMinutes = entryCalendar.get(Calendar.MINUTE)
+
+        if (entryMinutes % 15 == 0 && entryDate.after(parsedDate)) {
+            return Pair(entry.key, i)
+        }
+    }
+
+    return Pair(date, startIndex)
 }
