@@ -143,7 +143,7 @@ internal fun QuoteChart(
                 Text(
                     text = selectedData.value.let {
                         it?.let { (date, _) ->
-                            formatDate(date, timePeriod)
+                            formatSelectedDate(date, timePeriod)
                         } ?: ""
                     },
                     style = MaterialTheme.typography.labelLarge,
@@ -310,7 +310,10 @@ private fun StockChartError(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(imageVector = Icons.Default.Warning, contentDescription = stringResource(R.string.feature_quotes_chart_error))
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = stringResource(R.string.feature_quotes_chart_error)
+        )
         Text(
             text = stringResource(R.string.feature_quotes_chart_error),
             style = MaterialTheme.typography.bodyMedium,
@@ -420,7 +423,7 @@ private fun drawXAxis(
         var dateIndex = i
         // Adjust the date for one day time period to show time that is a multiple of 15 minutes
         if (timePeriod == TimePeriod.ONE_DAY) {
-            val result  = findNextClosestTime(date, data, i)
+            val result = findNextClosestTime(date, data, i)
             date = result.first
             dateIndex = result.second
         }
@@ -561,6 +564,20 @@ private fun drawSelectedData(
 }
 
 /**
+ * Helper function to format the selected date based on the time period
+ *
+ */
+private fun formatSelectedDate(date: String, timePeriod: TimePeriod): String {
+    return when (timePeriod) {
+        TimePeriod.ONE_DAY -> formatDateForTime(date)
+        TimePeriod.FIVE_DAY -> formatDateForSelectedFiveDay(date)
+        TimePeriod.ONE_MONTH, TimePeriod.SIX_MONTH -> formatDateForSelectedMonth(date)
+        TimePeriod.YEAR_TO_DATE -> formatDateForSelectedYTD(date)
+        else -> formatDateForSelectedYear(date)
+    }
+}
+
+/**
  * Helper function to format the date based on the number of days since the earliest date
  * @see formatDateForTime
  * @see formatDateForMonth
@@ -631,12 +648,70 @@ private fun formatDateForYTD(date: String): String {
 }
 
 /**
+ * Helper function to format the date for the selected five day in the form of "MMM d h:mm a"
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1 9:30 AM"
+ */
+private fun formatDateForSelectedFiveDay(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("MMM d h:mm a", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date for selected month in the form of "MMM d, yyyy"
+ */
+private fun formatDateForSelectedMonth(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date in the form of "MMM d, yyyy"
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1, 2021"
+ */
+private fun formatDateForSelectedYear(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date)
+    val outputFormatter = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date for year-to-date adaptive to the current date
+ * Ex. "Jul 1, 2021 9:30 AM" -> "9:30 AM" if the date is today
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1" if the date is within the last 30 days
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1, 2021" if the date is older than 30 days
+ */
+private fun formatDateForSelectedYTD(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date) ?: return date
+
+    val currentDate = Calendar.getInstance().time
+    val diffInMillis = currentDate.time - parsedDate.time
+    val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
+
+    return when {
+        diffInDays <= 1 -> formatDateForTime(date)
+        diffInDays <= 5 -> formatDateForSelectedFiveDay(date)
+        diffInDays <= 30 -> formatDateForSelectedMonth(date)
+        else -> formatDateForSelectedYear(date)
+    }
+}
+
+/**
  * Helper function to find the next closest time in the data that is a multiple of 15 minutes
  * Ex. "Jul 1, 2021 9:31 AM" -> "Jul 1, 2021 9:45 AM"
  * @param date the date to find the next closest time for
  * @param data the historical data to search for the next closest time
  */
-private fun findNextClosestTime(date: String, data: Map<String, HistoricalData>, startIndex: Int): Pair<String, Int> {
+private fun findNextClosestTime(
+    date: String,
+    data: Map<String, HistoricalData>,
+    startIndex: Int
+): Pair<String, Int> {
     val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
     val parsedDate = formatter.parse(date) ?: return Pair(date, startIndex)
 
