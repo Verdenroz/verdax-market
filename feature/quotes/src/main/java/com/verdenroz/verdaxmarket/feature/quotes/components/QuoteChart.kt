@@ -60,7 +60,9 @@ import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.feature.quotes.R
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 private const val SPACING = 75f
@@ -555,11 +557,13 @@ private fun drawSelectedData(
  * @see formatDateForTime
  * @see formatDateForMonth
  * @see formatDateForYear
+ * @see formatDateForYTD
  */
 private fun formatDate(date: String, timePeriod: TimePeriod): String {
     return when (timePeriod) {
         TimePeriod.ONE_DAY -> formatDateForTime(date)
         TimePeriod.FIVE_DAY, TimePeriod.ONE_MONTH -> formatDateForMonth(date)
+        TimePeriod.YEAR_TO_DATE -> formatDateForYTD(date)
         else -> formatDateForYear(date)
     }
 }
@@ -595,4 +599,25 @@ private fun formatDateForYear(date: String): String {
     val parsedDate = formatter.parse(date)
     val outputFormatter = SimpleDateFormat("MMM yyyy", Locale.US)
     return parsedDate?.let { outputFormatter.format(it) } ?: date
+}
+
+/**
+ * Helper function to format the date for year-to-date adaptive to the current date
+ * Ex. "Jul 1, 2021 9:30 AM" -> "9:30 AM" if the date is today
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 1" if the date is within the last 30 days
+ * Ex. "Jul 1, 2021 9:30 AM" -> "Jul 2021" if the date is older than 30 days
+ */
+private fun formatDateForYTD(date: String): String {
+    val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US)
+    val parsedDate = formatter.parse(date) ?: return date
+
+    val currentDate = Calendar.getInstance().time
+    val diffInMillis = currentDate.time - parsedDate.time
+    val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
+
+    return when {
+        diffInDays <= 1 -> formatDateForTime(date)
+        diffInDays <= 30 -> formatDateForMonth(date)
+        else -> formatDateForYear(date)
+    }
 }
