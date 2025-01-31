@@ -9,10 +9,12 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.di.ApplicationScope
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
-import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
+import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.SectorTimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
@@ -250,6 +252,8 @@ class SyncManager @Inject constructor(
             val settingsData = mapOf(
                 "themePreference" to settings.themePreference.name,
                 "regionPreference" to settings.regionPreference.name,
+                "indexTimePeriodPreference" to settings.indexTimePeriodPreference,
+                "sectorTimePeriodPreference" to settings.sectorTimePeriodPreference,
                 "hintsEnabled" to settings.hintsEnabled,
                 "showMarketHours" to settings.showMarketHours,
             )
@@ -294,6 +298,14 @@ class SyncManager @Inject constructor(
                             regionPreference = RegionFilter.valueOf(
                                 snapshot.child("regionPreference").value as? String
                                     ?: RegionFilter.US.name
+                            ),
+                            indexTimePeriodPreference = IndexTimePeriodPreference.valueOf(
+                                snapshot.child("indexTimePeriodPreference").value as? String
+                                    ?: IndexTimePeriodPreference.ONE_DAY.name
+                            ),
+                            sectorTimePeriodPreference = SectorTimePeriodPreference.valueOf(
+                                snapshot.child("sectorTimePeriodPreference").value as? String
+                                    ?: SectorTimePeriodPreference.ONE_YEAR.name
                             ),
                             hintsEnabled = snapshot.child("hintsEnabled").value as? Boolean ?: true,
                             showMarketHours = snapshot.child("showMarketHours").value as? Boolean
