@@ -49,7 +49,7 @@ class UserSettingsStore @Inject constructor(
                     UserSettings.IndexTimePeriodPreference.ONE_YEAR_INDEX_PERIOD -> IndexTimePeriodPreference.ONE_YEAR
                     UserSettings.IndexTimePeriodPreference.FIVE_YEAR_INDEX_PERIOD -> IndexTimePeriodPreference.FIVE_YEAR
                 },
-                sectorIndexTimePeriodPreference = when (it.sectorTimePeriodPreference) {
+                sectorTimePeriodPreference = when (it.sectorTimePeriodPreference) {
                     null,
                     UserSettings.SectorTimePeriodPreference.UNRECOGNIZED,
                     UserSettings.SectorTimePeriodPreference.ONE_DAY_SECTOR_PERIOD -> SectorTimePeriodPreference.ONE_DAY

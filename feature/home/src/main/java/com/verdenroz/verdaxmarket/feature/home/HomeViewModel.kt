@@ -107,7 +107,7 @@ class HomeViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     val sectorIndexTimePeriodPreference: StateFlow<SectorTimePeriodPreference> =
-        userDataRepository.userSetting.map { it.sectorIndexTimePeriodPreference }
+        userDataRepository.userSetting.map { it.sectorTimePeriodPreference }
             .distinctUntilChanged()
             .stateIn(
                 viewModelScope,
