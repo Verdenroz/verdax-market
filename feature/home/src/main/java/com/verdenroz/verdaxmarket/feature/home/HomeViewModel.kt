@@ -14,8 +14,9 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.Sector
-import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.SectorTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.toSymbol
 import com.verdenroz.verdaxmarket.core.model.enums.toSymbols
 import com.verdenroz.verdaxmarket.core.model.filterByRegion
@@ -97,8 +98,8 @@ class HomeViewModel @Inject constructor(
                     val symbol = sector.toSymbol()
                     quoteRepository.getTimeSeries(
                         symbol = symbol,
-                        timePeriod = userSetting.sectorTimePeriodPreference.toTimePeriod(),
-                        interval = userSetting.sectorTimePeriodPreference.toInterval()
+                        timePeriod = userSetting.sectorIndexTimePeriodPreference.toTimePeriod(),
+                        interval = userSetting.sectorIndexTimePeriodPreference.toInterval()
                     ).map { result -> sector to result }
                 }
             ) { results -> results.toMap() }
@@ -109,29 +110,29 @@ class HomeViewModel @Inject constructor(
                 emptyMap()
             )
 
-    val indexTimePeriodPreference: StateFlow<TimePeriodPreference> = userDataRepository.userSetting.map {
+    val indexTimePeriodPreference: StateFlow<IndexTimePeriodPreference> = userDataRepository.userSetting.map {
         it.indexTimePeriodPreference
     }.distinctUntilChanged().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        TimePeriodPreference.ONE_DAY
+        IndexTimePeriodPreference.ONE_DAY
     )
 
-    val sectorTimePeriodPreference: StateFlow<TimePeriodPreference> = userDataRepository.userSetting.map {
-        it.sectorTimePeriodPreference
+    val sectorIndexTimePeriodPreference: StateFlow<SectorTimePeriodPreference> = userDataRepository.userSetting.map {
+        it.sectorIndexTimePeriodPreference
     }.distinctUntilChanged().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        TimePeriodPreference.ONE_DAY
+        SectorTimePeriodPreference.ONE_YEAR
     )
 
-    fun updateIndexTimePeriod(timePeriod: TimePeriodPreference) {
+    fun updateIndexTimePeriod(timePeriod: IndexTimePeriodPreference) {
         viewModelScope.launch {
             userDataRepository.setIndexTimePeriodPreference(timePeriod)
         }
     }
 
-    fun updateSectorTimePeriod(timePeriod: TimePeriodPreference) {
+    fun updateSectorTimePeriod(timePeriod: SectorTimePeriodPreference) {
         viewModelScope.launch {
             userDataRepository.setSectorTimePeriodPreference(timePeriod)
         }
@@ -149,22 +150,38 @@ class HomeViewModel @Inject constructor(
             )
     }
 
-    private fun TimePeriodPreference.toTimePeriod(): TimePeriod {
+    private fun IndexTimePeriodPreference.toTimePeriod(): TimePeriod {
         return when (this) {
-            TimePeriodPreference.ONE_DAY -> TimePeriod.ONE_DAY
-            TimePeriodPreference.FIVE_DAY -> TimePeriod.FIVE_DAY
-            TimePeriodPreference.ONE_MONTH -> TimePeriod.ONE_MONTH
-            TimePeriodPreference.SIX_MONTH -> TimePeriod.SIX_MONTH
-            TimePeriodPreference.YEAR_TO_DATE -> TimePeriod.YEAR_TO_DATE
-            TimePeriodPreference.ONE_YEAR -> TimePeriod.ONE_YEAR
-            TimePeriodPreference.FIVE_YEAR -> TimePeriod.FIVE_YEAR
+            IndexTimePeriodPreference.ONE_DAY -> TimePeriod.ONE_DAY
+            IndexTimePeriodPreference.FIVE_DAY -> TimePeriod.FIVE_DAY
+            IndexTimePeriodPreference.ONE_MONTH -> TimePeriod.ONE_MONTH
+            IndexTimePeriodPreference.SIX_MONTH -> TimePeriod.SIX_MONTH
+            IndexTimePeriodPreference.YEAR_TO_DATE -> TimePeriod.YEAR_TO_DATE
+            IndexTimePeriodPreference.ONE_YEAR -> TimePeriod.ONE_YEAR
+            IndexTimePeriodPreference.FIVE_YEAR -> TimePeriod.FIVE_YEAR
         }
     }
 
-    private fun TimePeriodPreference.toInterval(): Interval {
+    private fun IndexTimePeriodPreference.toInterval(): Interval {
         return when (this) {
-            TimePeriodPreference.ONE_DAY -> Interval.FIFTEEN_MINUTE
-            TimePeriodPreference.FIVE_DAY -> Interval.THIRTY_MINUTE
+            IndexTimePeriodPreference.ONE_DAY -> Interval.FIFTEEN_MINUTE
+            IndexTimePeriodPreference.FIVE_DAY -> Interval.THIRTY_MINUTE
+            else -> Interval.DAILY
+        }
+    }
+
+    private fun SectorTimePeriodPreference.toTimePeriod(): TimePeriod {
+        return when (this) {
+            SectorTimePeriodPreference.ONE_DAY -> TimePeriod.ONE_DAY
+            SectorTimePeriodPreference.YEAR_TO_DATE -> TimePeriod.YEAR_TO_DATE
+            SectorTimePeriodPreference.ONE_YEAR -> TimePeriod.ONE_YEAR
+            SectorTimePeriodPreference.FIVE_YEAR -> TimePeriod.FIVE_YEAR
+        }
+    }
+
+    private fun SectorTimePeriodPreference.toInterval(): Interval {
+        return when (this) {
+            SectorTimePeriodPreference.ONE_DAY -> Interval.FIFTEEN_MINUTE
             else -> Interval.DAILY
         }
     }
