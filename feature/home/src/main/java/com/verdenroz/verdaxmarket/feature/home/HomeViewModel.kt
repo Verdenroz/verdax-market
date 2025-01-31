@@ -29,12 +29,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     marketInfoRepository: MarketInfoRepository,
-    userDataRepository: UserDataRepository,
+    private val userDataRepository: UserDataRepository,
     private val quoteRepository: QuoteRepository,
 ) : ViewModel() {
 
@@ -107,6 +108,34 @@ class HomeViewModel @Inject constructor(
                 SharingStarted.WhileSubscribed(5000),
                 emptyMap()
             )
+
+    val indexTimePeriodPreference: StateFlow<TimePeriodPreference> = userDataRepository.userSetting.map {
+        it.indexTimePeriodPreference
+    }.distinctUntilChanged().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        TimePeriodPreference.ONE_DAY
+    )
+
+    val sectorTimePeriodPreference: StateFlow<TimePeriodPreference> = userDataRepository.userSetting.map {
+        it.sectorTimePeriodPreference
+    }.distinctUntilChanged().stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        TimePeriodPreference.ONE_DAY
+    )
+
+    fun updateIndexTimePeriod(timePeriod: TimePeriodPreference) {
+        viewModelScope.launch {
+            userDataRepository.setIndexTimePeriodPreference(timePeriod)
+        }
+    }
+
+    fun updateSectorTimePeriod(timePeriod: TimePeriodPreference) {
+        viewModelScope.launch {
+            userDataRepository.setSectorTimePeriodPreference(timePeriod)
+        }
+    }
 
     private fun <T> stateFlowFromRepository(
         repositoryFlow: Flow<Result<T, DataError.Network>>
