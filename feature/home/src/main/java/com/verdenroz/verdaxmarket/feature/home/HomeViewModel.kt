@@ -14,11 +14,11 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
-import com.verdenroz.verdaxmarket.core.model.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
 import com.verdenroz.verdaxmarket.core.model.filterByRegion
 import com.verdenroz.verdaxmarket.core.model.toMarketIndexName
-import com.verdenroz.verdaxmarket.core.model.toSymbol
-import com.verdenroz.verdaxmarket.core.model.toSymbols
+import com.verdenroz.verdaxmarket.core.model.enums.toSymbol
+import com.verdenroz.verdaxmarket.core.model.enums.toSymbols
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted

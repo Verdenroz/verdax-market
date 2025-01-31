@@ -3,8 +3,8 @@ package com.verdenroz.verdaxmarket.core.data.utils
 import com.verdenroz.verdaxmarket.core.common.dispatchers.Dispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatchers
 import com.verdenroz.verdaxmarket.core.model.MarketHours
-import com.verdenroz.verdaxmarket.core.model.MarketStatus
-import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatusReason
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

@@ -20,9 +20,9 @@ import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
-import com.verdenroz.verdaxmarket.core.model.TypeFilter
+import com.verdenroz.verdaxmarket.core.model.enums.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext

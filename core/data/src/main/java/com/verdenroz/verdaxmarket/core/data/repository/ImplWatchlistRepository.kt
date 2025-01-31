@@ -10,7 +10,7 @@ import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.database.dao.QuoteDao
 import com.verdenroz.verdaxmarket.core.database.model.QuoteEntity
-import com.verdenroz.verdaxmarket.core.model.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher

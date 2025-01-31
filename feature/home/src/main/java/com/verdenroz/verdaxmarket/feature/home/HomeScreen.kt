@@ -23,7 +23,7 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
-import com.verdenroz.verdaxmarket.core.model.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
 import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
 import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
 import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors

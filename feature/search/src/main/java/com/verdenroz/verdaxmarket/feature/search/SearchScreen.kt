@@ -29,8 +29,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmSearchBar
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.TypeFilter
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.TypeFilter
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import com.verdenroz.verdaxmarket.feature.search.components.SearchBarContent
 import kotlinx.coroutines.delay

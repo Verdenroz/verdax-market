@@ -9,8 +9,8 @@ import com.verdenroz.verdaxmarket.core.common.dispatchers.FinanceQueryDispatcher
 import com.verdenroz.verdaxmarket.core.common.dispatchers.di.ApplicationScope
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.core.model.WatchlistQuote
 import kotlinx.coroutines.CoroutineDispatcher

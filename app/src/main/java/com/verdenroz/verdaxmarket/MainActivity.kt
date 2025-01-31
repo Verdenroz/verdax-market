@@ -22,7 +22,7 @@ import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.ui.VxmApp
 import com.verdenroz.verdaxmarket.ui.rememberVxmAppState
 import dagger.hilt.android.AndroidEntryPoint

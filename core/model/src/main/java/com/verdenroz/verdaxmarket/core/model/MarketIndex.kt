@@ -1,5 +1,7 @@
 package com.verdenroz.verdaxmarket.core.model
 
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+
 
 /**
  * Local data class for stock market indices
@@ -26,7 +28,7 @@ data class MarketIndex(
 //)
 
 /**
- * Filters a list of market indices by [RegionFilter]
+ * Filters a list of market indices by [com.verdenroz.verdaxmarket.core.model.enums.RegionFilter]
  */
 fun List<MarketIndex>.filterByRegion(region: RegionFilter): List<MarketIndex> =
     filter { index ->

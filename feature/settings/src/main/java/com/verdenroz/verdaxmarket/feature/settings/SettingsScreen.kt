@@ -33,8 +33,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.feature.settings.components.AccountSection
 import com.verdenroz.verdaxmarket.feature.settings.components.RegionPreferenceItem
 import com.verdenroz.verdaxmarket.feature.settings.components.SwitchSettingItem

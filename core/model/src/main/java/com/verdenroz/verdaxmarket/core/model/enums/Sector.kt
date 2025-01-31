@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.core.model
+package com.verdenroz.verdaxmarket.core.model.enums
 
 /**
  * Represents a sector of the market

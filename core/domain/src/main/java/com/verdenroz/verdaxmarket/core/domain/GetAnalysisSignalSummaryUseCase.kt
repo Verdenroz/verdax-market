@@ -7,7 +7,7 @@ import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
-import com.verdenroz.verdaxmarket.core.model.QuoteSignal
+import com.verdenroz.verdaxmarket.core.model.enums.QuoteSignal
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import kotlinx.coroutines.CoroutineDispatcher

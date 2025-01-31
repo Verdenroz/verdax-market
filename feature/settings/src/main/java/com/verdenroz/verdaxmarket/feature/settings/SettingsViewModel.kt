@@ -3,8 +3,8 @@ package com.verdenroz.verdaxmarket.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow

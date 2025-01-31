@@ -16,7 +16,7 @@ import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
-import com.verdenroz.verdaxmarket.core.model.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher

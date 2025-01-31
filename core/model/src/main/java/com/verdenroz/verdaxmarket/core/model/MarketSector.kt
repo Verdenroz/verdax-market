@@ -1,8 +1,10 @@
 package com.verdenroz.verdaxmarket.core.model
 
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
+
 /**
  * Local data class for sector information
- * @param sector the [Sector] of the market
+ * @param sector the [com.verdenroz.verdaxmarket.core.model.enums.Sector] of the market
  * @param dayReturn the return for the day
  * @param ytdReturn the return year to date
  * @param yearReturn the return for the year

@@ -26,8 +26,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
 import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.feature.settings.R
 import java.util.Locale
 

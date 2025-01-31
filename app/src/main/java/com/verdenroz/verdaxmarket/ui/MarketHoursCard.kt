@@ -33,8 +33,8 @@ import com.verdenroz.verdaxmarket.R
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.MarketHours
-import com.verdenroz.verdaxmarket.core.model.MarketStatus
-import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatusReason
 import kotlinx.coroutines.android.awaitFrame
 import java.time.ZoneId
 import java.time.ZonedDateTime

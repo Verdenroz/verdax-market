@@ -1,6 +1,6 @@
 package com.verdenroz.verdaxmarket.core.model.indicators
 
-import com.verdenroz.verdaxmarket.core.model.QuoteSignal
+import com.verdenroz.verdaxmarket.core.model.enums.QuoteSignal
 
 data class SuperTrend(
     val superTrend: Double,

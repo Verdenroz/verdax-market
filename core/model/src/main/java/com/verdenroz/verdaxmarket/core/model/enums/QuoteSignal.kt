@@ -1,4 +1,4 @@
-package com.verdenroz.verdaxmarket.core.model
+package com.verdenroz.verdaxmarket.core.model.enums
 
 /**
  * Enum class that represents the signal of a quote based on [QuoteAnalysis]

@@ -44,8 +44,8 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
-import com.verdenroz.verdaxmarket.core.model.Sector
-import com.verdenroz.verdaxmarket.core.model.toDisplayName
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.toDisplayName
 import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 

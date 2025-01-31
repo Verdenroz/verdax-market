@@ -1,7 +1,7 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import kotlinx.coroutines.flow.Flow
 

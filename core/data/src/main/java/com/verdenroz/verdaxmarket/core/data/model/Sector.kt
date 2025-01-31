@@ -1,7 +1,7 @@
 package com.verdenroz.verdaxmarket.core.data.model
 
 import com.verdenroz.verdaxmarket.core.model.MarketSector
-import com.verdenroz.verdaxmarket.core.model.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
 import com.verdenroz.verdaxmarket.core.network.model.SectorResponse
 
 fun SectorResponse.asExternalModel() = MarketSector(

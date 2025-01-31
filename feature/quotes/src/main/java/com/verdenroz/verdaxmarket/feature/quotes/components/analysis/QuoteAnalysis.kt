@@ -59,7 +59,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getPositiveTextColor
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignal
 import com.verdenroz.verdaxmarket.core.model.AnalysisSignalSummary
-import com.verdenroz.verdaxmarket.core.model.QuoteSignal
+import com.verdenroz.verdaxmarket.core.model.enums.QuoteSignal
 import com.verdenroz.verdaxmarket.core.model.indicators.Adx
 import com.verdenroz.verdaxmarket.core.model.indicators.AnalysisIndicator
 import com.verdenroz.verdaxmarket.core.model.indicators.Aroon

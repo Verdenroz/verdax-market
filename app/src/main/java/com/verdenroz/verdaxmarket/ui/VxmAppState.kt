@@ -14,8 +14,8 @@ import com.verdenroz.core.sync.SyncManager
 import com.verdenroz.verdaxmarket.core.data.utils.MarketMonitor
 import com.verdenroz.verdaxmarket.core.data.utils.NetworkMonitor
 import com.verdenroz.verdaxmarket.core.model.MarketHours
-import com.verdenroz.verdaxmarket.core.model.MarketStatus
-import com.verdenroz.verdaxmarket.core.model.MarketStatusReason
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatusReason
 import com.verdenroz.verdaxmarket.feature.home.navigation.HOME_ROUTE
 import com.verdenroz.verdaxmarket.feature.home.navigation.navigateToHome
 import com.verdenroz.verdaxmarket.feature.search.navigation.SEARCH_ROUTE

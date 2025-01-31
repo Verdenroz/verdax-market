@@ -40,7 +40,7 @@ import com.verdenroz.verdaxmarket.core.model.FullQuoteData
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.Profile
-import com.verdenroz.verdaxmarket.core.model.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.Sector
 import com.verdenroz.verdaxmarket.core.model.indicators.IndicatorType
 import com.verdenroz.verdaxmarket.core.model.indicators.TechnicalIndicator
 import com.verdenroz.verdaxmarket.feature.quotes.components.QuoteChart

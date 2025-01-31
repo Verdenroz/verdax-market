@@ -1,8 +1,8 @@
 package com.verdenroz.core.datastore
 
 import androidx.datastore.core.DataStore
-import com.verdenroz.verdaxmarket.core.model.RegionFilter
-import com.verdenroz.verdaxmarket.core.model.ThemePreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
 import com.verdenroz.verdaxmarket.core.model.UserSetting
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
