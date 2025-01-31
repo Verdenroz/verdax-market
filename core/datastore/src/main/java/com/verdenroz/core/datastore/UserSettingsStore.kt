@@ -2,9 +2,10 @@ package com.verdenroz.core.datastore
 
 import androidx.datastore.core.DataStore
 import com.verdenroz.verdaxmarket.core.model.UserSetting
+import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
+import com.verdenroz.verdaxmarket.core.model.enums.SectorTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
-import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,25 +40,22 @@ class UserSettingsStore @Inject constructor(
                 },
                 indexTimePeriodPreference = when (it.indexTimePeriodPreference) {
                     null,
-                    UserSettings.TimePeriodPreference.UNRECOGNIZED,
-                    UserSettings.TimePeriodPreference.ONE_DAY -> TimePeriodPreference.ONE_DAY
-                    UserSettings.TimePeriodPreference.FIVE_DAYS -> TimePeriodPreference.FIVE_DAY
-                    UserSettings.TimePeriodPreference.ONE_MONTH -> TimePeriodPreference.ONE_MONTH
-                    UserSettings.TimePeriodPreference.SIX_MONTHS -> TimePeriodPreference.SIX_MONTH
-                    UserSettings.TimePeriodPreference.YEAR_TO_DATE -> TimePeriodPreference.YEAR_TO_DATE
-                    UserSettings.TimePeriodPreference.ONE_YEAR -> TimePeriodPreference.ONE_YEAR
-                    UserSettings.TimePeriodPreference.FIVE_YEARS -> TimePeriodPreference.FIVE_YEAR
+                    UserSettings.IndexTimePeriodPreference.UNRECOGNIZED,
+                    UserSettings.IndexTimePeriodPreference.ONE_DAY_INDEX_PERIOD -> IndexTimePeriodPreference.ONE_DAY
+                    UserSettings.IndexTimePeriodPreference.FIVE_DAY_INDEX_PERIOD -> IndexTimePeriodPreference.FIVE_DAY
+                    UserSettings.IndexTimePeriodPreference.ONE_MONTH_INDEX_PERIOD -> IndexTimePeriodPreference.ONE_MONTH
+                    UserSettings.IndexTimePeriodPreference.SIX_MONTH_INDEX_PERIOD -> IndexTimePeriodPreference.SIX_MONTH
+                    UserSettings.IndexTimePeriodPreference.YEAR_TO_DATE_INDEX_PERIOD -> IndexTimePeriodPreference.YEAR_TO_DATE
+                    UserSettings.IndexTimePeriodPreference.ONE_YEAR_INDEX_PERIOD -> IndexTimePeriodPreference.ONE_YEAR
+                    UserSettings.IndexTimePeriodPreference.FIVE_YEAR_INDEX_PERIOD -> IndexTimePeriodPreference.FIVE_YEAR
                 },
-                sectorTimePeriodPreference = when (it.sectorTimePeriodPreference) {
+                sectorIndexTimePeriodPreference = when (it.sectorTimePeriodPreference) {
                     null,
-                    UserSettings.TimePeriodPreference.UNRECOGNIZED,
-                    UserSettings.TimePeriodPreference.ONE_DAY -> TimePeriodPreference.ONE_DAY
-                    UserSettings.TimePeriodPreference.FIVE_DAYS -> TimePeriodPreference.FIVE_DAY
-                    UserSettings.TimePeriodPreference.ONE_MONTH -> TimePeriodPreference.ONE_MONTH
-                    UserSettings.TimePeriodPreference.SIX_MONTHS -> TimePeriodPreference.SIX_MONTH
-                    UserSettings.TimePeriodPreference.YEAR_TO_DATE -> TimePeriodPreference.YEAR_TO_DATE
-                    UserSettings.TimePeriodPreference.ONE_YEAR -> TimePeriodPreference.ONE_YEAR
-                    UserSettings.TimePeriodPreference.FIVE_YEARS -> TimePeriodPreference.FIVE_YEAR
+                    UserSettings.SectorTimePeriodPreference.UNRECOGNIZED,
+                    UserSettings.SectorTimePeriodPreference.ONE_DAY_SECTOR_PERIOD -> SectorTimePeriodPreference.ONE_DAY
+                    UserSettings.SectorTimePeriodPreference.YEAR_TO_DATE_SECTOR_PERIOD -> SectorTimePeriodPreference.YEAR_TO_DATE
+                    UserSettings.SectorTimePeriodPreference.ONE_YEAR_SECTOR_PERIOD -> SectorTimePeriodPreference.ONE_YEAR
+                    UserSettings.SectorTimePeriodPreference.FIVE_YEAR_SECTOR_PERIOD -> SectorTimePeriodPreference.FIVE_YEAR
                 },
                 hintsEnabled = it.hintsEnabled,
                 showMarketHours = it.showMarketHours,
@@ -121,33 +119,30 @@ class UserSettingsStore @Inject constructor(
         }
     }
 
-    suspend fun setIndexTimePeriodPreference(timePeriodPreference: TimePeriodPreference) {
+    suspend fun setIndexTimePeriodPreference(indexTimePeriodPreference: IndexTimePeriodPreference) {
         userSettingsDataStore.updateData {
             it.copy {
-                this.indexTimePeriodPreference = when (timePeriodPreference) {
-                    TimePeriodPreference.ONE_DAY -> UserSettings.TimePeriodPreference.ONE_DAY
-                    TimePeriodPreference.FIVE_DAY -> UserSettings.TimePeriodPreference.FIVE_DAYS
-                    TimePeriodPreference.ONE_MONTH -> UserSettings.TimePeriodPreference.ONE_MONTH
-                    TimePeriodPreference.SIX_MONTH -> UserSettings.TimePeriodPreference.SIX_MONTHS
-                    TimePeriodPreference.YEAR_TO_DATE -> UserSettings.TimePeriodPreference.YEAR_TO_DATE
-                    TimePeriodPreference.ONE_YEAR -> UserSettings.TimePeriodPreference.ONE_YEAR
-                    TimePeriodPreference.FIVE_YEAR -> UserSettings.TimePeriodPreference.FIVE_YEARS
+                this.indexTimePeriodPreference = when (indexTimePeriodPreference) {
+                    IndexTimePeriodPreference.ONE_DAY -> UserSettings.IndexTimePeriodPreference.ONE_DAY_INDEX_PERIOD
+                    IndexTimePeriodPreference.FIVE_DAY -> UserSettings.IndexTimePeriodPreference.FIVE_DAY_INDEX_PERIOD
+                    IndexTimePeriodPreference.ONE_MONTH -> UserSettings.IndexTimePeriodPreference.ONE_MONTH_INDEX_PERIOD
+                    IndexTimePeriodPreference.SIX_MONTH -> UserSettings.IndexTimePeriodPreference.SIX_MONTH_INDEX_PERIOD
+                    IndexTimePeriodPreference.YEAR_TO_DATE -> UserSettings.IndexTimePeriodPreference.YEAR_TO_DATE_INDEX_PERIOD
+                    IndexTimePeriodPreference.ONE_YEAR -> UserSettings.IndexTimePeriodPreference.ONE_YEAR_INDEX_PERIOD
+                    IndexTimePeriodPreference.FIVE_YEAR -> UserSettings.IndexTimePeriodPreference.FIVE_YEAR_INDEX_PERIOD
                 }
             }
         }
     }
 
-    suspend fun setSectorTimePeriodPreference(timePeriodPreference: TimePeriodPreference) {
+    suspend fun setSectorTimePeriodPreference(sectorTimePeriodPreference: SectorTimePeriodPreference) {
         userSettingsDataStore.updateData {
             it.copy {
-                this.sectorTimePeriodPreference = when (timePeriodPreference) {
-                    TimePeriodPreference.ONE_DAY -> UserSettings.TimePeriodPreference.ONE_DAY
-                    TimePeriodPreference.FIVE_DAY -> UserSettings.TimePeriodPreference.FIVE_DAYS
-                    TimePeriodPreference.ONE_MONTH -> UserSettings.TimePeriodPreference.ONE_MONTH
-                    TimePeriodPreference.SIX_MONTH -> UserSettings.TimePeriodPreference.SIX_MONTHS
-                    TimePeriodPreference.YEAR_TO_DATE -> UserSettings.TimePeriodPreference.YEAR_TO_DATE
-                    TimePeriodPreference.ONE_YEAR -> UserSettings.TimePeriodPreference.ONE_YEAR
-                    TimePeriodPreference.FIVE_YEAR -> UserSettings.TimePeriodPreference.FIVE_YEARS
+                this.sectorTimePeriodPreference = when (sectorTimePeriodPreference) {
+                    SectorTimePeriodPreference.ONE_DAY -> UserSettings.SectorTimePeriodPreference.ONE_DAY_SECTOR_PERIOD
+                    SectorTimePeriodPreference.YEAR_TO_DATE -> UserSettings.SectorTimePeriodPreference.YEAR_TO_DATE_SECTOR_PERIOD
+                    SectorTimePeriodPreference.ONE_YEAR -> UserSettings.SectorTimePeriodPreference.ONE_YEAR_SECTOR_PERIOD
+                    SectorTimePeriodPreference.FIVE_YEAR ->  UserSettings.SectorTimePeriodPreference.FIVE_YEAR_SECTOR_PERIOD
                 }
             }
         }

@@ -22,20 +22,27 @@ message UserSettings {
     GLOBAL = 8;
   }
 
-  enum TimePeriodPreference {
-    ONE_DAY = 0;
-    FIVE_DAYS = 1;
-    ONE_MONTH = 2;
-    SIX_MONTHS = 3;
-    YEAR_TO_DATE = 4;
-    ONE_YEAR = 5;
-    FIVE_YEARS = 6;
+  enum IndexTimePeriodPreference {
+    ONE_DAY_INDEX_PERIOD = 0;
+    FIVE_DAY_INDEX_PERIOD = 1;
+    ONE_MONTH_INDEX_PERIOD = 2;
+    SIX_MONTH_INDEX_PERIOD = 3;
+    YEAR_TO_DATE_INDEX_PERIOD = 4;
+    ONE_YEAR_INDEX_PERIOD = 5;
+    FIVE_YEAR_INDEX_PERIOD = 6;
+  }
+
+  enum SectorTimePeriodPreference {
+    ONE_DAY_SECTOR_PERIOD = 0;
+    YEAR_TO_DATE_SECTOR_PERIOD = 1;
+    ONE_YEAR_SECTOR_PERIOD = 2;
+    FIVE_YEAR_SECTOR_PERIOD = 3;
   }
 
   ThemePreference theme_preference = 1;
   RegionPreference region_preference = 2;
-  TimePeriodPreference index_time_period_preference = 3;
-  TimePeriodPreference sector_time_period_preference = 4;
+  IndexTimePeriodPreference index_time_period_preference = 3;
+  SectorTimePeriodPreference sector_time_period_preference = 4;
   bool hints_enabled = 5;
   bool show_market_hours = 6;
   bool sync_enabled = 7;

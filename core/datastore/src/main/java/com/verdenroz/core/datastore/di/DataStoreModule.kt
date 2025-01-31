@@ -51,8 +51,8 @@ object DataStoreModule {
                             return currentData.copy {
                                 themePreference = UserSettings.ThemePreference.SYSTEM
                                 regionPreference = UserSettings.RegionPreference.US
-                                indexTimePeriodPreference = UserSettings.TimePeriodPreference.ONE_DAY
-                                sectorTimePeriodPreference = UserSettings.TimePeriodPreference.ONE_YEAR
+                                indexTimePeriodPreference = UserSettings.IndexTimePeriodPreference.ONE_DAY_INDEX_PERIOD
+                                sectorTimePeriodPreference = UserSettings.SectorTimePeriodPreference.ONE_YEAR_SECTOR_PERIOD
                                 hintsEnabled = true
                                 showMarketHours = true
                                 syncEnabled = true
