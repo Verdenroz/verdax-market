@@ -22,13 +22,13 @@
     <string name="feature_home_trend_1y">1Y Trend</string>
     <string name="feature_home_trend_5y">5Y Trend</string>
 
-    <string name="feature_home_index_one_day">1D</string>
-    <string name="feature_home_index_five_day">5D</string>
-    <string name="feature_home_index_one_month">1M</string>
-    <string name="feature_home_index_six_month">6M</string>
-    <string name="feature_home_index_ytd">YTD</string>
-    <string name="feature_home_index_one_year">1Y</string>
-    <string name="feature_home_index_five_year">5Y</string>
+    <string name="feature_home_period_one_day">1D</string>
+    <string name="feature_home_index_period_five_day">5D</string>
+    <string name="feature_home_period_one_month">1M</string>
+    <string name="feature_home_period_six_month">6M</string>
+    <string name="feature_home_period_ytd">YTD</string>
+    <string name="feature_home_period_one_year">1Y</string>
+    <string name="feature_home_period_five_year">5Y</string>
 
     <string name="feature_home_index_day_performance">One Day Performance</string>
     <string name="feature_home_index_five_day_performance">Five Day Performance</string>
@@ -36,15 +36,10 @@
     <string name="feature_home_index_six_month_performance">Six Month Performance</string>
     <string name="feature_home_index_ytd_performance">Year to Date Performance</string>
     <string name="feature_home_index_one_year_performance">One Year Performance</string>
-    <string name="feature_home_index_three_year_performance">Three Year Performance</string>
     <string name="feature_home_index_five_year_performance">Five Year Performance</string>
 
     <string name="feature_home_sector_day_return">One Day Return</string>
-    <string name="feature_home_sector_five_day_return">Five Day Return</string>
-    <string name="feature_home_sector_one_month_return">One Month Return</string>
-    <string name="feature_home_sector_six_month_return">Six Month Return</string>
-    <string name="feature_home_sector_ytd_return">Year to Date Return</string>
-    <string name="feature_home_sector_return">One Year Return</string>
-    <string name="feature_home_sector_three_year_return">Three Year Return</string>
+    <string name="feature_home_sector_ytd_return">YTD Return</string>
+    <string name="feature_home_sector_year_return">One Year Return</string>
     <string name="feature_home_sector_five_year_return">Five Year Return</string>
 </resources>

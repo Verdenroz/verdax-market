@@ -53,7 +53,7 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketIndex
-import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
 import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -63,8 +63,8 @@ import java.util.Locale
 internal fun MarketIndices(
     indices: Result<List<MarketIndex>, DataError>,
     indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError>>,
-    indexTimePeriodPreference: TimePeriodPreference,
-    onTimePeriodChange: (TimePeriodPreference) -> Unit,
+    indexTimePeriodPreference: IndexTimePeriodPreference,
+    onTimePeriodChange: (IndexTimePeriodPreference) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
@@ -101,18 +101,18 @@ internal fun MarketIndices(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
                 ) {
-                    TimePeriodPreference.entries.forEach { timePeriod ->
+                    IndexTimePeriodPreference.entries.forEach { timePeriod ->
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     text = when (timePeriod) {
-                                        TimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_index_one_day)
-                                        TimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_index_five_day)
-                                        TimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_index_one_month)
-                                        TimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_index_six_month)
-                                        TimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_index_ytd)
-                                        TimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_index_one_year)
-                                        TimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_index_five_year)
+                                        IndexTimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_period_one_day)
+                                        IndexTimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_index_period_five_day)
+                                        IndexTimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_period_one_month)
+                                        IndexTimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_period_six_month)
+                                        IndexTimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_period_ytd)
+                                        IndexTimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_period_one_year)
+                                        IndexTimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_period_five_year)
                                     }
                                 )
                             },
@@ -177,7 +177,7 @@ internal fun MarketIndices(
 fun MarketIndexCard(
     index: MarketIndex,
     timeSeries: Result<Map<String, HistoricalData>, DataError>?,
-    indexTimePeriodPreference: TimePeriodPreference,
+    indexTimePeriodPreference: IndexTimePeriodPreference,
 ) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
@@ -244,13 +244,13 @@ fun MarketIndexCard(
                 if (timeSeries is Result.Success) {
                     Text(
                         text = when(indexTimePeriodPreference) {
-                            TimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_trend_1d)
-                            TimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_trend_5d)
-                            TimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_trend_1m)
-                            TimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_trend_6m)
-                            TimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_trend_ytd)
-                            TimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_trend_1y)
-                            TimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_trend_5y)
+                            IndexTimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_trend_1d)
+                            IndexTimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_trend_5d)
+                            IndexTimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_trend_1m)
+                            IndexTimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_trend_6m)
+                            IndexTimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_trend_ytd)
+                            IndexTimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_trend_1y)
+                            IndexTimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_trend_5y)
                         },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
@@ -298,7 +298,7 @@ private fun PreviewMarketIndexCard() {
                 percentChange = "+100%"
             ),
             timeSeries = null,
-            indexTimePeriodPreference = TimePeriodPreference.ONE_DAY
+            indexTimePeriodPreference = IndexTimePeriodPreference.ONE_DAY
         )
     }
 }

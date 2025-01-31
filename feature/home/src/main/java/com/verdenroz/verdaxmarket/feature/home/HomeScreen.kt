@@ -23,8 +23,9 @@ import com.verdenroz.verdaxmarket.core.model.MarketIndex
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.Sector
-import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.SectorTimePeriodPreference
 import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
 import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
 import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors
@@ -41,6 +42,7 @@ internal fun HomeRoute(
     val indexTimePeriodPreference by homeViewModel.indexTimePeriodPreference.collectAsStateWithLifecycle()
     val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
     val sectorTimeSeries by homeViewModel.sectorTimeSeries.collectAsStateWithLifecycle()
+    val sectorTimePeriodPreference by homeViewModel.sectorIndexTimePeriodPreference.collectAsStateWithLifecycle()
     val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
     val actives by homeViewModel.actives.collectAsStateWithLifecycle()
     val losers by homeViewModel.losers.collectAsStateWithLifecycle()
@@ -54,6 +56,8 @@ internal fun HomeRoute(
         onIndexTimePeriodChange = homeViewModel::updateIndexTimePeriod,
         sectors = sectors,
         sectorTimeSeries = sectorTimeSeries,
+        sectorIndexTimePeriodPreference = sectorTimePeriodPreference,
+        sectorTimePeriodChange = homeViewModel::updateSectorTimePeriod,
         headlines = headlines,
         actives = actives,
         losers = losers,
@@ -65,10 +69,12 @@ internal fun HomeRoute(
 internal fun HomeScreen(
     indices: Result<List<MarketIndex>, DataError.Network>,
     indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError.Network>>,
-    indexTimePeriodPreference: TimePeriodPreference,
-    onIndexTimePeriodChange: (TimePeriodPreference) -> Unit,
+    indexTimePeriodPreference: IndexTimePeriodPreference,
+    onIndexTimePeriodChange: (IndexTimePeriodPreference) -> Unit,
     sectors: Result<List<MarketSector>, DataError.Network>,
     sectorTimeSeries: Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>,
+    sectorIndexTimePeriodPreference: SectorTimePeriodPreference,
+    sectorTimePeriodChange: (SectorTimePeriodPreference) -> Unit,
     headlines: Result<List<News>, DataError.Network>,
     actives: Result<List<MarketMover>, DataError.Network>,
     losers: Result<List<MarketMover>, DataError.Network>,
@@ -99,6 +105,8 @@ internal fun HomeScreen(
             MarketSectors(
                 sectors = sectors,
                 sectorTimeSeries = sectorTimeSeries,
+                sectorIndexTimePeriodPreference = sectorIndexTimePeriodPreference,
+                onTimePeriodChange = sectorTimePeriodChange,
                 onShowSnackbar = onShowSnackbar,
             )
         }
@@ -218,10 +226,12 @@ private fun PreviewSuccessHomeScreen() {
             onShowSnackbar = { _, _, _ -> true },
             indices = Result.Success(indices),
             indexTimeSeries = emptyMap(),
-            indexTimePeriodPreference = TimePeriodPreference.ONE_MONTH,
+            indexTimePeriodPreference = IndexTimePeriodPreference.ONE_MONTH,
             onIndexTimePeriodChange = {},
             sectors = Result.Success(sectors),
             sectorTimeSeries = emptyMap(),
+            sectorIndexTimePeriodPreference = SectorTimePeriodPreference.ONE_YEAR,
+            sectorTimePeriodChange = {},
             headlines = Result.Success(headlines),
             actives = Result.Success(movers),
             losers = Result.Success(movers),
@@ -243,13 +253,15 @@ private fun PreviewLoadingHomeScreen() {
                 "S&P 500" to Result.Loading(),
                 "NASDAQ" to Result.Loading()
             ),
-            indexTimePeriodPreference = TimePeriodPreference.ONE_MONTH,
+            indexTimePeriodPreference = IndexTimePeriodPreference.ONE_MONTH,
             onIndexTimePeriodChange = {},
             sectors = Result.Loading(),
             sectorTimeSeries = mapOf(
                 Sector.TECHNOLOGY to Result.Loading(),
                 Sector.CONSUMER_CYCLICAL to Result.Loading()
             ),
+            sectorIndexTimePeriodPreference = SectorTimePeriodPreference.ONE_YEAR,
+            sectorTimePeriodChange = {},
             headlines = Result.Loading(),
             actives = Result.Loading(),
             losers = Result.Loading(),
