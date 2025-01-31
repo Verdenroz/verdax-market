@@ -1,9 +1,10 @@
 package com.verdenroz.core.datastore
 
 import androidx.datastore.core.DataStore
+import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
-import com.verdenroz.verdaxmarket.core.model.UserSetting
+import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,6 +36,28 @@ class UserSettingsStore @Inject constructor(
                     UserSettings.RegionPreference.AU -> RegionFilter.AU
                     UserSettings.RegionPreference.ME -> RegionFilter.ME
                     UserSettings.RegionPreference.GLOBAL -> RegionFilter.GLOBAL
+                },
+                indexTimePeriodPreference = when (it.indexTimePeriodPreference) {
+                    null,
+                    UserSettings.TimePeriodPreference.UNRECOGNIZED,
+                    UserSettings.TimePeriodPreference.ONE_DAY -> TimePeriodPreference.ONE_DAY
+                    UserSettings.TimePeriodPreference.FIVE_DAYS -> TimePeriodPreference.FIVE_DAY
+                    UserSettings.TimePeriodPreference.ONE_MONTH -> TimePeriodPreference.ONE_MONTH
+                    UserSettings.TimePeriodPreference.SIX_MONTHS -> TimePeriodPreference.SIX_MONTH
+                    UserSettings.TimePeriodPreference.YEAR_TO_DATE -> TimePeriodPreference.YEAR_TO_DATE
+                    UserSettings.TimePeriodPreference.ONE_YEAR -> TimePeriodPreference.ONE_YEAR
+                    UserSettings.TimePeriodPreference.FIVE_YEARS -> TimePeriodPreference.FIVE_YEAR
+                },
+                sectorTimePeriodPreference = when (it.sectorTimePeriodPreference) {
+                    null,
+                    UserSettings.TimePeriodPreference.UNRECOGNIZED,
+                    UserSettings.TimePeriodPreference.ONE_DAY -> TimePeriodPreference.ONE_DAY
+                    UserSettings.TimePeriodPreference.FIVE_DAYS -> TimePeriodPreference.FIVE_DAY
+                    UserSettings.TimePeriodPreference.ONE_MONTH -> TimePeriodPreference.ONE_MONTH
+                    UserSettings.TimePeriodPreference.SIX_MONTHS -> TimePeriodPreference.SIX_MONTH
+                    UserSettings.TimePeriodPreference.YEAR_TO_DATE -> TimePeriodPreference.YEAR_TO_DATE
+                    UserSettings.TimePeriodPreference.ONE_YEAR -> TimePeriodPreference.ONE_YEAR
+                    UserSettings.TimePeriodPreference.FIVE_YEARS -> TimePeriodPreference.FIVE_YEAR
                 },
                 hintsEnabled = it.hintsEnabled,
                 showMarketHours = it.showMarketHours,
@@ -93,6 +116,38 @@ class UserSettingsStore @Inject constructor(
                     RegionFilter.AU -> UserSettings.RegionPreference.AU
                     RegionFilter.ME -> UserSettings.RegionPreference.ME
                     RegionFilter.GLOBAL -> UserSettings.RegionPreference.GLOBAL
+                }
+            }
+        }
+    }
+
+    suspend fun setIndexTimePeriodPreference(timePeriodPreference: TimePeriodPreference) {
+        userSettingsDataStore.updateData {
+            it.copy {
+                this.indexTimePeriodPreference = when (timePeriodPreference) {
+                    TimePeriodPreference.ONE_DAY -> UserSettings.TimePeriodPreference.ONE_DAY
+                    TimePeriodPreference.FIVE_DAY -> UserSettings.TimePeriodPreference.FIVE_DAYS
+                    TimePeriodPreference.ONE_MONTH -> UserSettings.TimePeriodPreference.ONE_MONTH
+                    TimePeriodPreference.SIX_MONTH -> UserSettings.TimePeriodPreference.SIX_MONTHS
+                    TimePeriodPreference.YEAR_TO_DATE -> UserSettings.TimePeriodPreference.YEAR_TO_DATE
+                    TimePeriodPreference.ONE_YEAR -> UserSettings.TimePeriodPreference.ONE_YEAR
+                    TimePeriodPreference.FIVE_YEAR -> UserSettings.TimePeriodPreference.FIVE_YEARS
+                }
+            }
+        }
+    }
+
+    suspend fun setSectorTimePeriodPreference(timePeriodPreference: TimePeriodPreference) {
+        userSettingsDataStore.updateData {
+            it.copy {
+                this.sectorTimePeriodPreference = when (timePeriodPreference) {
+                    TimePeriodPreference.ONE_DAY -> UserSettings.TimePeriodPreference.ONE_DAY
+                    TimePeriodPreference.FIVE_DAY -> UserSettings.TimePeriodPreference.FIVE_DAYS
+                    TimePeriodPreference.ONE_MONTH -> UserSettings.TimePeriodPreference.ONE_MONTH
+                    TimePeriodPreference.SIX_MONTH -> UserSettings.TimePeriodPreference.SIX_MONTHS
+                    TimePeriodPreference.YEAR_TO_DATE -> UserSettings.TimePeriodPreference.YEAR_TO_DATE
+                    TimePeriodPreference.ONE_YEAR -> UserSettings.TimePeriodPreference.ONE_YEAR
+                    TimePeriodPreference.FIVE_YEAR -> UserSettings.TimePeriodPreference.FIVE_YEARS
                 }
             }
         }

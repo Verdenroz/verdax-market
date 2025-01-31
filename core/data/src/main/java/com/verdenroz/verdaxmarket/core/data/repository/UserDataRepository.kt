@@ -1,8 +1,9 @@
 package com.verdenroz.verdaxmarket.core.data.repository
 
+import com.verdenroz.verdaxmarket.core.model.UserSetting
 import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.enums.ThemePreference
-import com.verdenroz.verdaxmarket.core.model.UserSetting
+import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,6 +25,16 @@ interface UserDataRepository {
      * Sets whether notifications are enabled
      */
     suspend fun setRegionPreference(regionPreference: RegionFilter)
+
+    /**
+     * Sets the preferred time period for market index performance
+     */
+    suspend fun setIndexTimePeriodPreference(timePeriodPreference: TimePeriodPreference)
+
+    /**
+     * Sets the preferred time period for sector performance
+     */
+    suspend fun setSectorTimePeriodPreference(timePeriodPreference: TimePeriodPreference)
 
     /**
      * Sets whether to show tooltips on the UI
