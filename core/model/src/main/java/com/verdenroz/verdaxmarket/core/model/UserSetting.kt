@@ -8,7 +8,7 @@ data class UserSetting(
     val themePreference: ThemePreference = ThemePreference.SYSTEM,
     val regionPreference: RegionFilter = RegionFilter.US,
     val indexTimePeriodPreference: TimePeriodPreference = TimePeriodPreference.ONE_DAY,
-    val sectorTimePeriodPreference: TimePeriodPreference = TimePeriodPreference.SIX_MONTH,
+    val sectorTimePeriodPreference: TimePeriodPreference = TimePeriodPreference.ONE_YEAR,
     val hintsEnabled: Boolean = true,
     val showMarketHours: Boolean = true,
     val isSynced: Boolean = true,

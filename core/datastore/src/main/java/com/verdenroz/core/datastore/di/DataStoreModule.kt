@@ -49,6 +49,10 @@ object DataStoreModule {
 
                         override suspend fun migrate(currentData: UserSettings): UserSettings {
                             return currentData.copy {
+                                themePreference = UserSettings.ThemePreference.SYSTEM
+                                regionPreference = UserSettings.RegionPreference.US
+                                indexTimePeriodPreference = UserSettings.TimePeriodPreference.ONE_DAY
+                                sectorTimePeriodPreference = UserSettings.TimePeriodPreference.ONE_YEAR
                                 hintsEnabled = true
                                 showMarketHours = true
                                 syncEnabled = true
