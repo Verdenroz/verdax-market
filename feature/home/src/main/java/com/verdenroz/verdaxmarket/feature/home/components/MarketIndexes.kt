@@ -13,8 +13,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
@@ -25,7 +29,11 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
+import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeTextColor
@@ -44,30 +53,88 @@ import com.verdenroz.verdaxmarket.core.designsystem.util.UiText
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
 import com.verdenroz.verdaxmarket.core.model.HistoricalData
 import com.verdenroz.verdaxmarket.core.model.MarketIndex
+import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import com.verdenroz.verdaxmarket.feature.home.R
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 internal fun MarketIndices(
     indices: Result<List<MarketIndex>, DataError>,
     indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError>>,
+    indexTimePeriodPreference: TimePeriodPreference,
+    onTimePeriodChange: (TimePeriodPreference) -> Unit,
     onShowSnackbar: suspend (String, String?, SnackbarDuration) -> Boolean,
 ) {
     val context = LocalContext.current
+    var showMenu by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            text = stringResource(id = R.string.feature_home_market_performance),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.feature_home_market_performance),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = VxmIcons.More,
+                        contentDescription = stringResource(R.string.feature_home_change_time_period),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    TimePeriodPreference.entries.forEach { timePeriod ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = when (timePeriod) {
+                                        TimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_index_one_day)
+                                        TimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_index_five_day)
+                                        TimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_index_one_month)
+                                        TimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_index_six_month)
+                                        TimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_index_ytd)
+                                        TimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_index_one_year)
+                                        TimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_index_five_year)
+                                    }
+                                )
+                            },
+                            onClick = {
+                                onTimePeriodChange(timePeriod)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                if (timePeriod == indexTimePeriodPreference) {
+                                    Icon(
+                                        imageVector = VxmIcons.CheckCircle,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         when (indices) {
             is Result.Loading -> {
                 MarketIndexSkeleton()
@@ -95,7 +162,8 @@ internal fun MarketIndices(
                     ) { index ->
                         MarketIndexCard(
                             index = index,
-                            timeSeries = indexTimeSeries[index.name]
+                            timeSeries = indexTimeSeries[index.name],
+                            indexTimePeriodPreference = indexTimePeriodPreference
                         )
                     }
                 }
@@ -109,6 +177,7 @@ internal fun MarketIndices(
 fun MarketIndexCard(
     index: MarketIndex,
     timeSeries: Result<Map<String, HistoricalData>, DataError>?,
+    indexTimePeriodPreference: TimePeriodPreference,
 ) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
@@ -156,17 +225,36 @@ fun MarketIndexCard(
                         is Result.Success -> {
                             Sparkline(
                                 timeSeries = timeSeries.data,
-                                color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor(),
+                                // Time series data is sorted in descending order so the first value is the latest
+                                color = if (timeSeries.data.values.first().close > timeSeries.data.values.last().close) getPositiveTextColor() else getNegativeTextColor(),
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
+
                         is Result.Loading, null -> {
                             LinearProgressIndicator()
                         }
+
                         is Result.Error -> {
                             // No data
                         }
                     }
+                }
+
+                if (timeSeries is Result.Success) {
+                    Text(
+                        text = when(indexTimePeriodPreference) {
+                            TimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_trend_1d)
+                            TimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_trend_5d)
+                            TimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_trend_1m)
+                            TimePeriodPreference.SIX_MONTH -> stringResource(R.string.feature_home_trend_6m)
+                            TimePeriodPreference.YEAR_TO_DATE -> stringResource(R.string.feature_home_trend_ytd)
+                            TimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_trend_1y)
+                            TimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_trend_5y)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -176,7 +264,7 @@ fun MarketIndexCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = String.format(Locale.US, "%.2f", index.value.toDouble()),
+                        text = NumberFormat.getNumberInstance(Locale.US).format(index.value.toDouble()),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
@@ -209,7 +297,8 @@ private fun PreviewMarketIndexCard() {
                 change = "+100.0",
                 percentChange = "+100%"
             ),
-            timeSeries = null
+            timeSeries = null,
+            indexTimePeriodPreference = TimePeriodPreference.ONE_DAY
         )
     }
 }

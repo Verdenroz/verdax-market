@@ -176,7 +176,7 @@ fun MarketSectorCard(
 
                 if (timeSeries is Result.Success) {
                     Text(
-                        text = stringResource(id = R.string.feature_home_sector_trend),
+                        text = stringResource(id = R.string.feature_home_trend_1y),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )

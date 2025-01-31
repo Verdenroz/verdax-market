@@ -24,6 +24,7 @@ import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.core.model.enums.Sector
+import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import com.verdenroz.verdaxmarket.feature.home.components.MarketIndices
 import com.verdenroz.verdaxmarket.feature.home.components.MarketMovers
 import com.verdenroz.verdaxmarket.feature.home.components.MarketSectors
@@ -37,6 +38,7 @@ internal fun HomeRoute(
 ) {
     val indices by homeViewModel.indices.collectAsStateWithLifecycle()
     val indexTimeSeries by homeViewModel.indexTimeSeries.collectAsStateWithLifecycle()
+    val indexTimePeriodPreference by homeViewModel.indexTimePeriodPreference.collectAsStateWithLifecycle()
     val sectors by homeViewModel.sectors.collectAsStateWithLifecycle()
     val sectorTimeSeries by homeViewModel.sectorTimeSeries.collectAsStateWithLifecycle()
     val headlines by homeViewModel.headlines.collectAsStateWithLifecycle()
@@ -48,6 +50,8 @@ internal fun HomeRoute(
         onShowSnackbar = onShowSnackbar,
         indices = indices,
         indexTimeSeries = indexTimeSeries,
+        indexTimePeriodPreference = indexTimePeriodPreference,
+        onIndexTimePeriodChange = homeViewModel::updateIndexTimePeriod,
         sectors = sectors,
         sectorTimeSeries = sectorTimeSeries,
         headlines = headlines,
@@ -61,6 +65,8 @@ internal fun HomeRoute(
 internal fun HomeScreen(
     indices: Result<List<MarketIndex>, DataError.Network>,
     indexTimeSeries: Map<String, Result<Map<String, HistoricalData>, DataError.Network>>,
+    indexTimePeriodPreference: TimePeriodPreference,
+    onIndexTimePeriodChange: (TimePeriodPreference) -> Unit,
     sectors: Result<List<MarketSector>, DataError.Network>,
     sectorTimeSeries: Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>,
     headlines: Result<List<News>, DataError.Network>,
@@ -84,6 +90,8 @@ internal fun HomeScreen(
             MarketIndices(
                 indices = indices,
                 indexTimeSeries = indexTimeSeries,
+                indexTimePeriodPreference = indexTimePeriodPreference,
+                onTimePeriodChange = onIndexTimePeriodChange,
                 onShowSnackbar = onShowSnackbar,
             )
         }
@@ -210,6 +218,8 @@ private fun PreviewSuccessHomeScreen() {
             onShowSnackbar = { _, _, _ -> true },
             indices = Result.Success(indices),
             indexTimeSeries = emptyMap(),
+            indexTimePeriodPreference = TimePeriodPreference.ONE_MONTH,
+            onIndexTimePeriodChange = {},
             sectors = Result.Success(sectors),
             sectorTimeSeries = emptyMap(),
             headlines = Result.Success(headlines),
@@ -233,6 +243,8 @@ private fun PreviewLoadingHomeScreen() {
                 "S&P 500" to Result.Loading(),
                 "NASDAQ" to Result.Loading()
             ),
+            indexTimePeriodPreference = TimePeriodPreference.ONE_MONTH,
+            onIndexTimePeriodChange = {},
             sectors = Result.Loading(),
             sectorTimeSeries = mapOf(
                 Sector.TECHNOLOGY to Result.Loading(),
