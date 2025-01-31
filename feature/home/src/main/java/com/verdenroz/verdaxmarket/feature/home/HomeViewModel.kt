@@ -15,23 +15,20 @@ import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.core.model.enums.Sector
-import com.verdenroz.verdaxmarket.core.model.filterByRegion
-import com.verdenroz.verdaxmarket.core.model.toMarketIndexName
+import com.verdenroz.verdaxmarket.core.model.enums.TimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.toSymbol
 import com.verdenroz.verdaxmarket.core.model.enums.toSymbols
+import com.verdenroz.verdaxmarket.core.model.filterByRegion
+import com.verdenroz.verdaxmarket.core.model.toMarketIndexName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,20 +38,20 @@ class HomeViewModel @Inject constructor(
     private val quoteRepository: QuoteRepository,
 ) : ViewModel() {
 
-    private fun <T> stateFlowFromRepository(
-        repositoryFlow: Flow<Result<T, DataError.Network>>
-    ): StateFlow<Result<T, DataError.Network>> {
-        return repositoryFlow
-            .distinctUntilChanged()
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                Result.Loading(true)
-            )
-    }
+    val sectors: StateFlow<Result<List<MarketSector>, DataError.Network>> =
+        stateFlowFromRepository(marketInfoRepository.sectors)
 
     val headlines: StateFlow<Result<List<News>, DataError.Network>> =
         stateFlowFromRepository(marketInfoRepository.headlines)
+
+    val actives: StateFlow<Result<List<MarketMover>, DataError.Network>> =
+        stateFlowFromRepository(marketInfoRepository.actives)
+
+    val losers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
+        stateFlowFromRepository(marketInfoRepository.losers)
+
+    val gainers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
+        stateFlowFromRepository(marketInfoRepository.gainers)
 
     val indices: StateFlow<Result<List<MarketIndex>, DataError.Network>> = combine(
         marketInfoRepository.indices,
@@ -64,6 +61,7 @@ class HomeViewModel @Inject constructor(
             is Result.Success -> Result.Success(
                 indicesResult.data.filterByRegion(userSetting.regionPreference)
             )
+
             is Result.Loading -> Result.Loading(indicesResult.isLoading)
             is Result.Error -> Result.Error(indicesResult.error)
         }
@@ -80,8 +78,8 @@ class HomeViewModel @Inject constructor(
                 symbols.map { symbol ->
                     quoteRepository.getTimeSeries(
                         symbol = symbol,
-                        timePeriod = TimePeriod.ONE_DAY,
-                        interval = Interval.FIFTEEN_MINUTE
+                        timePeriod = userSetting.indexTimePeriodPreference.toTimePeriod(),
+                        interval = userSetting.indexTimePeriodPreference.toInterval()
                     ).map { result -> symbol.toMarketIndexName() to result }
                 }
             ) { results -> results.toMap() }
@@ -91,35 +89,54 @@ class HomeViewModel @Inject constructor(
             emptyMap()
         )
 
-    val sectors: StateFlow<Result<List<MarketSector>, DataError.Network>> =
-        stateFlowFromRepository(marketInfoRepository.sectors)
-
     val sectorTimeSeries: StateFlow<Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>> =
-        flow {
-            val results = Sector.entries.asFlow()
-                .flatMapMerge(concurrency = Sector.entries.size) { sector ->
+        userDataRepository.userSetting.flatMapLatest { userSetting ->
+            combine(
+                Sector.entries.map { sector ->
                     val symbol = sector.toSymbol()
                     quoteRepository.getTimeSeries(
                         symbol = symbol,
-                        timePeriod = TimePeriod.ONE_YEAR,
-                        interval = Interval.DAILY
+                        timePeriod = userSetting.sectorTimePeriodPreference.toTimePeriod(),
+                        interval = userSetting.sectorTimePeriodPreference.toInterval()
                     ).map { result -> sector to result }
                 }
-                .toList()
-                .toMap()
-            emit(results)
-        }.distinctUntilChanged().stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyMap()
-        )
+            ) { results -> results.toMap() }
+        }.distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyMap()
+            )
 
-    val actives: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        stateFlowFromRepository(marketInfoRepository.actives)
+    private fun <T> stateFlowFromRepository(
+        repositoryFlow: Flow<Result<T, DataError.Network>>
+    ): StateFlow<Result<T, DataError.Network>> {
+        return repositoryFlow
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                Result.Loading(true)
+            )
+    }
 
-    val losers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        stateFlowFromRepository(marketInfoRepository.losers)
+    private fun TimePeriodPreference.toTimePeriod(): TimePeriod {
+        return when (this) {
+            TimePeriodPreference.ONE_DAY -> TimePeriod.ONE_DAY
+            TimePeriodPreference.FIVE_DAY -> TimePeriod.FIVE_DAY
+            TimePeriodPreference.ONE_MONTH -> TimePeriod.ONE_MONTH
+            TimePeriodPreference.SIX_MONTH -> TimePeriod.SIX_MONTH
+            TimePeriodPreference.YEAR_TO_DATE -> TimePeriod.YEAR_TO_DATE
+            TimePeriodPreference.ONE_YEAR -> TimePeriod.ONE_YEAR
+            TimePeriodPreference.FIVE_YEAR -> TimePeriod.FIVE_YEAR
+        }
+    }
 
-    val gainers: StateFlow<Result<List<MarketMover>, DataError.Network>> =
-        stateFlowFromRepository(marketInfoRepository.gainers)
+    private fun TimePeriodPreference.toInterval(): Interval {
+        return when (this) {
+            TimePeriodPreference.ONE_DAY -> Interval.FIFTEEN_MINUTE
+            TimePeriodPreference.FIVE_DAY -> Interval.THIRTY_MINUTE
+            else -> Interval.DAILY
+        }
+    }
 }
