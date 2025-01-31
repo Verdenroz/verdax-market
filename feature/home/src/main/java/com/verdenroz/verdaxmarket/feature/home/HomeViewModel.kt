@@ -15,6 +15,7 @@ import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
 import com.verdenroz.verdaxmarket.core.model.News
 import com.verdenroz.verdaxmarket.core.model.enums.IndexTimePeriodPreference
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.enums.Sector
 import com.verdenroz.verdaxmarket.core.model.enums.SectorTimePeriodPreference
 import com.verdenroz.verdaxmarket.core.model.enums.toSymbol
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,58 +75,63 @@ class HomeViewModel @Inject constructor(
         Result.Loading(true)
     )
 
+    val indexTimePeriodPreference: StateFlow<IndexTimePeriodPreference> =
+        userDataRepository.userSetting.map { it.indexTimePeriodPreference }
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                IndexTimePeriodPreference.ONE_DAY
+            )
+
+    private val regionPreference: StateFlow<RegionFilter> =
+        userDataRepository.userSetting.map { it.regionPreference }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RegionFilter.US)
+
     val indexTimeSeries: StateFlow<Map<String, Result<Map<String, HistoricalData>, DataError.Network>>> =
-        userDataRepository.userSetting.flatMapLatest { userSetting ->
-            val symbols = userSetting.regionPreference.toSymbols()
-            combine(
-                symbols.map { symbol ->
-                    quoteRepository.getTimeSeries(
-                        symbol = symbol,
-                        timePeriod = userSetting.indexTimePeriodPreference.toTimePeriod(),
-                        interval = userSetting.indexTimePeriodPreference.toInterval()
-                    ).map { result -> symbol.toMarketIndexName() to result }
-                }
-            ) { results -> results.toMap() }
-        }.distinctUntilChanged().stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyMap()
-        )
+        combine(indexTimePeriodPreference, regionPreference) { timePeriod, region ->
+            region.toSymbols().map { symbol ->
+                quoteRepository.getTimeSeries(
+                    symbol = symbol,
+                    timePeriod = timePeriod.toTimePeriod(),
+                    interval = timePeriod.toInterval()
+                )
+                    .onStart { emit(Result.Loading(true)) }
+                    .map { result -> symbol.toMarketIndexName() to result }
+            }
+        }.flatMapLatest { flows ->
+            combine(flows) { results -> results.toMap() }
+        }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val sectorIndexTimePeriodPreference: StateFlow<SectorTimePeriodPreference> =
+        userDataRepository.userSetting.map { it.sectorIndexTimePeriodPreference }
+            .distinctUntilChanged()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                SectorTimePeriodPreference.ONE_YEAR
+            )
 
     val sectorTimeSeries: StateFlow<Map<Sector, Result<Map<String, HistoricalData>, DataError.Network>>> =
-        userDataRepository.userSetting.flatMapLatest { userSetting ->
+        sectorIndexTimePeriodPreference.flatMapLatest { timePeriod ->
             combine(
                 Sector.entries.map { sector ->
                     val symbol = sector.toSymbol()
                     quoteRepository.getTimeSeries(
                         symbol = symbol,
-                        timePeriod = userSetting.sectorIndexTimePeriodPreference.toTimePeriod(),
-                        interval = userSetting.sectorIndexTimePeriodPreference.toInterval()
-                    ).map { result -> sector to result }
+                        timePeriod = timePeriod.toTimePeriod(),
+                        interval = timePeriod.toInterval()
+                    )
+                        .onStart { emit(Result.Loading(true)) }
+                        .map { result -> sector to result }
                 }
             ) { results -> results.toMap() }
-        }.distinctUntilChanged()
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                emptyMap()
-            )
-
-    val indexTimePeriodPreference: StateFlow<IndexTimePeriodPreference> = userDataRepository.userSetting.map {
-        it.indexTimePeriodPreference
-    }.distinctUntilChanged().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        IndexTimePeriodPreference.ONE_DAY
-    )
-
-    val sectorIndexTimePeriodPreference: StateFlow<SectorTimePeriodPreference> = userDataRepository.userSetting.map {
-        it.sectorIndexTimePeriodPreference
-    }.distinctUntilChanged().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        SectorTimePeriodPreference.ONE_YEAR
-    )
+        }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     fun updateIndexTimePeriod(timePeriod: IndexTimePeriodPreference) {
         viewModelScope.launch {
