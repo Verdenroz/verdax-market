@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class IndexResponse(
     val name: String,
-    val value: String,
+    val value: Double,
     val change: String,
     val percentChange: String
 )

@@ -7,7 +7,7 @@ fun List<IndexResponse>.asExternalModel(): List<MarketIndex> {
     return map {
         MarketIndex(
             name = it.name,
-            value = it.value,
+            value = it.value.toString(),
             change = it.change,
             percentChange = it.percentChange,
         )

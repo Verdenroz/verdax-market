@@ -8,7 +8,7 @@ enum class TimePeriod(val value: String) {
     FIVE_DAY("5d"),
     ONE_MONTH("1mo"),
     SIX_MONTH("6mo"),
-    YEAR_TO_DATE("YTD"),
-    ONE_YEAR("1Y"),
-    FIVE_YEAR("5Y"),
+    YEAR_TO_DATE("ytd"),
+    ONE_YEAR("1y"),
+    FIVE_YEAR("5y"),
 }

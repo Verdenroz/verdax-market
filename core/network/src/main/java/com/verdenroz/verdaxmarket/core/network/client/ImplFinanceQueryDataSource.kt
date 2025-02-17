@@ -15,9 +15,10 @@ import com.verdenroz.verdaxmarket.core.network.model.MarketMoverResponse
 import com.verdenroz.verdaxmarket.core.network.model.NewsResponse
 import com.verdenroz.verdaxmarket.core.network.model.SectorResponse
 import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
-import com.verdenroz.verdaxmarket.core.network.model.TimeSeriesResponse
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import okhttp3.HttpUrl
@@ -117,16 +118,19 @@ class ImplFinanceQueryDataSource @Inject constructor(
             FINANCE_QUERY_API_URL.newBuilder().apply {
                 addPathSegments("historical")
                 addQueryParameter("symbol", symbol)
-                addQueryParameter("time", time.value)
+                addQueryParameter("range", time.value)
                 addQueryParameter("interval", interval.value)
             }.build()
         )
 
-        val timeSeriesResponse: TimeSeriesResponse =
-            parser.decodeFromStream(TimeSeriesResponse.serializer(), stream)
+        // decode to Map<String, HistoricalDataResponse>
+        val response: Map<String, HistoricalDataResponse> = parser.decodeFromStream(
+            MapSerializer(String.serializer(), HistoricalDataResponse.serializer()),
+            stream
+        )
 
-        // Map each date and HistoricalData from TimeSeriesResponse
-        return timeSeriesResponse.data.mapKeys { entry ->
+        // Format the dates
+        return response.mapKeys { entry ->
             val dateTimeString = entry.key
             val formatterWithoutTime = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val formatter24Hour = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss")
@@ -172,7 +176,8 @@ class ImplFinanceQueryDataSource @Inject constructor(
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
                 addPathSegments("sectors")
-                addQueryParameter("symbol", symbol)
+                addPathSegments("symbol")
+                addPathSegments(symbol)
             }.build()
         )
 
