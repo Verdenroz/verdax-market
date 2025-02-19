@@ -270,7 +270,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
     override suspend fun getSummaryAnalysis(symbol: String, interval: Interval): AnalysisResponse {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("analysis")
+                addPathSegments("indicators")
                 addQueryParameter("symbol", symbol)
                 addQueryParameter("interval", interval.value)
             }.build()
