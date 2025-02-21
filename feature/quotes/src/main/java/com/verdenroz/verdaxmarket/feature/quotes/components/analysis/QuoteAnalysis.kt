@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,11 +31,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -245,7 +240,7 @@ private fun AnalysisSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnalysisDetail(
     analysis: AnalysisSignal,
@@ -255,10 +250,13 @@ private fun AnalysisDetail(
     val signal = analysis.signal
     val displayValue = analysis.indicator
 
+    if (displayValue.asString() == "null") {
+        return
+    }
+
     VxmListItem(
         headlineContent = {
-            var tooltipVisible by remember { mutableStateOf(false) }
-            val tooltipState = rememberTooltipState(initialIsVisible = tooltipVisible)
+            val tooltipState = rememberTooltipState(initialIsVisible = false)
             val scope = rememberCoroutineScope()
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
@@ -369,8 +367,8 @@ private fun AnalysisIndicator.asString(): String {
         is MovingAverage -> this.value.toString()
         is Cci -> this.cci.toString()
         is Rsi -> this.rsi.toString()
-        is Srsi -> this.srsi.toString()
-        is Stoch -> this.stoch.toString()
+        is Srsi -> this.k.toString()
+        is Stoch -> this.k.toString()
         is Adx -> this.adx.toString()
         is Aroon -> this.aroonUp.toString()
         is BBands -> this.upperBand.toString()
@@ -503,7 +501,7 @@ private fun PreviewQuoteAnalysis() {
                         ),
                         TechnicalIndicator.SRSI to AnalysisSignal.OscillatorSignal(
                             signal = QuoteSignal.SELL,
-                            indicator = Srsi(14.0)
+                            indicator = Srsi(14.0, 3.0)
                         ),
                         TechnicalIndicator.CCI to AnalysisSignal.OscillatorSignal(
                             signal = QuoteSignal.NEUTRAL,
