@@ -12,12 +12,21 @@ import com.verdenroz.verdaxmarket.core.model.indicators.Rsi
 import com.verdenroz.verdaxmarket.core.model.indicators.Srsi
 import com.verdenroz.verdaxmarket.core.model.indicators.Stoch
 import com.verdenroz.verdaxmarket.core.model.indicators.SuperTrend
+import com.verdenroz.verdaxmarket.core.network.model.AdxResponse
 import com.verdenroz.verdaxmarket.core.network.model.AnalysisResponse
-import com.verdenroz.verdaxmarket.core.network.model.indicators.AroonResponse
-import com.verdenroz.verdaxmarket.core.network.model.indicators.BBandsResponse
-import com.verdenroz.verdaxmarket.core.network.model.indicators.IchimokuCloudResponse
-import com.verdenroz.verdaxmarket.core.network.model.indicators.MacdResponse
-import com.verdenroz.verdaxmarket.core.network.model.indicators.SuperTrendResponse
+import com.verdenroz.verdaxmarket.core.network.model.AroonResponse
+import com.verdenroz.verdaxmarket.core.network.model.BBandsResponse
+import com.verdenroz.verdaxmarket.core.network.model.CciResponse
+import com.verdenroz.verdaxmarket.core.network.model.EmaResponse
+import com.verdenroz.verdaxmarket.core.network.model.IchimokuCloudResponse
+import com.verdenroz.verdaxmarket.core.network.model.MacdResponse
+import com.verdenroz.verdaxmarket.core.network.model.RsiResponse
+import com.verdenroz.verdaxmarket.core.network.model.SmaResponse
+import com.verdenroz.verdaxmarket.core.network.model.StochResponse
+import com.verdenroz.verdaxmarket.core.network.model.StochRsiResponse
+import com.verdenroz.verdaxmarket.core.network.model.SuperTrendResponse
+import com.verdenroz.verdaxmarket.core.network.model.VwmaResponse
+import com.verdenroz.verdaxmarket.core.network.model.WmaResponse
 
 fun AnalysisResponse.asExternalModel() = QuoteAnalysis(
     sma10 = sma10.toMA(),
@@ -48,21 +57,31 @@ fun AnalysisResponse.asExternalModel() = QuoteAnalysis(
     ichimokuCloud = ichimokuCloud.toIchimoku()
 )
 
-internal fun Double.toMA() = MovingAverage(this)
 
-internal fun Double.toRsi() = Rsi(this)
+internal fun SmaResponse.toMA() = MovingAverage(SMA)
 
-internal fun Double.toSrsi() = Srsi(this)
+internal fun EmaResponse.toMA() = MovingAverage(EMA)
 
-internal fun Double.toCci() = Cci(this)
+internal fun WmaResponse.toMA() = MovingAverage(WMA)
 
-internal fun Double.toAdx() = Adx(this)
+internal fun VwmaResponse.toMA() = MovingAverage(VWMA)
 
-internal fun Double.toStoch() = Stoch(this)
+internal fun RsiResponse.toRsi() = Rsi(RSI)
+
+internal fun StochRsiResponse.toSrsi() = Srsi(k, d)
+
+internal fun CciResponse.toCci() = Cci(CCI)
+
+internal fun AdxResponse.toAdx() = Adx(ADX)
 
 internal fun MacdResponse.toMacd() = Macd(
     macd = macd,
     signal = signal,
+)
+
+internal fun StochResponse.toStoch() = Stoch(
+    k = k,
+    d = d
 )
 
 internal fun AroonResponse.toAroon() = Aroon(
@@ -72,6 +91,7 @@ internal fun AroonResponse.toAroon() = Aroon(
 
 internal fun BBandsResponse.toBbands() = BBands(
     upperBand = upperBand,
+    middleBand = middleBand,
     lowerBand = lowerBand
 )
 

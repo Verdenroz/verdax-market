@@ -16,8 +16,8 @@ import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.model.MarketInfo
 import com.verdenroz.verdaxmarket.core.model.MarketMover
 import com.verdenroz.verdaxmarket.core.model.MarketSector
-import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
 import com.verdenroz.verdaxmarket.core.model.News
+import com.verdenroz.verdaxmarket.core.model.enums.MarketStatus
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +46,6 @@ class ImplMarketInfoRepository @Inject constructor(
 
     /**
      * Market data flow that emits the latest market data from the websocket
-     * If cannot connect or there is an error, it will fallback to polling the API
      */
     private val market: StateFlow<Result<MarketInfo, DataError.Network>> = socket.market.stateIn(
         CoroutineScope(ioDispatcher),
