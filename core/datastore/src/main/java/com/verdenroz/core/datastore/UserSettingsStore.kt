@@ -34,7 +34,7 @@ class UserSettingsStore @Inject constructor(
                     UserSettings.RegionPreference.EU -> RegionFilter.EU
                     UserSettings.RegionPreference.AS -> RegionFilter.AS
                     UserSettings.RegionPreference.AF -> RegionFilter.AF
-                    UserSettings.RegionPreference.AU -> RegionFilter.AU
+                    UserSettings.RegionPreference.AU -> RegionFilter.OCE
                     UserSettings.RegionPreference.ME -> RegionFilter.ME
                     UserSettings.RegionPreference.GLOBAL -> RegionFilter.GLOBAL
                 },
@@ -78,7 +78,7 @@ class UserSettingsStore @Inject constructor(
                     RegionFilter.EU -> UserSettings.RegionPreference.EU
                     RegionFilter.AS -> UserSettings.RegionPreference.AS
                     RegionFilter.AF -> UserSettings.RegionPreference.AF
-                    RegionFilter.AU -> UserSettings.RegionPreference.AU
+                    RegionFilter.OCE -> UserSettings.RegionPreference.AU
                     RegionFilter.ME -> UserSettings.RegionPreference.ME
                     RegionFilter.GLOBAL -> UserSettings.RegionPreference.GLOBAL
                 }
@@ -111,7 +111,7 @@ class UserSettingsStore @Inject constructor(
                     RegionFilter.EU -> UserSettings.RegionPreference.EU
                     RegionFilter.AS -> UserSettings.RegionPreference.AS
                     RegionFilter.AF -> UserSettings.RegionPreference.AF
-                    RegionFilter.AU -> UserSettings.RegionPreference.AU
+                    RegionFilter.OCE -> UserSettings.RegionPreference.AU
                     RegionFilter.ME -> UserSettings.RegionPreference.ME
                     RegionFilter.GLOBAL -> UserSettings.RegionPreference.GLOBAL
                 }

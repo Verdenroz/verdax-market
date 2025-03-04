@@ -248,7 +248,7 @@ private fun RegionFilterContainer(
                     RegionFilter.AS -> stringResource(id = R.string.feature_search_AS)
                     RegionFilter.ME -> stringResource(id = R.string.feature_search_ME)
                     RegionFilter.AF -> stringResource(id = R.string.feature_search_AF)
-                    RegionFilter.AU -> stringResource(id = R.string.feature_search_AU)
+                    RegionFilter.OCE -> stringResource(id = R.string.feature_search_AU)
                     RegionFilter.GLOBAL -> stringResource(id = R.string.feature_search_GLOBAL)
                 }
             )
