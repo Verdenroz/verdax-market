@@ -181,6 +181,15 @@ fun MarketIndexCard(
 ) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
+    val indexTimePreferenceReturn = when (indexTimePeriodPreference) {
+        IndexTimePeriodPreference.ONE_DAY -> index.percentChange
+        IndexTimePeriodPreference.FIVE_DAY -> index.fiveDaysReturn
+        IndexTimePeriodPreference.ONE_MONTH -> index.oneMonthReturn
+        IndexTimePeriodPreference.SIX_MONTH -> index.sixMonthReturn
+        IndexTimePeriodPreference.YEAR_TO_DATE -> index.ytdReturn
+        IndexTimePeriodPreference.ONE_YEAR -> index.yearReturn
+        IndexTimePeriodPreference.FIVE_YEAR -> index.fiveYearReturn
+    }
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
@@ -225,8 +234,7 @@ fun MarketIndexCard(
                         is Result.Success -> {
                             Sparkline(
                                 timeSeries = timeSeries.data,
-                                // Time series data is sorted in descending order so the first value is the latest
-                                color = if (timeSeries.data.values.first().close > timeSeries.data.values.last().close) getPositiveTextColor() else getNegativeTextColor(),
+                                color = determineColor(indexTimePreferenceReturn, timeSeries),
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
@@ -243,7 +251,7 @@ fun MarketIndexCard(
 
                 if (timeSeries is Result.Success) {
                     Text(
-                        text = when(indexTimePeriodPreference) {
+                        text = when (indexTimePeriodPreference) {
                             IndexTimePeriodPreference.ONE_DAY -> stringResource(R.string.feature_home_trend_1d)
                             IndexTimePeriodPreference.FIVE_DAY -> stringResource(R.string.feature_home_trend_5d)
                             IndexTimePeriodPreference.ONE_MONTH -> stringResource(R.string.feature_home_trend_1m)
@@ -264,24 +272,34 @@ fun MarketIndexCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = NumberFormat.getNumberInstance(Locale.US).format(index.value.toDouble()),
+                        text = NumberFormat.getNumberInstance(Locale.US)
+                            .format(index.value.toDouble()),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
-                    Text(
-                        text = index.change,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
-                    )
-                    Text(
-                        text = index.percentChange,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (index.change.contains('+')) getPositiveTextColor() else getNegativeTextColor()
-                    )
+                    if (indexTimePreferenceReturn != null) {
+                        Text(
+                            text = indexTimePreferenceReturn,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (indexTimePreferenceReturn.startsWith('+')) getPositiveTextColor() else getNegativeTextColor()
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun determineColor(indexTimePreferenceReturn: String?, timeSeries: Result.Success<Map<String, HistoricalData>>): Color {
+    return when {
+        indexTimePreferenceReturn?.startsWith('+') == true -> getPositiveTextColor()
+        indexTimePreferenceReturn?.startsWith('-') == true -> getNegativeTextColor()
+        else -> {
+            val firstClose = timeSeries.data.values.first().close
+            val lastClose = timeSeries.data.values.last().close
+            if (firstClose > lastClose) getPositiveTextColor() else getNegativeTextColor()
         }
     }
 }
@@ -295,7 +313,13 @@ private fun PreviewMarketIndexCard() {
                 name = "Dow Jones",
                 value = "100.0",
                 change = "+100.0",
-                percentChange = "+100%"
+                percentChange = "+0.5%",
+                fiveDaysReturn = "+0.5%",
+                oneMonthReturn = "+1.2%",
+                sixMonthReturn = "+3.4%",
+                ytdReturn = "-5.6%",
+                yearReturn = "-7.8%",
+                fiveYearReturn = "-7.8%"
             ),
             timeSeries = null,
             indexTimePeriodPreference = IndexTimePeriodPreference.ONE_DAY

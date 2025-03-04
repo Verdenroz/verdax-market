@@ -173,19 +173,37 @@ private fun PreviewSuccessHomeScreen() {
             name = "Dow Jones",
             value = "34000",
             change = "+50.00",
-            percentChange = "+0.5%"
+            percentChange = "+0.5%",
+            fiveDaysReturn = "+0.5%",
+            oneMonthReturn = "+1.2%",
+            sixMonthReturn = "+3.4%",
+            ytdReturn = "-5.6%",
+            yearReturn = "-7.8%",
+            fiveYearReturn = "-7.8%"
         ),
         MarketIndex(
             name = "S&P 500",
             value = "34000",
             change = "-50.00",
-            percentChange = "-0.5%"
+            percentChange = "+0.5%",
+            fiveDaysReturn = "+0.5%",
+            oneMonthReturn = "+1.2%",
+            sixMonthReturn = "+3.4%",
+            ytdReturn = "-5.6%",
+            yearReturn = "-7.8%",
+            fiveYearReturn = "-7.8%"
         ),
         MarketIndex(
             name = "NASDAQ",
             value = "34000",
             change = "+50.00",
-            percentChange = "+0.5%"
+            percentChange = "+0.5%",
+            fiveDaysReturn = "+0.5%",
+            oneMonthReturn = "+1.2%",
+            sixMonthReturn = "+3.4%",
+            ytdReturn = "-5.6%",
+            yearReturn = "-7.8%",
+            fiveYearReturn = "-7.8%"
         ),
     )
 
