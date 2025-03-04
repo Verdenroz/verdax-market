@@ -1,7 +1,7 @@
 package com.verdenroz.verdaxmarket.core.model
 
 import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
-
+import com.verdenroz.verdaxmarket.core.model.enums.toYahooSymbol
 
 /**
  * Local data class for stock market indices
@@ -38,82 +38,122 @@ data class MarketIndex(
 )
 
 /**
- * Filters a list of market indices by [com.verdenroz.verdaxmarket.core.model.enums.RegionFilter]
+ * Mapping of Yahoo Finance symbols to human-readable market index names
  */
-fun List<MarketIndex>.filterByRegion(region: RegionFilter): List<MarketIndex> =
-    filter { index ->
-        when (region) {
-            RegionFilter.US -> index.name in setOf("Dow Jones", "S&P 500", "Nasdaq", "Small Cap 2000", "S&P 500 VIX")
-            RegionFilter.NA -> index.name in setOf("Dow Jones", "S&P 500", "Nasdaq", "Small Cap 2000", "S&P 500 VIX", "S&P/TSX")
-            RegionFilter.SA -> index.name in setOf("Bovespa", "S&P/BMV IPC")
-            RegionFilter.EU -> index.name in setOf(
-                "DAX", "FTSE 100", "CAC 40", "Euro Stoxx 50", "AEX", "IBEX 35",
-                "FTSE MIB", "SMI", "PSI", "BEL 20", "ATX", "OMXS30", "OMXC25",
-                "MOEX Russia Index", "RTSI", "WIG20", "Budapest SE", "BIST 100"
-            )
-            RegionFilter.AS -> index.name in setOf(
-                "Nikkei 225", "Shanghai", "SZSE Component", "China A50",
-                "DJ Shanghai", "Hang Seng", "Taiwan Weighted", "SET", "KOSPI",
-                "IDX Composite", "Nifty 50", "BSE Sensex", "PSEi Composite",
-                "Karachi 100", "VN 30"
-            )
-            RegionFilter.AF -> index.name in setOf("MSCI World")
-            RegionFilter.AU -> index.name in setOf("S&P/ASX 200", "DJ New Zealand")
-            RegionFilter.ME -> index.name in setOf("TA 35", "Tadawul All Share")
-            RegionFilter.GLOBAL -> true
-        }
-    }
+private val symbolToNameMap = mapOf(
+    // United States
+    "^GSPC" to "S&P 500",
+    "^DJI" to "Dow Jones Industrial Average",
+    "^IXIC" to "NASDAQ Composite",
+    "^NYA" to "NYSE COMPOSITE (DJ)",
+    "^XAX" to "NYSE AMEX COMPOSITE INDEX",
+    "^RUT" to "Russell 2000",
+    "^VIX" to "CBOE Volatility Index",
+
+    // North America
+    "^GSPTSE" to "S&P/TSX Composite index",
+
+    // South America
+    "^BVSP" to "IBOVESPA",
+    "^MXX" to "IPC MEXICO",
+    "^IPSA" to "S&P IPSA",
+    "^MERV" to "MERVAL",
+    "^IVBX" to "IVBX2",
+    "^IBX50" to "IBRX 50",
+
+    // Europe
+    "^GDAXI" to "DAX Performance Index",
+    "^FTSE" to "FTSE 100",
+    "^FCHI" to "CAC 40",
+    "^STOXX50E" to "EURO STOXX 50",
+    "^N100" to "Euronext 100 Index",
+    "^BFX" to "BEL 20",
+    "MOEX.ME" to "Public Joint-Stock Company Moscow Exchange MICEX-RTS",
+    "^AEX" to "AEX-Index",
+    "^IBEX" to "IBEX 35",
+    "FTSEMIB.MI" to "FTSE MIB Index",
+    "^SSMI" to "SMI PR",
+    "PSI20.LS" to "PSI",
+    "^ATX" to "Austrian Traded Index in EUR",
+    "^OMXS30" to "XCSE:OMX Stockholm 30 Index",
+    "^OMXC25" to "OMX Copenhagen 25 Index",
+    "WIG20.WA" to "WIG20",
+    "^BUX.BD" to "Budapest Stock Index",
+    "IMOEX.ME" to "MOEX Russia Index",
+    "RTSI.ME" to "RTS Index",
+
+    // Asia
+    "^HSI" to "HANG SENG INDEX",
+    "^STI" to "STI Index",
+    "^BSESN" to "S&P BSE SENSEX",
+    "^JKSE" to "IDX COMPOSITE",
+    "^KLSE" to "FTSE Bursa Malaysia KLCI",
+    "^KS11" to "KOSPI Composite Index",
+    "^TWII" to "TWSE Capitalization Weighted Stock Index",
+    "^N225" to "Nikkei 225",
+    "000001.SS" to "SSE Composite Index",
+    "399001.SZ" to "Shenzhen Index",
+    "^SET.BK" to "Thailand SET Index",
+    "^NSEI" to "NIFTY 50",
+    "^CNX200" to "NIFTY 200",
+    "PSEI.PS" to "PSEi INDEX",
+    "XIN9.FGI" to "FTSE China A50 Index",
+    "^DJSH" to "Dow Jones Shanghai Index",
+    "^INDIAVIX" to "INDIA VIX",
+
+    // Africa
+    "^CASE30" to "EGX 30 Price Return Index",
+    "^JN0U.JO" to "FTSE JSE Top 40- USD Net TRI",
+    "^J580.JO" to "FTSE/JSE SA Financials Index",
+    "^JA0R.JO" to "All Africa 40 Rand Index",
+    "^J260.JO" to "RAFI 40 Index",
+    "^J200.JO" to "South Africa Top 40",
+    "^J233.JO" to "ALT X 15 Index",
+
+    // Middle East
+    "TA125.TA" to "TA-125",
+    "TA35.TA" to "TA-35",
+    "^TASI.SR" to "Tadawul All Shares Index",
+    "^TAMAYUZ.CA" to "TAMAYUZ",
+    "XU100.IS" to "BIST 100",
+
+    // Oceania
+    "^AXJO" to "S&P/ASX 200",
+    "^AORD" to "ALL ORDINARIES",
+    "^NZ50" to "S&P/NZX 50 Index",
+
+    // Global/Currency
+    "DX-Y.NYB" to "US Dollar Index",
+    "^125904-USD-STRD" to "MSCI EUROPE",
+    "^XDB" to "British Pound Currency Index",
+    "^XDE" to "Euro Currency Index",
+    "^XDN" to "Japanese Yen Currency Index",
+    "^XDA" to "Australian Dollar Currency Index",
+    "^990100-USD-STRD" to "MSCI WORLD",
+    "^BUK100P" to "Cboe UK 100",
+)
 
 /**
  * Converts a symbol to a human-readable market index name
  */
 fun String.toMarketIndexName(): String =
-    when (this) {
-        "^GSPC" -> "S&P 500"
-        "^DJI" -> "Dow Jones"
-        "^IXIC" -> "Nasdaq"
-        "^RUT" -> "Small Cap 2000"
-        "^VIX" -> "S&P 500 VIX"
-        "^GSPTSE" -> "S&P/TSX"
-        "^BVSP" -> "Bovespa"
-        "^MXX" -> "S&P/BMV IPC"
-        "^990100-USD-STRD" -> "MSCI World"
-        "^GDAXI" -> "DAX"
-        "^FTSE" -> "FTSE 100"
-        "^FCHI" -> "CAC 40"
-        "^STOXX50E" -> "Euro Stoxx 50"
-        "^AEX" -> "AEX"
-        "^IBEX" -> "IBEX 35"
-        "^FTSEMIB" -> "FTSE MIB"
-        "^SSMI" -> "SMI"
-        "PSI20.LS" -> "PSI"
-        "^BFX" -> "BEL 20"
-        "^ATX" -> "ATX"
-        "^OMX" -> "OMXS30"
-        "^OMXC25" -> "OMXC25"
-        "WIG20.WA" -> "WIG20"
-        "^BUX.BD" -> "Budapest SE"
-        "XU100.IS" -> "BIST 100"
-        "TA35.TA" -> "TA 35"
-        "^TASI.SR" -> "Tadawul All Share"
-        "^N225" -> "Nikkei 225"
-        "^AXJO" -> "S&P/ASX 200"
-        "000001.SS" -> "Shanghai"
-        "399001.SZ" -> "SZSE Component"
-        "^HSI" -> "Hang Seng"
-        "^TWII" -> "Taiwan Weighted"
-        "^SET.BK" -> "SET"
-        "^KS11" -> "KOSPI"
-        "^JKSE" -> "IDX Composite"
-        "^NSEI" -> "Nifty 50"
-        "^BSESN" -> "BSE Sensex"
-        "PSEI.PS" -> "PSEi Composite"
-        "IMOEX.ME" -> "MOEX Russia Index"
-        "RTSI.ME" -> "RTSI"
-        "^NZ50" -> "DJ New Zealand"
-        "XIN9.FGI" -> "China A50"
-        "^DJSH" -> "DJ Shanghai"
-        "^KSE" -> "Karachi 100"
-        "^VNINDEX" -> "VN 30"
-        else -> throw IllegalArgumentException("No market index name mapping for symbol: $this")
+    symbolToNameMap[this]
+        ?: throw IllegalArgumentException("No market index name mapping for symbol: $this")
+
+/**
+ * Filters a list of market indices by [RegionFilter]
+ */
+fun List<MarketIndex>.filterByRegion(region: RegionFilter): List<MarketIndex> {
+    // Get all names for the selected region's indices
+    val indexNames = region.indices.map { index ->
+        index.toYahooSymbol().toMarketIndexName()
+    }.toSet()
+
+    // If GLOBAL is selected, return all indices
+    return if (region == RegionFilter.GLOBAL) {
+        this
+    } else {
+        // Otherwise filter by the names associated with the region
+        filter { marketIndex -> marketIndex.name in indexNames }
     }
+}
