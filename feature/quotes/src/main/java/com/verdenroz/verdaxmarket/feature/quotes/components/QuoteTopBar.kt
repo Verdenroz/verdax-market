@@ -53,8 +53,8 @@ internal fun QuoteTopBar(
             )
         },
         actions = {
-            if (profile is Result.Success) {
-                val quote = profile.data.quote
+            if (profile is Result.Success && profile.data.quote != null) {
+                val quote = profile.data.quote!!
                 if (isWatchlisted) {
                     VxmDeleteIconButton(
                         onClick = deleteFromWatchlist,

@@ -35,7 +35,7 @@ class GetAnalysisSignalsUseCase @Inject constructor(
         quote: Flow<Result<Profile, DataError.Network>>
     ): Flow<Map<Interval, Result<Map<TechnicalIndicator, AnalysisSignal>, DataError.Network>>> =
         quote.mapNotNull { result ->
-            if (result is Result.Success) result.data.quote.price else null
+            if (result is Result.Success) result.data.quote?.price else null
         }.flatMapLatest { price ->
             signalRepository.getIntervalAnalysisSignalMap(symbol, price.replace(",", "").toDouble())
         }.flowOn(ioDispatcher)

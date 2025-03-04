@@ -132,30 +132,20 @@ internal fun QuotesScreen(
             }
 
             is Result.Error -> {
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = stringResource(id = R.string.feature_quotes_error)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.feature_quotes_error),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        letterSpacing = 1.5.sp
-                    )
-                }
+                QuoteErrorScreen()
             }
 
             is Result.Success -> {
+                if (profile.data.quote == null) {
+                    QuoteErrorScreen()
+                    return@Scaffold
+                }
+                
+                val quote = profile.data.quote!!
                 addToRecentQuotes(
-                    profile.data.quote.symbol,
-                    profile.data.quote.name,
-                    profile.data.quote.logo
+                    quote.symbol,
+                    quote.name,
+                    quote.logo
                 )
 
                 val listState = rememberLazyListState()
@@ -171,14 +161,14 @@ internal fun QuotesScreen(
                     ) {
                         stickyHeader {
                             QuoteHeadline(
-                                name = profile.data.quote.name,
-                                symbol = profile.data.quote.symbol,
-                                price = profile.data.quote.price.replace(",", "").toDouble(),
-                                change = profile.data.quote.change,
-                                percentChange = profile.data.quote.percentChange,
-                                preMarketPrice = profile.data.quote.preMarketPrice?.replace(",", "")?.toDouble(),
-                                afterHoursPrice = profile.data.quote.afterHoursPrice?.replace(",", "")?.toDouble(),
-                                logo = profile.data.quote.logo,
+                                name = quote.name,
+                                symbol = quote.symbol,
+                                price = quote.price.replace(",", "").toDouble(),
+                                change = quote.change,
+                                percentChange = quote.percentChange,
+                                preMarketPrice = quote.preMarketPrice?.replace(",", "")?.toDouble(),
+                                afterHoursPrice = quote.afterHoursPrice?.replace(",", "")?.toDouble(),
+                                logo = quote.logo,
                             )
                         }
 
@@ -192,15 +182,15 @@ internal fun QuotesScreen(
                             )
                         }
 
-                        profile.data.quote.ytdReturn?.let {
+                        quote.ytdReturn?.let {
                             item {
                                 QuotePerformance(
-                                    symbol = profile.data.quote.symbol,
+                                    symbol = quote.symbol,
                                     ytdReturn = it,
-                                    yearReturn = profile.data.quote.yearReturn,
-                                    threeYearReturn = profile.data.quote.threeYearReturn,
-                                    fiveYearReturn = profile.data.quote.fiveYearReturn,
-                                    sector = profile.data.quote.sector,
+                                    yearReturn = quote.yearReturn,
+                                    threeYearReturn = quote.threeYearReturn,
+                                    fiveYearReturn = quote.fiveYearReturn,
+                                    sector = quote.sector,
                                     sectorPerformance = profile.data.performance
                                 )
                             }
@@ -208,7 +198,7 @@ internal fun QuotesScreen(
 
                         item {
                             SimilarQuoteFeed(
-                                symbol = profile.data.quote.symbol,
+                                symbol = quote.symbol,
                                 similarQuotes = profile.data.similar,
                                 onNavigateToQuote = onNavigateToQuote
                             )
@@ -216,7 +206,7 @@ internal fun QuotesScreen(
 
                         item {
                             QuoteScreenPager(
-                                quote = profile.data.quote,
+                                quote = quote,
                                 news = profile.data.news,
                                 signals = signals,
                                 signalSummary = signalSummary,
@@ -310,4 +300,30 @@ private fun PreviewQuoteScreen() {
 }
 
 
+@Composable
+private fun QuoteErrorScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = stringResource(id = R.string.feature_quotes_error)
+        )
+        Text(
+            text = stringResource(id = R.string.feature_quotes_error),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
+            letterSpacing = 1.5.sp
+        )
+    }
+}
 
+@ThemePreviews
+@Composable
+private fun PreviewQuoteErrorScreen() {
+    VxmTheme {
+        QuoteErrorScreen()
+    }
+}

@@ -8,7 +8,7 @@ package com.verdenroz.verdaxmarket.core.model
  *  @param news A list of [News] related to the symbol.
  */
 data class Profile(
-    val quote: FullQuoteData,
+    val quote: FullQuoteData?,
     val similar: List<SimpleQuoteData>,
     val performance: MarketSector?,
     val news: List<News>
