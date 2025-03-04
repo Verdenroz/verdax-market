@@ -9,23 +9,33 @@ import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
  * @param value Current value of the index
  * @param change Change in value the index
  * @param percentChange Percent change in value of the index
+ * @param fiveDaysReturn Return over the last 5 days
+ * @param oneMonthReturn Return over the last month
+ * @param threeMonthReturn Return over the last 3 months
+ * @param sixMonthReturn Return over the last 6 months
+ * @param ytdReturn Return over the year to date
+ * @param yearReturn Return over the last year
+ * @param threeYearReturn Return over the last 3 years
+ * @param fiveYearReturn Return over the last 5 years
+ * @param tenYearReturn Return over the last 10 years
+ * @param maxReturn Maximum historical return
  */
 data class MarketIndex(
     val name: String,
     val value: String,
     val change: String,
-    val percentChange: String
+    val percentChange: String,
+    val fiveDaysReturn: String? = null,
+    val oneMonthReturn: String? = null,
+    val threeMonthReturn: String? = null,
+    val sixMonthReturn: String? = null,
+    val ytdReturn: String? = null,
+    val yearReturn: String? = null,
+    val threeYearReturn: String? = null,
+    val fiveYearReturn: String? = null,
+    val tenYearReturn: String? = null,
+    val maxReturn: String? = null,
 )
-
-//private val unavailableIndices = setOf(
-//    "MOEX Russia Index",
-//    "RTSI",
-//    "DJ New Zealand",
-//    "China A50",
-//    "DJ Shanghai",
-//    "Karachi 100",
-//    "VN 30"
-//)
 
 /**
  * Filters a list of market indices by [com.verdenroz.verdaxmarket.core.model.enums.RegionFilter]

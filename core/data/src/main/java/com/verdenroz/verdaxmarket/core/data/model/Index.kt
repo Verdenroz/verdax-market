@@ -10,6 +10,12 @@ fun List<IndexResponse>.asExternalModel(): List<MarketIndex> {
             value = it.value.toString(),
             change = it.change,
             percentChange = it.percentChange,
+            fiveDaysReturn = it.fiveDaysReturn,
+            oneMonthReturn = it.oneMonthReturn,
+            sixMonthReturn = it.sixMonthReturn,
+            ytdReturn = it.ytdReturn,
+            yearReturn = it.yearReturn,
+            fiveYearReturn = it.fiveYearReturn,
         )
     }
 }
