@@ -20,9 +20,10 @@ import com.verdenroz.verdaxmarket.core.data.repository.RecentSearchRepository
 import com.verdenroz.verdaxmarket.core.data.repository.UserDataRepository
 import com.verdenroz.verdaxmarket.core.data.repository.WatchlistRepository
 import com.verdenroz.verdaxmarket.core.designsystem.util.asUiText
-import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
+import com.verdenroz.verdaxmarket.core.model.enums.RegionFilter
 import com.verdenroz.verdaxmarket.core.model.enums.TypeFilter
+import com.verdenroz.verdaxmarket.core.model.enums.toExchangeShortNames
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -71,7 +72,7 @@ class SearchViewModel @Inject constructor(
     private val searchQuery: StateFlow<Query> = MutableStateFlow(Query(
         hitsPerPage = 10,
         facetFilters = (listOf(
-            regionFilter.value.exchanges.map { "exchangeShortName:$it" },
+            regionFilter.value.toExchangeShortNames().map { "exchangeShortName:$it" },
             typeFilter.value.map { "type:${it.type}" }
         ))))
 
@@ -255,7 +256,7 @@ class SearchViewModel @Inject constructor(
         }
 
         searcher.query.facetFilters = (listOf(
-            regionFilter.value.exchanges.map { "exchangeShortName:$it" },
+            regionFilter.value.toExchangeShortNames().map { "exchangeShortName:$it" },
             typeFilter.value.map { "type:${it.type}" }
         ))
 
@@ -266,7 +267,7 @@ class SearchViewModel @Inject constructor(
         _regionFilter.value = region
 
         searcher.query.facetFilters = (listOf(
-            regionFilter.value.exchanges.map { "exchangeShortName:$it" },
+            regionFilter.value.toExchangeShortNames().map { "exchangeShortName:$it" },
             typeFilter.value.map { "type:${it.type}" }
         ))
 
