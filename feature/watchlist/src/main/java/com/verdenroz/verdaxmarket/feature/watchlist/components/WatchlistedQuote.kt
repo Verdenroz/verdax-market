@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -64,6 +65,7 @@ internal fun WatchlistedQuote(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 8.dp)
             .background(MaterialTheme.colorScheme.surface)
             .pointerInput(quote.symbol) {
                 detectTapGestures(
@@ -75,6 +77,11 @@ internal fun WatchlistedQuote(
                     }
                 )
             }
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(25)
+            )
     ) {
         IconButton(
             onClick = onMoreClick,

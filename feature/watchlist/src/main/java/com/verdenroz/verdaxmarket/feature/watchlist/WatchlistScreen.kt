@@ -109,7 +109,7 @@ internal fun WatchlistScreen(
         mutableStateOf(null)
     }
     var bottomSheetMode by rememberSaveable(stateSaver = BottomSheetModeSaver) {
-        mutableStateOf<BottomSheetMode>(BottomSheetMode.Preview)
+        mutableStateOf(BottomSheetMode.Preview)
     }
     var isBottomSheetExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -141,6 +141,7 @@ internal fun WatchlistScreen(
         scaffoldState = bottomSheetScaffoldState,
         topBar = {
             VxmTopAppBar(
+                modifier = Modifier.padding(bottom = 8.dp),
                 title = {
                     Text(
                         text = stringResource(id = R.string.feature_watchlist_title),
@@ -306,7 +307,7 @@ internal fun WatchlistScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(if (isBottomSheetExpanded) bottomSheetPadding else PaddingValues(0.dp)),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(
                         items = watchlist,
@@ -355,7 +356,7 @@ private fun WatchlistSkeleton(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(
                 items = watchlist,
