@@ -76,7 +76,7 @@ class SocketTests {
                 var messageCount = 0
                 for (message in channel) {
                     assertNotNull(message) { "Received null profile data" }
-                    assertEquals(testSymbol, message.quote.symbol, "Received data for wrong symbol")
+                    message.quote?.let { assertEquals(testSymbol, it.symbol, "Received data for wrong symbol") }
                     messageCount++
                     receivedData.set(true)
                     println("Received profile data #$messageCount for $testSymbol: $message")
@@ -95,7 +95,7 @@ class SocketTests {
     @Test
     fun testWatchlistSocket() = runBlocking {
         val receivedData = AtomicBoolean(false)
-        val symbols = listOf("NVDA", "MSFT", "GOOGL")
+        val symbols = listOf("NVDA", "MSFT", "GOOGL", "TQQQ")
         val params = mapOf("symbols" to symbols.joinToString(","))
 
         withTimeout(12000) {
