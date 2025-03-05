@@ -180,6 +180,12 @@ fun MarketSectorCard(
 ) {
     val tooltipState = rememberTooltipState()
     val scope = rememberCoroutineScope()
+    val sectorPeriodReturn = when (sectorIndexTimePeriodPreference) {
+        SectorTimePeriodPreference.ONE_DAY -> sector.dayReturn
+        SectorTimePeriodPreference.YEAR_TO_DATE -> sector.ytdReturn
+        SectorTimePeriodPreference.ONE_YEAR -> sector.yearReturn
+        SectorTimePeriodPreference.FIVE_YEAR -> sector.fiveYearReturn
+    }
 
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
@@ -225,7 +231,7 @@ fun MarketSectorCard(
                             Sparkline(
                                 timeSeries = timeSeries.data,
                                 // Time series data is sorted in descending order so the first value is the latest
-                                color = if (timeSeries.data.values.first().close > timeSeries.data.values.last().close) getPositiveTextColor() else getNegativeTextColor(),
+                                color = if (sectorPeriodReturn.startsWith("-")) getNegativeTextColor() else getPositiveTextColor(),
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
@@ -261,12 +267,7 @@ fun MarketSectorCard(
                         SectorTimePeriodPreference.ONE_YEAR -> stringResource(R.string.feature_home_sector_year_return)
                         SectorTimePeriodPreference.FIVE_YEAR -> stringResource(R.string.feature_home_sector_five_year_return)
                     },
-                    value = when (sectorIndexTimePeriodPreference) {
-                        SectorTimePeriodPreference.ONE_DAY -> sector.dayReturn
-                        SectorTimePeriodPreference.YEAR_TO_DATE -> sector.ytdReturn
-                        SectorTimePeriodPreference.ONE_YEAR -> sector.yearReturn
-                        SectorTimePeriodPreference.FIVE_YEAR -> sector.fiveYearReturn
-                    },
+                    value = sectorPeriodReturn,
                     color = when (sectorIndexTimePeriodPreference) {
                         SectorTimePeriodPreference.ONE_DAY -> if (sector.dayReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()
                         SectorTimePeriodPreference.YEAR_TO_DATE -> if (sector.ytdReturn.contains("-")) getNegativeTextColor() else getPositiveTextColor()

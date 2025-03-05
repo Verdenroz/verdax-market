@@ -282,7 +282,7 @@ fun MarketIndexCard(
                             text = indexTimePreferenceReturn,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (indexTimePreferenceReturn.startsWith('+')) getPositiveTextColor() else getNegativeTextColor()
+                            color = if (indexTimePreferenceReturn.startsWith('-')) getNegativeTextColor() else getPositiveTextColor()
                         )
                     }
                 }
