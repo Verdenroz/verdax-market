@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,8 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAsyncImage
-import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.designsystem.theme.getNegativeBackgroundColor
@@ -245,23 +244,13 @@ private fun RecentQuoteBody(
                 RotatingText(quote)
 
                 if (isInWatchlist) {
-                    IconButton(
+                    VxmDeleteIconButton(
                         onClick = { deleteFromWatchlist(quote.symbol) },
-                    ) {
-                        Icon(
-                            VxmIcons.Remove,
-                            contentDescription = stringResource(id = R.string.feature_search_remove)
-                        )
-                    }
+                    )
                 } else {
-                    IconButton(
-                        onClick = { addToWatchlist(quote.symbol, quote.name, quote.logo) },
-                    ) {
-                        Icon(
-                            VxmIcons.Add,
-                            contentDescription = stringResource(id = R.string.feature_search_add)
-                        )
-                    }
+                    VxmAddIconButton(
+                        onClick = { addToWatchlist(quote.symbol, quote.name, quote.logo) }
+                    )
                 }
             }
         }

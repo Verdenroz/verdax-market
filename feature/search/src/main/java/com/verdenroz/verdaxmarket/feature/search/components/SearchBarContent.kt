@@ -12,23 +12,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmAddIconButton
+import com.verdenroz.verdaxmarket.core.designsystem.components.VxmDeleteIconButton
 import com.verdenroz.verdaxmarket.core.designsystem.components.VxmListItem
-import com.verdenroz.verdaxmarket.core.designsystem.icons.VxmIcons
 import com.verdenroz.verdaxmarket.core.designsystem.theme.ThemePreviews
 import com.verdenroz.verdaxmarket.core.designsystem.theme.VxmTheme
 import com.verdenroz.verdaxmarket.core.model.SimpleQuoteData
 import com.verdenroz.verdaxmarket.core.network.model.SearchResult
-import com.verdenroz.verdaxmarket.feature.search.R
 import com.verdenroz.verdaxmarket.feature.search.SearchState
 
 @Composable
@@ -109,25 +106,13 @@ internal fun SearchBarContent(
                     },
                     trailingContent = {
                         if (resultsInWatchlist[match.symbol] == true) {
-                            IconButton(onClick = { deleteFromWatchlist(match.symbol) }) {
-                                Icon(
-                                    VxmIcons.Remove,
-                                    contentDescription = stringResource(id = R.string.feature_search_remove)
-                                )
-                            }
+                            VxmDeleteIconButton(
+                                onClick = { deleteFromWatchlist(match.symbol) }
+                            )
                         } else {
-                            IconButton(onClick = {
-                                addToWatchlist(
-                                    match.symbol,
-                                    match.name,
-                                    null
-                                )
-                            }) {
-                                Icon(
-                                    VxmIcons.Add,
-                                    contentDescription = stringResource(id = R.string.feature_search_add)
-                                )
-                            }
+                            VxmAddIconButton(
+                                onClick = { addToWatchlist(match.symbol, match.name, null) }
+                            )
                         }
                     },
                 )
