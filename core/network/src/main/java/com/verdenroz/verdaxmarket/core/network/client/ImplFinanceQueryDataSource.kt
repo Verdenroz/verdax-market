@@ -44,7 +44,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
 
     companion object {
         private val FINANCE_QUERY_API_URL =
-            "https://43pk30s7aj.execute-api.us-east-2.amazonaws.com/prod/v1".toHttpUrl()
+            "https://finance-query.com/v1".toHttpUrl()
     }
 
     override suspend fun getByteStream(url: HttpUrl): InputStream {
