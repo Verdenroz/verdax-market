@@ -18,9 +18,10 @@ private fun Double?.toFormattedPercentageString(): String {
 
 /**
  * Maps v2 SectorDetailDto to MarketSector domain model.
+ * The name field is guaranteed to be non-null as it's populated from the SectorType if missing from API.
  */
 fun SectorDetailDto.asExternalModel() = MarketSector(
-    sector = name.toSector(),
+    sector = name!!.toSector(),
     dayReturn = performance?.dayChangePercent.toFormattedPercentageString(),
     ytdReturn = performance?.ytdChangePercent.toFormattedPercentageString(),
     yearReturn = performance?.oneYearChangePercent.toFormattedPercentageString(),

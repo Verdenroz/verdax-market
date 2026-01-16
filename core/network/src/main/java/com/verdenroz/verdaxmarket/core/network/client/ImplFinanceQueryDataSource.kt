@@ -3,6 +3,7 @@ package com.verdenroz.verdaxmarket.core.network.client
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
 import com.verdenroz.verdaxmarket.core.common.enums.SectorType
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
+import com.verdenroz.verdaxmarket.core.common.enums.toDisplayName
 import com.verdenroz.verdaxmarket.core.common.error.HttpException
 import com.verdenroz.verdaxmarket.core.common.error.NetworkException
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
@@ -64,6 +65,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
             FINANCE_QUERY_API_URL.newBuilder().apply {
                 addPathSegments("v2/quote/$symbol")
                 addQueryParameter("format", "raw")
+                addQueryParameter("logo", "true")
             }.build()
         )
 
@@ -88,6 +90,7 @@ class ImplFinanceQueryDataSource @Inject constructor(
                 addPathSegments("v2/quotes")
                 addQueryParameter("symbols", symbolList)
                 addQueryParameter("format", "raw")
+                addQueryParameter("logo", "true")
             }.build()
         )
 
@@ -153,7 +156,14 @@ class ImplFinanceQueryDataSource @Inject constructor(
             }.build()
         )
 
-        return parser.decodeFromStream(SectorDetailDto.serializer(), stream)
+        val dto = parser.decodeFromStream(SectorDetailDto.serializer(), stream)
+
+        // If API doesn't return the name, populate it from the SectorType
+        return if (dto.name == null) {
+            dto.copy(name = sectorType.toDisplayName())
+        } else {
+            dto
+        }
     }
 
     override suspend fun getActives(): ScreenersWrapperDto {

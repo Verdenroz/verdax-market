@@ -18,7 +18,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class SectorDetailDto(
-    val name: String,
+    val name: String? = null,
     val slug: String? = null,
     val overview: SectorOverviewDto? = null,
     val performance: SectorPerformanceDto? = null,
