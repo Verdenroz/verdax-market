@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  * @param percentChange Percent change in value of the index
  */
 @Serializable
-data class IndexResponse(
+data class IndexDto(
     val name: String,
     val value: Double,
     val change: String,

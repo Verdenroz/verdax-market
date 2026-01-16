@@ -1,36 +1,35 @@
 package com.verdenroz.verdaxmarket.core.network.client
 
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
+import com.verdenroz.verdaxmarket.core.common.enums.SectorType
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.HttpException
 import com.verdenroz.verdaxmarket.core.common.error.NetworkException
-import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
+import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource.Companion.FINANCE_QUERY_API_URL
 import com.verdenroz.verdaxmarket.core.network.di.NetworkModule.executeAsync
-import com.verdenroz.verdaxmarket.core.network.model.AnalysisResponse
-import com.verdenroz.verdaxmarket.core.network.model.FullQuoteResponse
-import com.verdenroz.verdaxmarket.core.network.model.HistoricalDataResponse
-import com.verdenroz.verdaxmarket.core.network.model.IndexResponse
-import com.verdenroz.verdaxmarket.core.network.model.MarketMoverResponse
-import com.verdenroz.verdaxmarket.core.network.model.NewsResponse
-import com.verdenroz.verdaxmarket.core.network.model.SectorResponse
-import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
+import com.verdenroz.verdaxmarket.core.network.model.AnalysisDto
+import com.verdenroz.verdaxmarket.core.network.model.IndexDto
+import com.verdenroz.verdaxmarket.core.network.model.QuoteDto
+import com.verdenroz.verdaxmarket.core.network.model.BatchQuotesDto
+import com.verdenroz.verdaxmarket.core.network.model.ChartDto
+import com.verdenroz.verdaxmarket.core.network.model.NewsWrapperDto
+import com.verdenroz.verdaxmarket.core.network.model.NewsArticleDto
+import com.verdenroz.verdaxmarket.core.network.model.ScreenersWrapperDto
+import com.verdenroz.verdaxmarket.core.network.model.SectorDetailDto
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.InputStream
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,15 +41,9 @@ class ImplFinanceQueryDataSource @Inject constructor(
     private val client: OkHttpClient,
 ) : FinanceQueryDataSource {
 
-    companion object {
-        private val FINANCE_QUERY_API_URL =
-            "https://finance-query.com/v1".toHttpUrl()
-    }
-
     override suspend fun getByteStream(url: HttpUrl): InputStream {
         val request = Request.Builder()
             .url(url)
-            .addHeader("x-api-key", BuildConfig.FINANCE_QUERY_API_KEY)
             .build()
         val call = client.newCall(request)
         try {
@@ -66,219 +59,179 @@ class ImplFinanceQueryDataSource @Inject constructor(
         }
     }
 
-    override suspend fun getQuote(symbol: String): FullQuoteResponse {
+    override suspend fun getQuote(symbol: String): QuoteDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("quotes")
-                addQueryParameter("symbols", symbol)
+                addPathSegments("v2/quote/$symbol")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val quoteResponseList: List<FullQuoteResponse> =
-            parser.decodeFromStream(ListSerializer(FullQuoteResponse.serializer()), stream)
-
-        return quoteResponseList.first()
+        return parser.decodeFromStream(QuoteDto.serializer(), stream)
     }
 
-    override suspend fun getSimpleQuote(symbol: String): SimpleQuoteResponse {
+    override suspend fun getSimpleQuote(symbol: String): QuoteDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("simple-quotes")
-                addQueryParameter("symbols", symbol)
+                addPathSegments("v2/quote/$symbol")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val quoteResponseList: List<SimpleQuoteResponse> =
-            parser.decodeFromStream(ListSerializer(SimpleQuoteResponse.serializer()), stream)
-
-        return quoteResponseList.first()
+        return parser.decodeFromStream(QuoteDto.serializer(), stream)
     }
 
-    override suspend fun getBulkQuote(symbols: List<String>): List<SimpleQuoteResponse> {
+    override suspend fun getBulkQuote(symbols: List<String>): BatchQuotesDto {
         val symbolList = symbols.joinToString(",")
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("simple-quotes")
+                addPathSegments("v2/quotes")
                 addQueryParameter("symbols", symbolList)
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val quoteResponseList: List<SimpleQuoteResponse> =
-            parser.decodeFromStream(ListSerializer(SimpleQuoteResponse.serializer()), stream)
-
-        return quoteResponseList
+        return parser.decodeFromStream(BatchQuotesDto.serializer(), stream)
     }
 
     override suspend fun getHistoricalData(
         symbol: String,
         time: TimePeriod,
         interval: Interval
-    ): Map<String, HistoricalDataResponse> {
+    ): ChartDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("historical")
-                addQueryParameter("symbol", symbol)
+                addPathSegments("v2/chart/$symbol")
                 addQueryParameter("range", time.value)
                 addQueryParameter("interval", interval.value)
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        // decode to Map<String, HistoricalDataResponse>
-        val response: Map<String, HistoricalDataResponse> = parser.decodeFromStream(
-            MapSerializer(String.serializer(), HistoricalDataResponse.serializer()),
-            stream
+        return parser.decodeFromStream(ChartDto.serializer(), stream)
+    }
+
+    override suspend fun getIndexes(): List<IndexDto> {
+        val stream = getByteStream(
+            FINANCE_QUERY_API_URL.newBuilder().apply {
+                addPathSegments("v2/indices")
+                addQueryParameter("format", "raw")
+            }.build()
         )
 
-        // Format the dates
-        return response.mapKeys { entry ->
-            val dateTimeString = entry.key
-            val formatterWithoutTime = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val formatter24Hour = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss")
-            val formatterWithTime = DateTimeFormatter.ofPattern("MMM d, yyyy h:mm a")
+        // v2 API returns BatchQuotesDto format for indices
+        val batchQuotes = parser.decodeFromStream(BatchQuotesDto.serializer(), stream)
 
-            val dateTime = if (dateTimeString.contains(" ")) {
-                LocalDateTime.parse(dateTimeString, formatter24Hour)
-            } else {
-                LocalDate.parse(dateTimeString, formatterWithoutTime).atStartOfDay()
-            }
-
-            dateTime.format(formatterWithTime)
+        // Convert QuoteDto to IndexDto
+        return batchQuotes.quotes.values.map { quote ->
+            IndexDto(
+                name = quote.name ?: quote.symbol,
+                value = quote.regularMarketPrice ?: 0.0,
+                change = quote.regularMarketChange?.toString() ?: "0.0",
+                percentChange = quote.regularMarketChangePercent?.toString() ?: "0.0",
+                fiveDaysReturn = quote.fiveDayReturn?.toString(),
+                oneMonthReturn = quote.oneMonthReturn?.toString(),
+                sixMonthReturn = quote.sixMonthReturn?.toString(),
+                ytdReturn = quote.ytdReturn?.toString(),
+                yearReturn = quote.oneYearReturn?.toString(),
+                fiveYearReturn = quote.fiveYearReturn?.toString(),
+            )
         }
     }
 
-    override suspend fun getIndexes(): List<IndexResponse> {
+    override suspend fun getSectors(): List<SectorDetailDto> = coroutineScope {
+        // Fetch all 11 sectors in parallel
+        SectorType.entries.map { sectorType ->
+            async { getSector(sectorType) }
+        }.awaitAll()
+    }
+
+    override suspend fun getSector(sectorType: SectorType): SectorDetailDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("indices")
+                addPathSegments("v2/sectors/${sectorType.value}")
             }.build()
         )
 
-        val indexResponseList: List<IndexResponse> =
-            parser.decodeFromStream(ListSerializer(IndexResponse.serializer()), stream)
-
-        return indexResponseList
+        return parser.decodeFromStream(SectorDetailDto.serializer(), stream)
     }
 
-    override suspend fun getSectors(): List<SectorResponse> {
+    override suspend fun getActives(): ScreenersWrapperDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("sectors")
+                addPathSegments("v2/screeners/most_actives")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val sectorResponseList: List<SectorResponse> =
-            parser.decodeFromStream(ListSerializer(SectorResponse.serializer()), stream)
-
-        return sectorResponseList
+        return parser.decodeFromStream(ScreenersWrapperDto.serializer(), stream)
     }
 
-    override suspend fun getSectorBySymbol(symbol: String): SectorResponse {
+    override suspend fun getGainers(): ScreenersWrapperDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("sectors")
-                addPathSegments("symbol")
-                addPathSegments(symbol)
+                addPathSegments("v2/screeners/day_gainers")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val sectorResponse: SectorResponse =
-            parser.decodeFromStream(SectorResponse.serializer(), stream)
-
-        return sectorResponse
+        return parser.decodeFromStream(ScreenersWrapperDto.serializer(), stream)
     }
 
-    override suspend fun getActives(): List<MarketMoverResponse> {
+    override suspend fun getLosers(): ScreenersWrapperDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("actives")
+                addPathSegments("v2/screeners/day_losers")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val marketMoverResponseList: List<MarketMoverResponse> =
-            parser.decodeFromStream(ListSerializer(MarketMoverResponse.serializer()), stream)
-
-        return marketMoverResponseList
+        return parser.decodeFromStream(ScreenersWrapperDto.serializer(), stream)
     }
 
-    override suspend fun getGainers(): List<MarketMoverResponse> {
+    override suspend fun getNews(): NewsWrapperDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("gainers")
+                addPathSegments("v2/news")
             }.build()
         )
 
-        val marketMoverResponseList: List<MarketMoverResponse> =
-            parser.decodeFromStream(ListSerializer(MarketMoverResponse.serializer()), stream)
-
-        return marketMoverResponseList
+        // v2 API returns plain array instead of wrapper object
+        val newsArticles = parser.decodeFromStream(ListSerializer(NewsArticleDto.serializer()), stream)
+        return NewsWrapperDto(count = newsArticles.size, news = newsArticles)
     }
 
-    override suspend fun getLosers(): List<MarketMoverResponse> {
+    override suspend fun getNewsForSymbol(symbol: String): NewsWrapperDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("losers")
+                addPathSegments("v2/news/$symbol")
             }.build()
         )
 
-        val marketMoverResponseList: List<MarketMoverResponse> =
-            parser.decodeFromStream(ListSerializer(MarketMoverResponse.serializer()), stream)
-
-        return marketMoverResponseList
+        // v2 API returns plain array instead of wrapper object
+        val newsArticles = parser.decodeFromStream(ListSerializer(NewsArticleDto.serializer()), stream)
+        return NewsWrapperDto(count = newsArticles.size, news = newsArticles)
     }
 
-    override suspend fun getNews(): List<NewsResponse> {
+    override suspend fun getSimilarSymbols(symbol: String): BatchQuotesDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("news")
+                addPathSegments("v2/recommendations/$symbol")
+                addQueryParameter("format", "raw")
             }.build()
         )
 
-        val newsResponseList: List<NewsResponse> =
-            parser.decodeFromStream(ListSerializer(NewsResponse.serializer()), stream)
-
-        return newsResponseList.distinctBy { it.title }.shuffled()
+        return parser.decodeFromStream(BatchQuotesDto.serializer(), stream)
     }
 
-    override suspend fun getNewsForSymbol(symbol: String): List<NewsResponse> {
+    override suspend fun getSummaryAnalysis(symbol: String, interval: Interval): AnalysisDto {
         val stream = getByteStream(
             FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("news")
-                addQueryParameter("symbol", symbol)
-            }.build()
-        )
-
-        val newsResponseList: List<NewsResponse> =
-            parser.decodeFromStream(ListSerializer(NewsResponse.serializer()), stream)
-
-        return newsResponseList.distinctBy { it.title }
-    }
-
-    override suspend fun getSimilarSymbols(symbol: String): List<SimpleQuoteResponse> {
-        val stream = getByteStream(
-            FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("similar")
-                addQueryParameter("symbol", symbol)
-            }.build()
-        )
-
-        val quoteResponseList: List<SimpleQuoteResponse> =
-            parser.decodeFromStream(ListSerializer(SimpleQuoteResponse.serializer()), stream)
-
-        return quoteResponseList
-    }
-
-    override suspend fun getSummaryAnalysis(symbol: String, interval: Interval): AnalysisResponse {
-        val stream = getByteStream(
-            FINANCE_QUERY_API_URL.newBuilder().apply {
-                addPathSegments("indicators")
-                addQueryParameter("symbol", symbol)
+                addPathSegments("v2/indicators/$symbol")
                 addQueryParameter("interval", interval.value)
             }.build()
         )
 
-        val analysisResponse: AnalysisResponse =
-            parser.decodeFromStream(AnalysisResponse.serializer(), stream)
-
-        return analysisResponse
+        return parser.decodeFromStream(AnalysisDto.serializer(), stream)
     }
 }

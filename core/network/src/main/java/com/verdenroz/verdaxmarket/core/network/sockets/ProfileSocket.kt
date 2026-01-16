@@ -3,7 +3,7 @@ package com.verdenroz.verdaxmarket.core.network.sockets
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket.Companion.SOCKET_URL
-import com.verdenroz.verdaxmarket.core.network.model.ProfileResponse
+import com.verdenroz.verdaxmarket.core.network.model.ProfileDto
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,18 +20,18 @@ import javax.inject.Singleton
 class ProfileSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<ProfileResponse?, String>, WebSocketListener() {
+) : FinanceQuerySocket<ProfileDto?, String>, WebSocketListener() {
 
     private val connections = mutableMapOf<String, WebSocket>()
-    private val channels = mutableMapOf<String, Channel<ProfileResponse?>>()
+    private val channels = mutableMapOf<String, Channel<ProfileDto?>>()
     private val mutex = Mutex()
 
-    override suspend fun connect(params: String): Channel<ProfileResponse?> = mutex.withLock {
+    override suspend fun connect(params: String): Channel<ProfileDto?> = mutex.withLock {
         if (connections.containsKey(params)) {
             return@withLock channels[params]!!
         }
 
-        val newChannel = Channel<ProfileResponse?>(Channel.BUFFERED)
+        val newChannel = Channel<ProfileDto?>(Channel.BUFFERED)
         val url = "$SOCKET_URL/profile/$params"
         val request = Request.Builder()
             .url(url)
@@ -56,7 +56,7 @@ class ProfileSocket @Inject constructor(
 
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val profileResponse = parser.decodeFromString<ProfileResponse>(text)
+        val profileResponse = parser.decodeFromString<ProfileDto>(text)
         connections.entries.find { it.value == webSocket }?.key?.let { key ->
             channels[key]?.trySend(profileResponse)
         }

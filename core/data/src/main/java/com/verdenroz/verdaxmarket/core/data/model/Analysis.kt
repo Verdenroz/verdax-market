@@ -12,95 +12,95 @@ import com.verdenroz.verdaxmarket.core.model.indicators.Rsi
 import com.verdenroz.verdaxmarket.core.model.indicators.Srsi
 import com.verdenroz.verdaxmarket.core.model.indicators.Stoch
 import com.verdenroz.verdaxmarket.core.model.indicators.SuperTrend
-import com.verdenroz.verdaxmarket.core.network.model.AdxResponse
-import com.verdenroz.verdaxmarket.core.network.model.AnalysisResponse
-import com.verdenroz.verdaxmarket.core.network.model.AroonResponse
-import com.verdenroz.verdaxmarket.core.network.model.BBandsResponse
-import com.verdenroz.verdaxmarket.core.network.model.CciResponse
-import com.verdenroz.verdaxmarket.core.network.model.EmaResponse
-import com.verdenroz.verdaxmarket.core.network.model.IchimokuCloudResponse
-import com.verdenroz.verdaxmarket.core.network.model.MacdResponse
-import com.verdenroz.verdaxmarket.core.network.model.RsiResponse
-import com.verdenroz.verdaxmarket.core.network.model.SmaResponse
-import com.verdenroz.verdaxmarket.core.network.model.StochResponse
-import com.verdenroz.verdaxmarket.core.network.model.StochRsiResponse
-import com.verdenroz.verdaxmarket.core.network.model.SuperTrendResponse
-import com.verdenroz.verdaxmarket.core.network.model.VwmaResponse
-import com.verdenroz.verdaxmarket.core.network.model.WmaResponse
+import com.verdenroz.verdaxmarket.core.network.model.AdxDto
+import com.verdenroz.verdaxmarket.core.network.model.AnalysisDto
+import com.verdenroz.verdaxmarket.core.network.model.AroonDto
+import com.verdenroz.verdaxmarket.core.network.model.BBandsDto
+import com.verdenroz.verdaxmarket.core.network.model.CciDto
+import com.verdenroz.verdaxmarket.core.network.model.EmaDto
+import com.verdenroz.verdaxmarket.core.network.model.IchimokuCloudDto
+import com.verdenroz.verdaxmarket.core.network.model.MacdDto
+import com.verdenroz.verdaxmarket.core.network.model.RsiDto
+import com.verdenroz.verdaxmarket.core.network.model.SmaDto
+import com.verdenroz.verdaxmarket.core.network.model.StochDto
+import com.verdenroz.verdaxmarket.core.network.model.StochRsiDto
+import com.verdenroz.verdaxmarket.core.network.model.SuperTrendDto
+import com.verdenroz.verdaxmarket.core.network.model.VwmaDto
+import com.verdenroz.verdaxmarket.core.network.model.WmaDto
 
-fun AnalysisResponse.asExternalModel() = QuoteAnalysis(
-    sma10 = sma10.toMA(),
-    sma20 = sma20.toMA(),
-    sma50 = sma50.toMA(),
-    sma100 = sma100.toMA(),
-    sma200 = sma200.toMA(),
-    ema10 = ema10.toMA(),
-    ema20 = ema20.toMA(),
-    ema50 = ema50.toMA(),
-    ema100 = ema100.toMA(),
-    ema200 = ema200.toMA(),
-    wma10 = wma10.toMA(),
-    wma20 = wma20.toMA(),
-    wma50 = wma50.toMA(),
-    wma100 = wma100.toMA(),
-    wma200 = wma200.toMA(),
-    vwma20 = vwma20.toMA(),
-    rsi14 = rsi14.toRsi(),
-    srsi14 = srsi14.toSrsi(),
-    cci20 = cci20.toCci(),
-    adx14 = adx14.toAdx(),
-    macd = macd.toMacd(),
-    stoch = stoch.toStoch(),
-    aroon = aroon.toAroon(),
-    bBands = bBands.toBbands(),
-    superTrend = superTrend.toSupertrend(),
-    ichimokuCloud = ichimokuCloud.toIchimoku()
+fun AnalysisDto.asExternalModel() = QuoteAnalysis(
+    sma10 = sma10?.toMA() ?: MovingAverage(null),
+    sma20 = sma20?.toMA() ?: MovingAverage(null),
+    sma50 = sma50?.toMA() ?: MovingAverage(null),
+    sma100 = sma100?.toMA() ?: MovingAverage(null),
+    sma200 = sma200?.toMA() ?: MovingAverage(null),
+    ema10 = ema10?.toMA() ?: MovingAverage(null),
+    ema20 = ema20?.toMA() ?: MovingAverage(null),
+    ema50 = ema50?.toMA() ?: MovingAverage(null),
+    ema100 = ema100?.toMA() ?: MovingAverage(null),
+    ema200 = ema200?.toMA() ?: MovingAverage(null),
+    wma10 = wma10?.toMA() ?: MovingAverage(null),
+    wma20 = wma20?.toMA() ?: MovingAverage(null),
+    wma50 = wma50?.toMA() ?: MovingAverage(null),
+    wma100 = wma100?.toMA() ?: MovingAverage(null),
+    wma200 = wma200?.toMA() ?: MovingAverage(null),
+    vwma20 = vwma20?.toMA() ?: MovingAverage(null),
+    rsi14 = rsi14?.toRsi() ?: Rsi(null),
+    srsi14 = srsi14?.toSrsi() ?: Srsi(null, null),
+    cci20 = cci20?.toCci() ?: Cci(null),
+    adx14 = adx14?.toAdx() ?: Adx(null),
+    macd = macd?.toMacd() ?: Macd(null, null),
+    stoch = stoch?.toStoch() ?: Stoch(null, null),
+    aroon = aroon?.toAroon() ?: Aroon(null, null),
+    bBands = bBands?.toBbands() ?: BBands(null, null, null),
+    superTrend = superTrend?.toSupertrend() ?: SuperTrend(null, null),
+    ichimokuCloud = ichimokuCloud?.toIchimoku() ?: IchimokuCloud(null, null, null, null, null)
 )
 
 
-internal fun SmaResponse.toMA() = MovingAverage(SMA)
+internal fun SmaDto.toMA() = MovingAverage(SMA)
 
-internal fun EmaResponse.toMA() = MovingAverage(EMA)
+internal fun EmaDto.toMA() = MovingAverage(EMA)
 
-internal fun WmaResponse.toMA() = MovingAverage(WMA)
+internal fun WmaDto.toMA() = MovingAverage(WMA)
 
-internal fun VwmaResponse.toMA() = MovingAverage(VWMA)
+internal fun VwmaDto.toMA() = MovingAverage(VWMA)
 
-internal fun RsiResponse.toRsi() = Rsi(RSI)
+internal fun RsiDto.toRsi() = Rsi(RSI)
 
-internal fun StochRsiResponse.toSrsi() = Srsi(k, d)
+internal fun StochRsiDto.toSrsi() = Srsi(k, d)
 
-internal fun CciResponse.toCci() = Cci(CCI)
+internal fun CciDto.toCci() = Cci(CCI)
 
-internal fun AdxResponse.toAdx() = Adx(ADX)
+internal fun AdxDto.toAdx() = Adx(ADX)
 
-internal fun MacdResponse.toMacd() = Macd(
+internal fun MacdDto.toMacd() = Macd(
     macd = macd,
     signal = signal,
 )
 
-internal fun StochResponse.toStoch() = Stoch(
+internal fun StochDto.toStoch() = Stoch(
     k = k,
     d = d
 )
 
-internal fun AroonResponse.toAroon() = Aroon(
+internal fun AroonDto.toAroon() = Aroon(
     aroonUp = aroonUp,
     aroonDown = aroonDown
 )
 
-internal fun BBandsResponse.toBbands() = BBands(
+internal fun BBandsDto.toBbands() = BBands(
     upperBand = upperBand,
     middleBand = middleBand,
     lowerBand = lowerBand
 )
 
-internal fun SuperTrendResponse.toSupertrend() = SuperTrend(
+internal fun SuperTrendDto.toSupertrend() = SuperTrend(
     superTrend = superTrend,
     trend = trend,
 )
 
-internal fun IchimokuCloudResponse.toIchimoku() = IchimokuCloud(
+internal fun IchimokuCloudDto.toIchimoku() = IchimokuCloud(
     conversionLine = conversionLine,
     baseLine = baseLine,
     laggingSpan = laggingSpan,

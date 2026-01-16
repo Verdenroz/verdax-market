@@ -4,84 +4,84 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AnalysisResponse(
+data class AnalysisDto(
     @SerialName("SMA(10)")
-    val sma10: SmaResponse,
+    val sma10: SmaDto? = null,
     @SerialName("SMA(20)")
-    val sma20: SmaResponse,
+    val sma20: SmaDto? = null,
     @SerialName("SMA(50)")
-    val sma50: SmaResponse,
+    val sma50: SmaDto? = null,
     @SerialName("SMA(100)")
-    val sma100: SmaResponse,
+    val sma100: SmaDto? = null,
     @SerialName("SMA(200)")
-    val sma200: SmaResponse,
+    val sma200: SmaDto? = null,
     @SerialName("EMA(10)")
-    val ema10: EmaResponse,
+    val ema10: EmaDto? = null,
     @SerialName("EMA(20)")
-    val ema20: EmaResponse,
+    val ema20: EmaDto? = null,
     @SerialName("EMA(50)")
-    val ema50: EmaResponse,
+    val ema50: EmaDto? = null,
     @SerialName("EMA(100)")
-    val ema100: EmaResponse,
+    val ema100: EmaDto? = null,
     @SerialName("EMA(200)")
-    val ema200: EmaResponse,
+    val ema200: EmaDto? = null,
     @SerialName("WMA(10)")
-    val wma10: WmaResponse,
+    val wma10: WmaDto? = null,
     @SerialName("WMA(20)")
-    val wma20: WmaResponse,
+    val wma20: WmaDto? = null,
     @SerialName("WMA(50)")
-    val wma50: WmaResponse,
+    val wma50: WmaDto? = null,
     @SerialName("WMA(100)")
-    val wma100: WmaResponse,
+    val wma100: WmaDto? = null,
     @SerialName("WMA(200)")
-    val wma200: WmaResponse,
+    val wma200: WmaDto? = null,
     @SerialName("VWMA(20)")
-    val vwma20: VwmaResponse,
+    val vwma20: VwmaDto? = null,
     @SerialName("RSI(14)")
-    val rsi14: RsiResponse,
+    val rsi14: RsiDto? = null,
     @SerialName("SRSI(3,3,14,14)")
-    val srsi14: StochRsiResponse,
+    val srsi14: StochRsiDto? = null,
     @SerialName("CCI(20)")
-    val cci20: CciResponse,
+    val cci20: CciDto? = null,
     @SerialName("ADX(14)")
-    val adx14: AdxResponse,
+    val adx14: AdxDto? = null,
     @SerialName("MACD(12,26)")
-    val macd: MacdResponse,
+    val macd: MacdDto? = null,
     @SerialName("STOCH %K(14,3,3)")
-    val stoch: StochResponse,
+    val stoch: StochDto? = null,
     @SerialName("Aroon(25)")
-    val aroon: AroonResponse,
+    val aroon: AroonDto? = null,
     @SerialName("BBANDS(20,2)")
-    val bBands: BBandsResponse,
+    val bBands: BBandsDto? = null,
     @SerialName("Super Trend")
-    val superTrend: SuperTrendResponse,
+    val superTrend: SuperTrendDto? = null,
     @SerialName("Ichimoku Cloud")
-    val ichimokuCloud: IchimokuCloudResponse
+    val ichimokuCloud: IchimokuCloudDto? = null
 )
 
 @Serializable
-data class SmaResponse(val SMA: Double?)
+data class SmaDto(val SMA: Double?)
 
 @Serializable
-data class EmaResponse(val EMA: Double?)
+data class EmaDto(val EMA: Double?)
 
 @Serializable
-data class WmaResponse(val WMA: Double?)
+data class WmaDto(val WMA: Double?)
 
 @Serializable
-data class VwmaResponse(val VWMA: Double?)
+data class VwmaDto(val VWMA: Double?)
 
 @Serializable
-data class RsiResponse(val RSI: Double?)
+data class RsiDto(val RSI: Double?)
 
 @Serializable
-data class CciResponse(val CCI: Double?)
+data class CciDto(val CCI: Double?)
 
 @Serializable
-data class AdxResponse(val ADX: Double?)
+data class AdxDto(val ADX: Double?)
 
 @Serializable
-data class StochRsiResponse(
+data class StochRsiDto(
     @SerialName("%K")
     val k: Double?,
     @SerialName("%D")
@@ -89,7 +89,7 @@ data class StochRsiResponse(
 )
 
 @Serializable
-data class StochResponse(
+data class StochDto(
     @SerialName("%K")
     val k: Double?,
     @SerialName("%D")
@@ -97,7 +97,7 @@ data class StochResponse(
 )
 
 @Serializable
-data class AroonResponse(
+data class AroonDto(
     @SerialName("Aroon Up")
     val aroonUp: Double?,
     @SerialName("Aroon Down")
@@ -105,7 +105,7 @@ data class AroonResponse(
 )
 
 @Serializable
-data class BBandsResponse(
+data class BBandsDto(
     @SerialName("Upper Band")
     val upperBand: Double?,
     @SerialName("Middle Band")
@@ -115,7 +115,7 @@ data class BBandsResponse(
 )
 
 @Serializable
-data class MacdResponse(
+data class MacdDto(
     @SerialName("MACD")
     val macd: Double?,
     @SerialName("Signal")
@@ -123,7 +123,7 @@ data class MacdResponse(
 )
 
 @Serializable
-data class SuperTrendResponse(
+data class SuperTrendDto(
     @SerialName("Super Trend")
     val superTrend: Double?,
     @SerialName("Trend")
@@ -131,7 +131,7 @@ data class SuperTrendResponse(
 )
 
 @Serializable
-data class IchimokuCloudResponse(
+data class IchimokuCloudDto(
     @SerialName("Conversion Line")
     val conversionLine: Double?,
     @SerialName("Base Line")

@@ -1,6 +1,7 @@
 package com.verdenroz.verdaxmarket.network
 
 import com.verdenroz.verdaxmarket.core.common.enums.Interval
+import com.verdenroz.verdaxmarket.core.common.enums.SectorType
 import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.network.FinanceQueryDataSource
 import com.verdenroz.verdaxmarket.core.network.client.ImplFinanceQueryDataSource
@@ -79,9 +80,9 @@ class FinanceQueryTest {
     }
 
     @Test
-    fun getSectorBySymbol() {
+    fun getSector() {
         val info = runBlocking {
-            api.getSectorBySymbol("AAPL")
+            api.getSector(SectorType.TECHNOLOGY)
         }
         println(info)
     }

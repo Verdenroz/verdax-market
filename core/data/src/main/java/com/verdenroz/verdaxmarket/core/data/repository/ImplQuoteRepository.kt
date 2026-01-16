@@ -7,6 +7,8 @@ import com.verdenroz.verdaxmarket.core.common.enums.TimePeriod
 import com.verdenroz.verdaxmarket.core.common.error.DataError
 import com.verdenroz.verdaxmarket.core.common.result.Result
 import com.verdenroz.verdaxmarket.core.data.model.asExternalModel
+import com.verdenroz.verdaxmarket.core.data.model.asSimpleQuoteData
+import com.verdenroz.verdaxmarket.core.data.model.toSectorType
 import com.verdenroz.verdaxmarket.core.data.utils.ExceptionHandler
 import com.verdenroz.verdaxmarket.core.data.utils.catchAndEmitError
 import com.verdenroz.verdaxmarket.core.model.FullQuoteData
@@ -38,7 +40,7 @@ class ImplQuoteRepository @Inject constructor(
 
     override suspend fun getSimpleQuote(symbol: String): Flow<Result<SimpleQuoteData, DataError.Network>> =
         flow<Result<SimpleQuoteData, DataError.Network>> {
-            val quote = api.getSimpleQuote(symbol).asExternalModel()
+            val quote = api.getSimpleQuote(symbol).asSimpleQuoteData()
             emit(Result.Success(quote))
         }.flowOn(ioDispatcher).catchAndEmitError(exceptionHandler)
 
@@ -50,14 +52,26 @@ class ImplQuoteRepository @Inject constructor(
 
     override fun getSimilarStocks(symbol: String): Flow<Result<List<SimpleQuoteData>, DataError.Network>> =
         flow<Result<List<SimpleQuoteData>, DataError.Network>> {
-            val quote = api.getSimilarSymbols(symbol).asExternalModel()
-            emit(Result.Success(quote))
+            val batchQuotes = api.getSimilarSymbols(symbol).asExternalModel()
+            emit(Result.Success(batchQuotes))
         }.flowOn(ioDispatcher).catchAndEmitError(exceptionHandler)
 
     override fun getSectorBySymbol(symbol: String): Flow<Result<MarketSector?, DataError.Network>> =
         flow<Result<MarketSector?, DataError.Network>> {
-            val quote = api.getSectorBySymbol(symbol).asExternalModel()
-            emit(Result.Success(quote))
+            // v2 API doesn't have getSectorBySymbol, so we:
+            // 1. Get the quote to find the sector name
+            // 2. Map sector name to SectorType
+            // 3. Fetch that sector's details
+            val quote = api.getQuote(symbol)
+            val sectorName = quote.sector
+
+            if (sectorName != null) {
+                val sectorType = sectorName.toSectorType()
+                val sector = api.getSector(sectorType).asExternalModel()
+                emit(Result.Success(sector))
+            } else {
+                emit(Result.Success(null))
+            }
         }.flowOn(ioDispatcher).catchAndEmitError(exceptionHandler)
 
     override suspend fun getTimeSeries(

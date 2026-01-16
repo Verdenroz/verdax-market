@@ -3,7 +3,7 @@ package com.verdenroz.verdaxmarket.core.network.sockets
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket.Companion.SOCKET_URL
-import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
+import com.verdenroz.verdaxmarket.core.network.model.QuoteDto
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,19 +20,19 @@ import javax.inject.Singleton
 class QuoteSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<List<SimpleQuoteResponse>, Map<String, String>>, WebSocketListener() {
+) : FinanceQuerySocket<List<QuoteDto>, Map<String, String>>, WebSocketListener() {
 
     private val connections = mutableMapOf<String, WebSocket>()
-    private val channels = mutableMapOf<String, Channel<List<SimpleQuoteResponse>?>>()
+    private val channels = mutableMapOf<String, Channel<List<QuoteDto>?>>()
     private val mutex = Mutex()
 
-    override suspend fun connect(params: Map<String, String>): Channel<List<SimpleQuoteResponse>?> = mutex.withLock {
+    override suspend fun connect(params: Map<String, String>): Channel<List<QuoteDto>?> = mutex.withLock {
         val symbols = params["symbols"] ?: throw IllegalArgumentException("Symbols parameter is required")
         if (connections.containsKey(symbols)) {
             return@withLock channels[symbols]!!
         }
 
-        val newChannel = Channel<List<SimpleQuoteResponse>?>(Channel.BUFFERED)
+        val newChannel = Channel<List<QuoteDto>?>(Channel.BUFFERED)
         val url = "$SOCKET_URL/quotes"
         val request = Request.Builder()
             .url(url)
@@ -57,7 +57,7 @@ class QuoteSocket @Inject constructor(
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val quoteResponse = parser.decodeFromString<List<SimpleQuoteResponse>>(text)
+        val quoteResponse = parser.decodeFromString<List<QuoteDto>>(text)
         val responseSymbolSet = quoteResponse.map { it.symbol }.toSet()
 
         channels.forEach { (channelSymbols, channel) ->

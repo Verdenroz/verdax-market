@@ -3,7 +3,7 @@ package com.verdenroz.verdaxmarket.network
 import com.verdenroz.verdaxmarket.core.network.demo.DemoMarketSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoProfileSocket
 import com.verdenroz.verdaxmarket.core.network.demo.DemoWatchlistSocket
-import com.verdenroz.verdaxmarket.core.network.model.SimpleQuoteResponse
+import com.verdenroz.verdaxmarket.core.network.model.QuoteDto
 import com.verdenroz.verdaxmarket.core.network.sockets.MarketSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.ProfileSocket
 import com.verdenroz.verdaxmarket.core.network.sockets.QuoteSocket
@@ -128,7 +128,7 @@ class SocketTests {
     @Test
     fun testMultipleQuoteSockets() = runBlocking {
         val symbols = listOf("AAPL", "MSFT", "GOOGL")
-        val channels = mutableListOf<Channel<List<SimpleQuoteResponse>?>>()
+        val channels = mutableListOf<Channel<List<QuoteDto>?>>()
         val receivedData = mutableMapOf<String, AtomicBoolean>()
 
         symbols.forEach { symbol ->

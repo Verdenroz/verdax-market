@@ -3,7 +3,7 @@ package com.verdenroz.verdaxmarket.core.network.sockets
 import com.verdenroz.verdaxmarket.core.network.BuildConfig
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket
 import com.verdenroz.verdaxmarket.core.network.FinanceQuerySocket.Companion.SOCKET_URL
-import com.verdenroz.verdaxmarket.core.network.model.MarketInfoResponse
+import com.verdenroz.verdaxmarket.core.network.model.MarketInfoDto
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,13 +20,13 @@ import javax.inject.Singleton
 class MarketSocket @Inject constructor(
     private val parser: Json,
     private val client: OkHttpClient
-) : FinanceQuerySocket<MarketInfoResponse, Unit>, WebSocketListener() {
+) : FinanceQuerySocket<MarketInfoDto, Unit>, WebSocketListener() {
 
     private var webSocket: WebSocket? = null
-    private var channel: Channel<MarketInfoResponse?>? = null
+    private var channel: Channel<MarketInfoDto?>? = null
     private val mutex = Mutex()
 
-    override suspend fun connect(params: Unit): Channel<MarketInfoResponse?> = mutex.withLock {
+    override suspend fun connect(params: Unit): Channel<MarketInfoDto?> = mutex.withLock {
         channel = Channel(Channel.BUFFERED)
         val url = "$SOCKET_URL/market"
         val request = Request.Builder()
@@ -47,7 +47,7 @@ class MarketSocket @Inject constructor(
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val marketResponse = parser.decodeFromString<MarketInfoResponse>(text)
+        val marketResponse = parser.decodeFromString<MarketInfoDto>(text)
         channel?.trySend(marketResponse)
     }
 

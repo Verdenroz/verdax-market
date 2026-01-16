@@ -71,32 +71,32 @@ class ImplMarketInfoRepository @Inject constructor(
 
     override val actives: Flow<Result<List<MarketMover>, DataError.Network>> = market.toMarketDataFlow(
         dataSelector = { it.actives },
-        poll = { api.getActives() },
-        transform = { it.asExternalModel() },
+        poll = { listOf(api.getActives()) },
+        transform = { it.first().asExternalModel() },
         refreshIntervalOpen = MARKET_DATA_REFRESH_OPEN,
         refreshIntervalClosed = MARKET_DATA_REFRESH_CLOSED
     )
 
     override val losers: Flow<Result<List<MarketMover>, DataError.Network>> = market.toMarketDataFlow(
         dataSelector = { it.losers },
-        poll = { api.getLosers() },
-        transform = { it.asExternalModel() },
+        poll = { listOf(api.getLosers()) },
+        transform = { it.first().asExternalModel() },
         refreshIntervalOpen = MARKET_DATA_REFRESH_OPEN,
         refreshIntervalClosed = MARKET_DATA_REFRESH_CLOSED
     )
 
     override val gainers: Flow<Result<List<MarketMover>, DataError.Network>> = market.toMarketDataFlow(
         dataSelector = { it.gainers },
-        poll = { api.getGainers() },
-        transform = { it.asExternalModel() },
+        poll = { listOf(api.getGainers()) },
+        transform = { it.first().asExternalModel() },
         refreshIntervalOpen = MARKET_DATA_REFRESH_OPEN,
         refreshIntervalClosed = MARKET_DATA_REFRESH_CLOSED
     )
 
     override val headlines: Flow<Result<List<News>, DataError.Network>> = market.toMarketDataFlow(
         dataSelector = { it.headlines },
-        poll = { api.getNews() },
-        transform = { it.asExternalModel() },
+        poll = { listOf(api.getNews()) },
+        transform = { it.first().asExternalModel() },
         refreshIntervalOpen = SLOW_REFRESH_INTERVAL_OPEN,
         refreshIntervalClosed = SLOW_REFRESH_INTERVAL_CLOSED
     )
