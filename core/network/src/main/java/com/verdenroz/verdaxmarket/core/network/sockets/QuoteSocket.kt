@@ -70,6 +70,8 @@ class QuoteSocket @Inject constructor(
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         channels.values.forEach { it.trySend(null) }
-        webSocket.close(1000, t.message)
+        // WebSocket close reason must be <= 123 bytes
+        val reason = t.message?.take(100) ?: "Error"
+        webSocket.close(1000, reason)
     }
 }

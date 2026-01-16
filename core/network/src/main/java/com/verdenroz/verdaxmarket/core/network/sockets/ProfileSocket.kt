@@ -68,6 +68,8 @@ class ProfileSocket @Inject constructor(
             connections.remove(key)
             channels.remove(key)
         }
-        webSocket.close(1000, t.message)
+        // WebSocket close reason must be <= 123 bytes
+        val reason = t.message?.take(100) ?: "Error"
+        webSocket.close(1000, reason)
     }
 }
